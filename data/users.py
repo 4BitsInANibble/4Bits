@@ -2,26 +2,45 @@
 This module interfaces with user data.
 """
 
-ID = 'id'
+import data.food as food
+
+NAME = 'Name'
+PANTRY = 'Pantry'
 
 
 def get_users():
     users = {
-        'Calvin':
+        'cc6956':
             {
-                ID: 1
+                NAME: 'cc6956',
+                PANTRY: [
+                    food.get_food('chicken breast', 1, 'lb'),
+                    food.get_food('soy sauce', 1, 'gal'),
+                    ],
             },
-        'Gayatri':
+        'gt2125':
             {
-                ID: 2
+                NAME: 'Gayatri',
+                PANTRY: [
+                    food.get_food('romaine lettace', 1, 'lb'),
+                    food.get_food('egg', 24, 'count'),
+                    ],
             },
-        'Jason':
+        'yh3595':
             {
-                ID: 3
+                NAME: 'Jason',
+                PANTRY: [
+                    food.get_food('steak', 3, 'lb'),
+                    food.get_food('potatoes', 5, 'count'),
+                    ],
             },
-        'Nashra':
+        'nz2065':
             {
-                ID: 4
+                NAME: 'Nashra',
+                PANTRY: [
+                    food.get_food('chicken thigh', 0.25, 'lb'),
+                    food.get_food('grapes', 5, 'count'),
+                    ],
             },
     }
 
