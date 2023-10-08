@@ -5,14 +5,27 @@ The endpoint called `endpoints` will return all available endpoints.
 
 from flask import Flask
 from flask_restx import Resource, Api
-# import db.db as db
+import data.users as users
+
 
 app = Flask(__name__)
 api = Api(app)
 
-MAIN_MENU = 'MainMenu'
+DEFAULT = 'Default'
+MENU = 'menu'
+MAIN_MENU_EP = '/MainMenu'
 MAIN_MENU_NM = "Welcome to Text Game!"
-USERS = 'users'
+HELLO_EP = '/hello'
+HELLO_RESP = 'hello'
+# USERS = 'users'
+USERS_EP = '/users'
+USER_MENU_EP = '/user_menu'
+USER_MENU_NM = 'User Menu'
+TYPE = 'Type'
+DATA = 'Data'
+TITLE = 'Title'
+USER_TITLE = 'Current Users'
+RETURN = 'Return'
 
 
 @api.route('/hello')
@@ -43,7 +56,7 @@ class Endpoints(Resource):
         return {"Available endpoints": endpoints}
 
 
-@api.route(f'/{MAIN_MENU}')
+@api.route(f'/{MAIN_MENU_EP}')
 @api.route('/')
 class MainMenu(Resource):
     """
@@ -60,13 +73,13 @@ class MainMenu(Resource):
                           'text': 'List Available Characters'},
                     '2': {'url': '/',
                           'method': 'get', 'text': 'List Active Games'},
-                    '3': {'url': f'/{USERS}',
+                    '3': {'url': f'/{USERS_EP}',
                           'method': 'get', 'text': 'List Users'},
                     'X': {'text': 'Exit'},
                 }}
 
 
-@api.route(f'/{USERS}')
+@api.route(f'/{USERS_EP}')
 class Users(Resource):
     """
     This class supports fetching a list of all pets.
@@ -75,4 +88,10 @@ class Users(Resource):
         """
         This method returns all users.
         """
-        return 'Current Users:\nSai\nAbhishek\nKristian\n'
+        return {
+                    TYPE: DATA,
+                    TITLE: USER_TITLE,
+                    DATA: users.get_users(),
+                    MENU: USER_MENU_EP,
+                    RETURN: MAIN_MENU_EP,
+                }
