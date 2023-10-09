@@ -7,13 +7,10 @@ import data.food as food
 NAME = 'Name'
 PANTRY = 'Pantry'
 SAVED_RECIPES = 'Saved_Recipes'
-
-
-def get_users():
-    users = {
+USERS = {
         'cc6956':
             {
-                NAME: 'cc6956',
+                NAME: 'Calvin',
                 PANTRY: [
                     food.get_food('chicken breast', 1, 'lb'),
                     food.get_food('soy sauce', 1, 'gal'),
@@ -57,4 +54,17 @@ def get_users():
             },
     }
 
-    return users
+
+def get_users():
+
+    return USERS
+
+def create_user(username, name):
+
+    USERS[username] = {NAME: {name}, PANTRY: [], SAVED_RECIPES: [],}
+    return USERS
+
+def add_to_pantry(username, food):
+
+    USERS[username][PANTRY].append(food)
+    return 'Successfully added {food}'
