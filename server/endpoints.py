@@ -25,6 +25,7 @@ TYPE = 'Type'
 DATA = 'Data'
 TITLE = 'Title'
 USER_TITLE = 'Current Users'
+USER_TITLE_SINGULAR = 'Current User'
 RETURN = 'Return'
 
 
@@ -82,7 +83,7 @@ class MainMenu(Resource):
 @api.route(f'/{USERS_EP}')
 class Users(Resource):
     """
-    This class supports fetching a list of all pets.
+    This class supports fetching a list of all users.
     """
     def get(self):
         """
@@ -95,3 +96,18 @@ class Users(Resource):
                     MENU: USER_MENU_EP,
                     RETURN: MAIN_MENU_EP,
                 }
+
+
+@api.route(f'/{USERS_EP}/<name>')
+class UserByName(Resource):
+    def get(self, name):
+        """
+        This method returns a user of name 'name'
+        """
+        return {
+            TYPE: DATA,
+            TITLE: USER_TITLE_SINGULAR,
+            DATA: users.get_user(name),
+            MENU: USER_MENU_EP,
+            RETURN: MAIN_MENU_EP,
+        }
