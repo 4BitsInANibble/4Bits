@@ -60,17 +60,22 @@ def get_users():
     return USERS
 
 
-def get_user(name):
-    if name in USERS:
-        return USERS[name]
+def get_user(username):
+    if username not in USERS:
+        raise KeyError()
 
-    raise KeyError()
+    return USERS[username]
 
 
 def create_user(username, name):
+    if username in USERS:
+        raise Exception("User Already Exists")
+
+    print(type(username))
+    print(type(name))
 
     USERS[username] = {
-        NAME: {name},
+        NAME: name,
         PANTRY: [],
         SAVED_RECIPES: [],
     }
@@ -79,6 +84,16 @@ def create_user(username, name):
 
 
 def add_to_pantry(username, food):
+    if username not in USERS:
+        raise KeyError(f'User {username} does not exist')
 
     USERS[username][PANTRY].append(food)
-    return 'Successfully added {food}'
+    return f'Successfully added {food}'
+
+
+def get_pantry(username):
+    if username not in USERS:
+        raise KeyError(f'User {username} does not exist')
+
+    return USERS[username][PANTRY]
+
