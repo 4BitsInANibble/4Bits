@@ -96,4 +96,3 @@ def get_pantry(username):
         raise KeyError(f'User {username} does not exist')
 
     return USERS[username][PANTRY]
-
