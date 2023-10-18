@@ -14,10 +14,11 @@ github: FORCE
 	- git commit -a
 	git push origin master
 
-tests: lint unit
+all_tests: lint unit
 
 unit: FORCE
-	pytest $(PYTESTFLAGS) --cov=$(PKG)
+	cd $(API_DIR); pytest $(PYTESTFLAGS) --cov=$(API_DIR)
+	cd $(DB_DIR); pytest $(PYTESTFLAGS) --cov=$(DB_DIR)
 
 lint: FORCE
 	$(LINTER) $(API_DIR)/*.py
