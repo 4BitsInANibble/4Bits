@@ -2,7 +2,7 @@
 This module interfaces with user data.
 """
 
-from .food import get_food
+import data.food
 
 NAME = 'Name'
 PANTRY = 'Pantry'
@@ -12,8 +12,8 @@ USERS = {
         {
             NAME: 'Calvin',
             PANTRY: [
-                get_food('chicken breast', 1, 'lb'),
-                get_food('soy sauce', 1, 'gal'),
+                data.food.get_food('chicken breast', 1, 'lb'),
+                data.food.get_food('soy sauce', 1, 'gal'),
                 ],
             SAVED_RECIPES: [
 
@@ -23,8 +23,8 @@ USERS = {
         {
             NAME: 'Gayatri',
             PANTRY: [
-                get_food('romaine lettace', 1, 'lb'),
-                get_food('egg', 24, 'count'),
+                data.food.get_food('romaine lettace', 1, 'lb'),
+                data.food.get_food('egg', 24, 'count'),
                 ],
             SAVED_RECIPES: [
 
@@ -34,8 +34,8 @@ USERS = {
         {
             NAME: 'Jason',
             PANTRY: [
-                get_food('steak', 3, 'lb'),
-                get_food('potatoes', 5, 'count'),
+                data.food.get_food('steak', 3, 'lb'),
+                data.food.get_food('potatoes', 5, 'count'),
                 ],
             SAVED_RECIPES: [
 
@@ -45,8 +45,8 @@ USERS = {
         {
             NAME: 'Nashra',
             PANTRY: [
-                get_food('chicken thigh', 0.25, 'lb'),
-                get_food('grapes', 5, 'count'),
+                data.food.get_food('chicken thigh', 0.25, 'lb'),
+                data.food.get_food('grapes', 5, 'count'),
                 ],
             SAVED_RECIPES: [
 
