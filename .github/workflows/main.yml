@@ -40,10 +40,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: set pythonpath
-        run: |
-          echo "PYTHONPATH=mlprepare" >> $GITHUB_ENV
-
         # - name: Install MongoDB
         # uses: supercharge/mongodb-github-action@1.8.0
 
