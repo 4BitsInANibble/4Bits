@@ -5,7 +5,7 @@ The endpoint called `endpoints` will return all available endpoints.
 
 from flask import Flask, request
 from flask_restx import Resource, Api
-import data.users as users
+from ..data.users import *
 
 
 app = Flask(__name__)
@@ -86,16 +86,16 @@ class MainMenu(Resource):
 @api.route(f'/{USERS_EP}')
 class Users(Resource):
     """
-    This class supports fetching a list of all users.
+    This class supports fetching a list of all 
     """
     def get(self):
         """
-        This method returns all users.
+        This method returns all 
         """
         return {
                     TYPE: DATA,
                     TITLE: USER_TITLE,
-                    DATA: users.get_users(),
+                    DATA: get_users(),
                     MENU: USER_MENU_EP,
                     RETURN: MAIN_MENU_EP,
                 }
@@ -104,7 +104,7 @@ class Users(Resource):
         data = request.json['data']
         print(f'{data=}')
 
-        users.create_user(data['username'], data['name'])
+        create_user(data['username'], data['name'])
 
 
 @api.route(f'/{USERS_EP}/<username>')
@@ -116,7 +116,7 @@ class UserById(Resource):
         return {
             TYPE: DATA,
             TITLE: USER_TITLE_SINGULAR,
-            DATA: users.get_user(username),
+            DATA: get_user(username),
             MENU: USER_MENU_EP,
             RETURN: MAIN_MENU_EP,
         }
@@ -132,7 +132,7 @@ class PantryById(Resource):
             TYPE: DATA,
             TITLE: PANTRY_TITLE,
             PANTRY_OWNER: username,
-            DATA: users.get_pantry(username),
+            DATA: get_pantry(username),
             MENU: USER_MENU_EP,
             RETURN: MAIN_MENU_EP,
         }
