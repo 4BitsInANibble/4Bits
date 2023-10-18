@@ -37,6 +37,9 @@ jobs:
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
 
+      - name: Set PYTHONPATH
+        run: export PYTHONPATH=$PYTHONPATH:$(pwd)
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
