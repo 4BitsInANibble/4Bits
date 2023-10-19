@@ -42,7 +42,7 @@ class HelloWorld(Resource):
     The purpose of the HelloWorld class is to have a simple test to see if the
     app is working at all.
     """
-    def get(self):
+    def get(self) -> dict:
         """
         A trivial endpoint to see if the server is running.
         It just answers with "hello world."
@@ -56,7 +56,7 @@ class Endpoints(Resource):
     This class will serve as live, fetchable documentation of what endpoints
     are available in the system.
     """
-    def get(self):
+    def get(self) -> dict:
         """
         The `get()` method will return a list of available endpoints.
         """
@@ -70,7 +70,7 @@ class MainMenu(Resource):
     """
     This will deliver our main menu.
     """
-    def get(self):
+    def get(self) -> dict:
         """
         Gets the main game menu.
         """
@@ -92,7 +92,7 @@ class Users(Resource):
     """
     This class supports fetching a list of all users.
     """
-    def get(self):
+    def get(self) -> dict:
         """
         This method returns all users.
         """
@@ -113,7 +113,7 @@ class Users(Resource):
 
 @api.route(f'/{USERS_EP}/<username>')
 class UserById(Resource):
-    def get(self, username):
+    def get(self, username: str) -> dict:
         """
         This method returns a user of username 'username'
         """
@@ -128,7 +128,7 @@ class UserById(Resource):
 
 @api.route(f'/{USERS_EP}/<username>/{PANTRY_EP}')
 class PantryById(Resource):
-    def get(self, username):
+    def get(self, username: str) -> dict:
         """
         This method returns the pantry of user with name
         """
