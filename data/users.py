@@ -7,6 +7,9 @@ import data.food
 NAME = 'Name'
 PANTRY = 'Pantry'
 SAVED_RECIPES = 'Saved_Recipes'
+INSTACART_USR = 'Instacart_User_Info'
+GROCERY_LIST = 'Grocery List'
+ALLERGENS = 'Allergens'
 USERS = {
     'cc6956':
         {
@@ -18,6 +21,9 @@ USERS = {
             SAVED_RECIPES: [
 
                 ],
+            INSTACART_USR: None,
+            GROCERY_LIST: [],
+            ALLERGENS: [],
         },
     'gt2125':
         {
@@ -29,6 +35,9 @@ USERS = {
             SAVED_RECIPES: [
 
                 ],
+            INSTACART_USR: None,
+            GROCERY_LIST: [],
+            ALLERGENS: [],
         },
     'yh3595':
         {
@@ -40,6 +49,9 @@ USERS = {
             SAVED_RECIPES: [
 
                 ],
+            INSTACART_USR: None,
+            GROCERY_LIST: [],
+            ALLERGENS: [],
         },
     'nz2065':
         {
@@ -51,6 +63,9 @@ USERS = {
             SAVED_RECIPES: [
 
                 ],
+            INSTACART_USR: None,
+            GROCERY_LIST: [],
+            ALLERGENS: [],
         },
 }
 
@@ -78,6 +93,9 @@ def create_user(username, name):
         NAME: name,
         PANTRY: [],
         SAVED_RECIPES: [],
+        INSTACART_USR: None,
+        GROCERY_LIST: [],
+        ALLERGENS: [],
     }
 
     return USERS
