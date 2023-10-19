@@ -75,14 +75,14 @@ def get_users():
     return USERS
 
 
-def get_user(username):
+def get_user(username: str) -> str:
     if username not in USERS:
         raise KeyError()
 
     return USERS[username]
 
 
-def create_user(username, name):
+def create_user(username: str, name: str) -> dict:
     if username in USERS:
         raise Exception("User Already Exists")
 
@@ -101,7 +101,7 @@ def create_user(username, name):
     return USERS
 
 
-def add_to_pantry(username, food):
+def add_to_pantry(username: str, food: str) -> str:
     if username not in USERS:
         raise KeyError(f'User {username} does not exist')
 
@@ -109,7 +109,7 @@ def add_to_pantry(username, food):
     return f'Successfully added {food}'
 
 
-def get_pantry(username):
+def get_pantry(username: str) -> str:
     if username not in USERS:
         raise KeyError(f'User {username} does not exist')
 

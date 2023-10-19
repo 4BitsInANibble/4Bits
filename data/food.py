@@ -1,6 +1,7 @@
 """
 This module interfaces with user data.
 """
+from typing import Optional
 
 INGREDIENT = 'ingredient'
 QUANTITY = 'quantity'
@@ -11,7 +12,7 @@ FOOD_CATEGORIES = {'produce', 'carbs', 'dairy', 'meat', 'oil',
                    'starch', 'vegetables', 'fruits'}
 
 
-def get_food(ingredient, quantity, units):
+def get_food(ingredient: str, quantity: str, units: str) -> str:
     food = {
         INGREDIENT: ingredient,
         QUANTITY: quantity,
@@ -22,7 +23,7 @@ def get_food(ingredient, quantity, units):
     return food
 
 
-def get_food_category(food):
+def get_food_category(food: str) -> str:
     # check if food category already in system
     category = check_food_category(food)
 
@@ -36,15 +37,19 @@ def get_food_category(food):
     return category
 
 
-def check_food_category(food):
+def check_food_category(food: str) -> Optional[str]:
     pass
 
 
-def query_food_category(food):
+def query_food_category(food: str) -> str:
+    """
+    Use chat-gpt to determine which category
+    in FOOD_CATEGORIES food lies in
+    """
     pass
 
 
-def add_database_food(food, category):
+def add_database_food(food: str, category: str) -> bool:
     """
     Add Food Category to the Database
     Return bool for success of database insertion
