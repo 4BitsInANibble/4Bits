@@ -8,7 +8,7 @@ import time
 endpoint = 'db-4bits-user-account.c1nbk7rnbxhm.us-east-1.rds.amazonaws.com'
 username = 'admin'
 password = ''   #enter the password from shared credential here
-database_name = 'users'
+database_name = 'users' 
 
 
 def execute_queries(host, user, password, database):
