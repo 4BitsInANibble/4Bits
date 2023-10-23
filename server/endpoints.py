@@ -136,3 +136,9 @@ class PantryById(Resource):
             MENU: USER_MENU_EP,
             RETURN: MAIN_MENU_EP,
         }
+
+    def post(self):
+        data = request.json['data']
+        print(f'{data=}')
+
+        users.add_to_pantry(data['username'], data['food'])
