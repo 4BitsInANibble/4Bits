@@ -30,6 +30,10 @@ PANTRY_TITLE = 'Pantry'
 RETURN = 'Return'
 PANTRY_EP = '/pantry'
 PANTRY_OWNER = 'User'
+RECIPE_TITLE = 'Recipe'
+RETURN = 'Return'
+RECIPE_EP = '/recipe'
+RECIPE_OWNER = 'User'
 
 
 @api.route('/hello')
@@ -142,3 +146,24 @@ class PantryById(Resource):
         print(f'{data=}')
 
         users.add_to_pantry(data['username'], data['food'])
+
+@api.route(f'/{USERS_EP}/<username>/{RECIPE_EP}')
+class RecipeById(Resource):
+    def get(self, username):
+        """
+        This method returns the pantry of user with name
+        """
+        return {
+            TYPE: DATA,
+            TITLE: RECIPE_TITLE,
+            RECIPE_OWNER: username,
+            DATA: users.get_RECIPES(username),
+            MENU: USER_MENU_EP,
+            RETURN: MAIN_MENU_EP,
+        }
+
+    def post(self):
+        data = request.json['data']
+        print(f'{data=}')
+
+        users.add_to_recipes(data['username'], data['recipe'])
