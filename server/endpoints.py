@@ -147,6 +147,7 @@ class PantryById(Resource):
 
         users.add_to_pantry(data['username'], data['food'])
 
+
 @api.route(f'/{USERS_EP}/<username>/{RECIPE_EP}')
 class RecipeById(Resource):
     def get(self, username):

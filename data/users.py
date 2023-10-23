@@ -82,11 +82,13 @@ def create_user(username, name):
 
     return USERS
 
+
 def get_pantry(username):
     if username not in USERS:
         raise KeyError(f'User {username} does not exist')
 
     return USERS[username][PANTRY]
+
 
 def add_to_pantry(username, food):
     if username not in USERS:
@@ -95,11 +97,13 @@ def add_to_pantry(username, food):
     USERS[username][PANTRY].append(food)
     return f'Successfully added {food}'
 
+
 def get_recipes(username):
     if username not in USERS:
         raise KeyError(f'User {username} does not exist')
 
     return USERS[username][SAVED_RECIPES]
+
 
 def add_to_recipes(username, recipe):
     if username not in USERS:
