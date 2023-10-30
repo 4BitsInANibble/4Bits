@@ -82,6 +82,14 @@ def create_user(username, name):
 
     return USERS
 
+def remove_user(username):
+    if username not in USERS:
+        raise KeyError()
+
+    del USERS[username]
+
+    return USERS
+
 
 def get_pantry(username):
     if username not in USERS:
