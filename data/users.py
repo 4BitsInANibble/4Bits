@@ -7,6 +7,9 @@ import data.food
 NAME = 'Name'
 PANTRY = 'Pantry'
 SAVED_RECIPES = 'Saved_Recipes'
+INSTACART_USR = 'Instacart_User_Info'
+GROCERY_LIST = 'Grocery List'
+ALLERGENS = 'Allergens'
 USERS = {
     'cc6956':
         {
@@ -18,6 +21,9 @@ USERS = {
             SAVED_RECIPES: [
 
                 ],
+            INSTACART_USR: None,
+            GROCERY_LIST: [],
+            ALLERGENS: [],
         },
     'gt2125':
         {
@@ -29,6 +35,9 @@ USERS = {
             SAVED_RECIPES: [
 
                 ],
+            INSTACART_USR: None,
+            GROCERY_LIST: [],
+            ALLERGENS: [],
         },
     'yh3595':
         {
@@ -40,6 +49,9 @@ USERS = {
             SAVED_RECIPES: [
 
                 ],
+            INSTACART_USR: None,
+            GROCERY_LIST: [],
+            ALLERGENS: [],
         },
     'nz2065':
         {
@@ -51,6 +63,9 @@ USERS = {
             SAVED_RECIPES: [
 
                 ],
+            INSTACART_USR: None,
+            GROCERY_LIST: [],
+            ALLERGENS: [],
         },
 }
 
@@ -60,14 +75,14 @@ def get_users():
     return USERS
 
 
-def get_user(username):
+def get_user(username: str) -> str:
     if username not in USERS:
         raise KeyError()
 
     return USERS[username]
 
 
-def create_user(username, name):
+def create_user(username: str, name: str) -> dict:
     if username in USERS:
         raise Exception("User Already Exists")
 
@@ -78,6 +93,9 @@ def create_user(username, name):
         NAME: name,
         PANTRY: [],
         SAVED_RECIPES: [],
+        INSTACART_USR: None,
+        GROCERY_LIST: [],
+        ALLERGENS: [],
     }
 
     return USERS
@@ -98,7 +116,14 @@ def get_pantry(username):
     return USERS[username][PANTRY]
 
 
-def add_to_pantry(username, food):
+def get_pantry(username):
+    if username not in USERS:
+        raise KeyError(f'User {username} does not exist')
+
+    return USERS[username][PANTRY]
+
+
+def add_to_pantry(username: str, food: str) -> str:
     if username not in USERS:
         raise KeyError(f'User {username} does not exist')
 
