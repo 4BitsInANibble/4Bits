@@ -135,7 +135,6 @@ class UserById(Resource):
         users.remove_user(data['username'])
 
 
-
 @api.route(f'/{USERS_EP}/<username>/{PANTRY_EP}')
 class PantryById(Resource):
     def get(self, username):

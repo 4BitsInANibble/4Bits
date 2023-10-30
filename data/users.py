@@ -82,6 +82,7 @@ def create_user(username, name):
 
     return USERS
 
+
 def remove_user(username):
     if username not in USERS:
         raise KeyError()
