@@ -117,13 +117,6 @@ def get_pantry(username):
     return USERS[username][PANTRY]
 
 
-def get_pantry(username):
-    if username not in USERS:
-        raise KeyError(f'User {username} does not exist')
-
-    return USERS[username][PANTRY]
-
-
 def add_to_pantry(username: str, food: str) -> str:
     if username not in USERS:
         raise KeyError(f'User {username} does not exist')
