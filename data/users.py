@@ -101,6 +101,15 @@ def create_user(username: str, name: str) -> dict:
     return USERS
 
 
+def remove_user(username):
+    if username not in USERS:
+        raise KeyError()
+
+    del USERS[username]
+
+    return USERS
+
+
 def get_pantry(username):
     if username not in USERS:
         raise KeyError(f'User {username} does not exist')

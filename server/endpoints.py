@@ -125,6 +125,15 @@ class UserById(Resource):
             RETURN: MAIN_MENU_EP,
         }
 
+    def delete(self, username):
+        """
+        This method removes a user of username 'username'
+        """
+        data = request.json['data']
+        print(f'{data=}')
+
+        users.remove_user(data['username'])
+
 
 @api.route(f'/{USERS_EP}/<username>/{PANTRY_EP}')
 class PantryById(Resource):
