@@ -42,6 +42,12 @@ const App = () => {
     
 };
 
+// const Toolbar = () => {
+//   return <SafeAreaView style={styles.container}>
+//     <View style={styles.toolbarView}></View>
+//   </SafeAreaView>
+// }
+
 const styles = StyleSheet.create({
   bottom: {
     backgroundColor: 'aquamarine',
@@ -89,3 +95,9 @@ export default App;
 //     marginVertical: 40,
 //   }
 // });
+  // container: {
+  //   flex: 1,
+  //   backgroundColor: '#f5f5dc',
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  // },
