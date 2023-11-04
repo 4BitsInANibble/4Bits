@@ -15,27 +15,16 @@ const App = () => {
   return (
     <SafeAreaProvider>
     <SafeAreaView>
-      <View style={styles.toolbarView}></View>
-     <ScrollView style={styles.buttonListView}></ScrollView>
-      <Appbar
-      
-          
-        >
-        <Appbar.Action icon="archive" onPress={() => {}} />
-        <Appbar.Action icon="email" onPress={() => {}} />
-        <Appbar.Action icon="label" onPress={() => {}} />
-        <Appbar.Action icon="delete" onPress={() => {}} /> 
-         <FAB
-          mode="flat"
-          size="medium"
-          icon="plus"
-          onPress={() => {}}
-          style={[
-            styles.fab,
-            { top: (BOTTOM_APPBAR_HEIGHT - MEDIUM_FAB_HEIGHT) / 2 },
-          ]}
-        />
-      </Appbar>
+
+        <Appbar style={styles.item} >  
+        <Appbar.Action size= {30} color= 'orange' icon="home" onPress={() => {}} />
+        <Appbar.Action size= {30} color= 'orange' icon="scan-helper" onPress={() => {}} /> 
+        <Appbar.Action size= {30} color= 'orange' icon="fridge-bottom" onPress={() => {}} />
+        <Appbar.Action size= {30} color= 'orange' icon="cart-heart" onPress={() => {}} />
+        <Appbar.Action size= {30} color= 'orange' icon="account" onPress={() => {}} /> 
+        
+        </Appbar> 
+
     </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -49,17 +38,12 @@ const App = () => {
 // }
 
 const styles = StyleSheet.create({
-  bottom: {
-    backgroundColor: 'aquamarine',
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  fab: {
-    position: 'absolute',
-    right: 16,
-  },
+  item: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }
 });
 
 export default App;
