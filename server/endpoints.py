@@ -138,13 +138,13 @@ class PantryById(Resource):
             USER_EXISTS: data != {}
         }
 
-    def post(self):
+    def post(self, username):
         data = request.json
         print(f'{data=}')
 
-        resp = users.add_to_pantry(data['username'], data['food'])
+        resp = users.add_to_pantry(username, data['food'])
 
-        if resp == f'User {data["username"]} does not exist':
+        if resp == f'User {username} does not exist':
             status = 204
         else:
             status = 409
@@ -165,13 +165,13 @@ class RecipeById(Resource):
             DATA: users.get_RECIPES(username),
         }
 
-    def post(self):
+    def post(self, username):
         data = request.json
         print(f'{data=}')
 
-        resp = users.add_to_recipes(data['username'], data['recipe'])
+        resp = users.add_to_recipes(username, data['recipe'])
 
-        if resp == f'User {data["username"]} does not exist':
+        if resp == f'User {username} does not exist':
             status = 204
         else:
             status = 409
