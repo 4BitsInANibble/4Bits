@@ -30,6 +30,8 @@ jobs:
         run: echo "$GITHUB_WORKSPACE"
 
       - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.PAT }}
 
       - name: Declare first branch to be deleted
         run: echo "${{ github.head_ref }}"
