@@ -34,6 +34,7 @@ RECIPE_TITLE = 'Recipe'
 RETURN = 'Return'
 RECIPE_EP = '/recipe'
 RECIPE_OWNER = 'User'
+USER_EXISTS = 'User_Exists'
 
 
 @api.route('/hello')
@@ -64,29 +65,6 @@ class Endpoints(Resource):
         return {"Available endpoints": endpoints}
 
 
-@api.route(f'/{MAIN_MENU_EP}')
-@api.route('/')
-class MainMenu(Resource):
-    """
-    This will deliver our main menu.
-    """
-    def get(self) -> dict:
-        """
-        Gets the main game menu.
-        """
-        return {'Title': MAIN_MENU_NM,
-                'Default': 2,
-                'Choices': {
-                    '1': {'url': '/', 'method': 'get',
-                          'text': 'List Available Characters'},
-                    '2': {'url': '/',
-                          'method': 'get', 'text': 'List Active Games'},
-                    '3': {'url': f'/{USERS_EP}',
-                          'method': 'get', 'text': 'List Users'},
-                    'X': {'text': 'Exit'},
-                }}
-
-
 @api.route(f'/{USERS_EP}')
 class Users(Resource):
     """
@@ -96,12 +74,11 @@ class Users(Resource):
         """
         This method returns all users.
         """
+        data = users.get_users()
         return {
                     TYPE: DATA,
                     TITLE: USER_TITLE,
-                    DATA: users.get_users(),
-                    MENU: USER_MENU_EP,
-                    RETURN: MAIN_MENU_EP,
+                    DATA: data,
                 }
 
     def post(self):
@@ -117,22 +94,21 @@ class UserById(Resource):
         """
         This method returns a user of username 'username'
         """
+        data = users.get_user(username)
+
         return {
             TYPE: DATA,
             TITLE: USER_TITLE_SINGULAR,
-            DATA: users.get_user(username),
-            MENU: USER_MENU_EP,
-            RETURN: MAIN_MENU_EP,
+            DATA: data,
+            USER_EXISTS: data != {}
         }
 
     def delete(self, username):
         """
         This method removes a user of username 'username'
         """
-        data = request.json['data']
-        print(f'{data=}')
 
-        users.remove_user(data['username'])
+        users.remove_user(username)
 
 
 @api.route(f'/{USERS_EP}/<username>/{PANTRY_EP}')
@@ -141,13 +117,13 @@ class PantryById(Resource):
         """
         This method returns the pantry of user with name
         """
+        data = users.get_pantry(username)
         return {
             TYPE: DATA,
             TITLE: PANTRY_TITLE,
             PANTRY_OWNER: username,
-            DATA: users.get_pantry(username),
-            MENU: USER_MENU_EP,
-            RETURN: MAIN_MENU_EP,
+            DATA: data,
+            USER_EXISTS: data != {}
         }
 
     def post(self):

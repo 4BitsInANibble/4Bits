@@ -77,7 +77,7 @@ def get_users():
 
 def get_user(username: str) -> str:
     if username not in USERS:
-        raise KeyError()
+        return {}
 
     return USERS[username]
 
