@@ -35,10 +35,10 @@ jobs:
         run: echo "${{ github.head_ref }}"
       
       - name: Delete remote branch
-        run: git push origin -d $"{{ github.head_ref }}"
+        run: git push origin -d "${{ github.head_ref }}"
 
       - name: Create local branch with same name
-        run: git checkout -b $"{{ github.head_ref }}"
+        run: git checkout -b "${{ github.head_ref }}"
 
       - name: push remote branch
-        run: git push -u origin $"{{ github.head_ref }}"
+        run: git push -u origin "${{ github.head_ref }}"
