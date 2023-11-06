@@ -82,9 +82,9 @@ def get_user(username: str) -> str:
     return USERS[username]
 
 
-def create_user(username: str, name: str) -> dict:
+def create_user(username: str, name: str) -> str:
     if username in USERS:
-        raise Exception("User Already Exists")
+        return f'User {username} already exists'
 
     print(type(username))
     print(type(name))
@@ -98,7 +98,7 @@ def create_user(username: str, name: str) -> dict:
         ALLERGENS: [],
     }
 
-    return USERS
+    return f'Successfully added {username}'
 
 
 def remove_user(username):
@@ -119,7 +119,7 @@ def get_pantry(username):
 
 def add_to_pantry(username: str, food: str) -> str:
     if username not in USERS:
-        raise KeyError(f'User {username} does not exist')
+        return f'User {username} does not exist'
 
     USERS[username][PANTRY].append(food)
     return f'Successfully added {food}'
@@ -134,7 +134,7 @@ def get_recipes(username):
 
 def add_to_recipes(username, recipe):
     if username not in USERS:
-        raise KeyError(f'User {username} does not exist')
+        return f'User {username} does not exist'
 
     USERS[username][SAVED_RECIPES].append(recipe)
     return f'Successfully added {recipe}'

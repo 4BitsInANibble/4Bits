@@ -82,10 +82,21 @@ class Users(Resource):
                 }
 
     def post(self):
-        data = request.json['data']
+        """
+        This method creates a new user with a username & name
+        in request body
+        """
+        data = request.json
         print(f'{data=}')
 
-        users.create_user(data['username'], data['name'])
+        resp = users.create_user(data['username'], data['name'])
+
+        if resp == f'Successfully added {data["username"]}':
+            status = 204
+        else:
+            status = 409
+
+        return resp, status
 
 
 @api.route(f'/{USERS_EP}/<username>')
@@ -109,6 +120,7 @@ class UserById(Resource):
         """
 
         users.remove_user(username)
+        return None, 204
 
 
 @api.route(f'/{USERS_EP}/<username>/{PANTRY_EP}')
@@ -127,10 +139,17 @@ class PantryById(Resource):
         }
 
     def post(self):
-        data = request.json['data']
+        data = request.json
         print(f'{data=}')
 
-        users.add_to_pantry(data['username'], data['food'])
+        resp = users.add_to_pantry(data['username'], data['food'])
+
+        if resp == f'User {data["username"]} does not exist':
+            status = 204
+        else:
+            status = 409
+
+        return resp, status
 
 
 @api.route(f'/{USERS_EP}/<username>/{RECIPE_EP}')
@@ -144,12 +163,17 @@ class RecipeById(Resource):
             TITLE: RECIPE_TITLE,
             RECIPE_OWNER: username,
             DATA: users.get_RECIPES(username),
-            MENU: USER_MENU_EP,
-            RETURN: MAIN_MENU_EP,
         }
 
     def post(self):
-        data = request.json['data']
+        data = request.json
         print(f'{data=}')
 
-        users.add_to_recipes(data['username'], data['recipe'])
+        resp = users.add_to_recipes(data['username'], data['recipe'])
+
+        if resp == f'User {data["username"]} does not exist':
+            status = 204
+        else:
+            status = 409
+
+        return resp, status
