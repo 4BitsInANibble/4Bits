@@ -54,3 +54,16 @@ def test_get_pantry_invalid():
     resp = TEST_CLIENT.get(f'{ep.USERS_EP}/{username}/{ep.PANTRY_EP}')
     resp_json = resp.get_json()
     assert not resp_json[ep.USER_EXISTS]
+
+def test_get_recipes_valid():
+    username = 'cc6956'
+    resp = TEST_CLIENT.get(f'{ep.USERS_EP}/{username}/{ep.RECIPE_EP}')
+    resp_json = resp.get_json()
+    recipe_owner = resp_json[ep.RECIPE_OWNER]
+    assert recipe_owner == username
+
+def test_get_recipes_invalid():
+    username = ''.join(random.choices(ascii_uppercase, k=6))
+    resp = TEST_CLIENT.get(f'{ep.USERS_EP}/{username}/{ep.RECIPE_EP}')
+    resp_json = resp.get_json()
+    assert not resp_json[ep.USER_EXISTS]
