@@ -139,5 +139,6 @@ def add_to_recipes(username, recipe):
     USERS[username][SAVED_RECIPES].append(recipe)
     return f'Successfully added {recipe}'
 
+
 def user_exists(username):
     return username in USERS
