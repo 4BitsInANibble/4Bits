@@ -3,7 +3,8 @@ export LINTER = flake8
 export PYLINTFLAGS = --exclude=__main__.py
 
 PYTHONFILES = $(shell ls *.py)
-PYTESTFLAGS = -vv --verbose --cov-branch --cov-report term-missing --tb=short -W ignore::FutureWarning
+#change -rx to -rP if want all test print statements to work
+PYTESTFLAGS = -rx -vv --verbose --cov-branch --cov-report term-missing --tb=short -W ignore::FutureWarning
 
 MAIL_METHOD = api
 

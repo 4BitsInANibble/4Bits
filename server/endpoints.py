@@ -14,6 +14,8 @@ api = Api(app)
 DEFAULT = 'Default'
 MENU = 'menu'
 MAIN_MENU_EP = '/MainMenu'
+ENDPOINTS_EP = '/endpoints'
+AVAIL_ENDPOINTS = "Available endpoints"
 MAIN_MENU_NM = "Welcome to Text Game!"
 HELLO_EP = '/hello'
 HELLO_RESP = 'hello'
@@ -34,6 +36,7 @@ RECIPE_TITLE = 'Recipe'
 RETURN = 'Return'
 RECIPE_EP = '/recipe'
 RECIPE_OWNER = 'User'
+USER_EXISTS = 'User_Exists'
 
 
 @api.route('/hello')
@@ -50,7 +53,7 @@ class HelloWorld(Resource):
         return {'hello': 'world'}
 
 
-@api.route('/endpoints')
+@api.route(f'{ENDPOINTS_EP}')
 class Endpoints(Resource):
     """
     This class will serve as live, fetchable documentation of what endpoints
@@ -61,33 +64,10 @@ class Endpoints(Resource):
         The `get()` method will return a list of available endpoints.
         """
         endpoints = sorted(rule.rule for rule in api.app.url_map.iter_rules())
-        return {"Available endpoints": endpoints}
+        return {AVAIL_ENDPOINTS: endpoints}
 
 
-@api.route(f'/{MAIN_MENU_EP}')
-@api.route('/')
-class MainMenu(Resource):
-    """
-    This will deliver our main menu.
-    """
-    def get(self) -> dict:
-        """
-        Gets the main game menu.
-        """
-        return {'Title': MAIN_MENU_NM,
-                'Default': 2,
-                'Choices': {
-                    '1': {'url': '/', 'method': 'get',
-                          'text': 'List Available Characters'},
-                    '2': {'url': '/',
-                          'method': 'get', 'text': 'List Active Games'},
-                    '3': {'url': f'/{USERS_EP}',
-                          'method': 'get', 'text': 'List Users'},
-                    'X': {'text': 'Exit'},
-                }}
-
-
-@api.route(f'/{USERS_EP}')
+@api.route(f'{USERS_EP}')
 class Users(Resource):
     """
     This class supports fetching a list of all users.
@@ -96,68 +76,87 @@ class Users(Resource):
         """
         This method returns all users.
         """
+        data = users.get_users()
         return {
                     TYPE: DATA,
                     TITLE: USER_TITLE,
-                    DATA: users.get_users(),
-                    MENU: USER_MENU_EP,
-                    RETURN: MAIN_MENU_EP,
+                    DATA: data,
                 }
 
     def post(self):
-        data = request.json['data']
+        """
+        This method creates a new user with a username & name
+        in request body
+        """
+        data = request.json
         print(f'{data=}')
 
-        users.create_user(data['username'], data['name'])
+        resp = users.create_user(data['username'], data['name'])
+
+        if resp == f'Successfully added {data["username"]}':
+            status = 200
+        else:
+            status = 409
+
+        return resp, status
 
 
-@api.route(f'/{USERS_EP}/<username>')
+@api.route(f'{USERS_EP}/<username>')
 class UserById(Resource):
     def get(self, username: str) -> dict:
         """
         This method returns a user of username 'username'
         """
+        data = users.get_user(username)
+
         return {
             TYPE: DATA,
             TITLE: USER_TITLE_SINGULAR,
-            DATA: users.get_user(username),
-            MENU: USER_MENU_EP,
-            RETURN: MAIN_MENU_EP,
+            DATA: data,
+            USER_EXISTS: data != {}
         }
 
     def delete(self, username):
         """
         This method removes a user of username 'username'
         """
-        data = request.json['data']
-        print(f'{data=}')
-
-        users.remove_user(data['username'])
 
 
-@api.route(f'/{USERS_EP}/<username>/{PANTRY_EP}')
+        users.remove_user(username)
+        return None, 204
+
+
+
+@api.route(f'{USERS_EP}/<username>{PANTRY_EP}')
 class PantryById(Resource):
     def get(self, username: str) -> dict:
         """
         This method returns the pantry of user with name
         """
+        data = users.get_pantry(username)
         return {
             TYPE: DATA,
             TITLE: PANTRY_TITLE,
             PANTRY_OWNER: username,
-            DATA: users.get_pantry(username),
-            MENU: USER_MENU_EP,
-            RETURN: MAIN_MENU_EP,
+            DATA: data,
+            USER_EXISTS: data != {}
         }
 
-    def post(self):
-        data = request.json['data']
+    def post(self, username):
+        data = request.json
         print(f'{data=}')
 
-        users.add_to_pantry(data['username'], data['food'])
+        resp = users.add_to_pantry(username, data['food'])
+
+        if resp == f'User {username} does not exist':
+            status = 200
+        else:
+            status = 409
+
+        return resp, status
 
 
-@api.route(f'/{USERS_EP}/<username>/{RECIPE_EP}')
+@api.route(f'{USERS_EP}/<username>{RECIPE_EP}')
 class RecipeById(Resource):
     def get(self, username):
         """
@@ -168,12 +167,17 @@ class RecipeById(Resource):
             TITLE: RECIPE_TITLE,
             RECIPE_OWNER: username,
             DATA: users.get_RECIPES(username),
-            MENU: USER_MENU_EP,
-            RETURN: MAIN_MENU_EP,
         }
 
-    def post(self):
-        data = request.json['data']
+    def post(self, username):
+        data = request.json
         print(f'{data=}')
 
-        users.add_to_recipes(data['username'], data['recipe'])
+        resp = users.add_to_recipes(username, data['recipe'])
+
+        if resp == f'User {username} does not exist':
+            status = 200
+        else:
+            status = 409
+
+        return resp, status
