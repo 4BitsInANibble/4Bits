@@ -103,16 +103,16 @@ def create_user(username: str, name: str) -> str:
 
 def remove_user(username):
     if not user_exists(username):
-        raise KeyError()
+        return f'User {username} does not exist'
 
     del USERS[username]
 
-    return USERS
+    return f'Successfully deleted {username}'
 
 
 def get_pantry(username):
     if not user_exists(username):
-        raise KeyError(f'User {username} does not exist')
+        return None
 
     return USERS[username][PANTRY]
 
@@ -127,7 +127,7 @@ def add_to_pantry(username: str, food: str) -> str:
 
 def get_recipes(username):
     if not user_exists(username):
-        raise KeyError(f'User {username} does not exist')
+        return None
 
     return USERS[username][SAVED_RECIPES]
 
