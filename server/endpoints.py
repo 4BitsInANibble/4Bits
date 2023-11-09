@@ -14,6 +14,8 @@ api = Api(app)
 DEFAULT = 'Default'
 MENU = 'menu'
 MAIN_MENU_EP = '/MainMenu'
+ENDPOINTS_EP = '/endpoints'
+AVAIL_ENDPOINTS = "Available endpoints"
 MAIN_MENU_NM = "Welcome to Text Game!"
 HELLO_EP = '/hello'
 HELLO_RESP = 'hello'
@@ -51,7 +53,7 @@ class HelloWorld(Resource):
         return {'hello': 'world'}
 
 
-@api.route('/endpoints')
+@api.route(f'{ENDPOINTS_EP}')
 class Endpoints(Resource):
     """
     This class will serve as live, fetchable documentation of what endpoints
@@ -62,10 +64,10 @@ class Endpoints(Resource):
         The `get()` method will return a list of available endpoints.
         """
         endpoints = sorted(rule.rule for rule in api.app.url_map.iter_rules())
-        return {"Available endpoints": endpoints}
+        return {AVAIL_ENDPOINTS: endpoints}
 
 
-@api.route(f'/{USERS_EP}')
+@api.route(f'{USERS_EP}')
 class Users(Resource):
     """
     This class supports fetching a list of all users.
@@ -92,14 +94,14 @@ class Users(Resource):
         resp = users.create_user(data['username'], data['name'])
 
         if resp == f'Successfully added {data["username"]}':
-            status = 204
+            status = 200
         else:
             status = 409
 
         return resp, status
 
 
-@api.route(f'/{USERS_EP}/<username>')
+@api.route(f'{USERS_EP}/<username>')
 class UserById(Resource):
     def get(self, username: str) -> dict:
         """
@@ -123,7 +125,7 @@ class UserById(Resource):
         return None, 204
 
 
-@api.route(f'/{USERS_EP}/<username>/{PANTRY_EP}')
+@api.route(f'{USERS_EP}/<username>{PANTRY_EP}')
 class PantryById(Resource):
     def get(self, username: str) -> dict:
         """
@@ -145,14 +147,14 @@ class PantryById(Resource):
         resp = users.add_to_pantry(username, data['food'])
 
         if resp == f'User {username} does not exist':
-            status = 204
+            status = 200
         else:
             status = 409
 
         return resp, status
 
 
-@api.route(f'/{USERS_EP}/<username>/{RECIPE_EP}')
+@api.route(f'{USERS_EP}/<username>{RECIPE_EP}')
 class RecipeById(Resource):
     def get(self, username):
         """
@@ -172,8 +174,10 @@ class RecipeById(Resource):
         resp = users.add_to_recipes(username, data['recipe'])
 
         if resp == f'User {username} does not exist':
-            status = 204
+            status = 200
         else:
             status = 409
 
         return resp, status
+
+

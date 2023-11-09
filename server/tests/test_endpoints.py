@@ -13,6 +13,14 @@ def test_hello():
     assert ep.HELLO_RESP in resp_json
 
 
+def test_endpoints():
+    resp = TEST_CLIENT.get(ep.ENDPOINTS_EP)
+    print(f'{resp=}')
+    resp_json = resp.get_json()
+    print(f'{resp_json=}')
+    assert ep.AVAIL_ENDPOINTS in resp_json
+
+
 def test_get_users():
     resp = TEST_CLIENT.get(ep.USERS_EP)
     resp_json = resp.get_json()
