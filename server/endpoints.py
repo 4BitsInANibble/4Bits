@@ -121,10 +121,8 @@ class UserById(Resource):
         This method removes a user of username 'username'
         """
 
-
         users.remove_user(username)
         return None, 204
-
 
 
 @api.route(f'{USERS_EP}/<username>{PANTRY_EP}')
@@ -138,8 +136,8 @@ class PantryById(Resource):
             TYPE: DATA,
             TITLE: PANTRY_TITLE,
             PANTRY_OWNER: username,
-            DATA: data,
-            USER_EXISTS: data != {}
+            DATA: {} if data is None else data,
+            USER_EXISTS: data is not None,
         }
 
     def post(self, username):
@@ -162,11 +160,13 @@ class RecipeById(Resource):
         """
         This method returns the pantry of user with name
         """
+        data = users.get_recipes(username)
         return {
             TYPE: DATA,
             TITLE: RECIPE_TITLE,
             RECIPE_OWNER: username,
-            DATA: users.get_RECIPES(username),
+            DATA: {} if data is None else data,
+            USER_EXISTS: data is not None,
         }
 
     def post(self, username):
