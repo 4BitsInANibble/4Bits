@@ -91,13 +91,14 @@ class Users(Resource):
         data = request.json
         print(f'{data=}')
 
-        resp = users.create_user(data['username'], data['name'])
-
-        if resp == f'Successfully added {data["username"]}':
+        try:
+            resp = users.create_user(data['username'], data['name'])
             status = 200
-        else:
+        except ValueError:
+            resp = None
             status = 409
 
+        print(resp, status)
         return resp, status
 
 

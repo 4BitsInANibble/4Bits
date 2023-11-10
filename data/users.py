@@ -3,6 +3,11 @@ This module interfaces with user data.
 """
 
 import data.food
+import random
+from string import ascii_uppercase
+
+TEST_USERNAME_LENGTH = 6
+TEST_NAME_LENGTH = 6
 
 NAME = 'Name'
 PANTRY = 'Pantry'
@@ -70,6 +75,21 @@ USERS = {
 }
 
 
+def _get_test_username():
+    username = ''.join(random.choices(ascii_uppercase, k=TEST_USERNAME_LENGTH))
+    while user_exists(username):
+        username = ''.join(random.choices(
+            ascii_uppercase, k=TEST_USERNAME_LENGTH))
+    return username
+
+
+def _get_test_name():
+    name = ''.join(random.choices(ascii_uppercase, k=TEST_NAME_LENGTH))
+    while user_exists(name):
+        name = ''.join(random.choices(ascii_uppercase, k=TEST_NAME_LENGTH))
+    return name
+
+
 def get_users():
 
     return USERS
@@ -84,7 +104,9 @@ def get_user(username: str) -> str:
 
 def create_user(username: str, name: str) -> str:
     if user_exists(username):
-        return f'User {username} already exists'
+        raise ValueError(f'User {username} already exists')
+    if len(username) < 5:
+        raise ValueError(f'Username {username} is too short')
 
     print(type(username))
     print(type(name))
@@ -103,7 +125,7 @@ def create_user(username: str, name: str) -> str:
 
 def remove_user(username):
     if not user_exists(username):
-        return f'User {username} does not exist'
+        raise ValueError(f'User {username} does not exist')
 
     del USERS[username]
 
@@ -119,7 +141,7 @@ def get_pantry(username):
 
 def add_to_pantry(username: str, food: str) -> str:
     if not user_exists(username):
-        return f'User {username} does not exist'
+        raise ValueError(f'User {username} does not exist')
 
     USERS[username][PANTRY].append(food)
     return f'Successfully added {food}'
@@ -134,7 +156,7 @@ def get_recipes(username):
 
 def add_to_recipes(username, recipe):
     if not user_exists(username):
-        return f'User {username} does not exist'
+        raise ValueError(f'User {username} does not exist')
 
     USERS[username][SAVED_RECIPES].append(recipe)
     return f'Successfully added {recipe}'

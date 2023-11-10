@@ -20,3 +20,9 @@ recipe generator api
 - takes as a comma separates string, uses a ai model
 - max 20 ingredients, string <200 char long
 
+recipe database
+- https://openrecip.es/
+- https://github.com/fictivekin/openrecipes
+- NoSQL database with name, ingredients, url, cookTime, recipeYield, datePublished, prepTime, description fields
+- does not actually contain recipe, have to scrape website of `url` for recipe
+- 
