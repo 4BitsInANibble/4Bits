@@ -119,7 +119,6 @@ class UserById(Resource):
                 TYPE: DATA,
                 TITLE: USER_TITLE_SINGULAR,
                 DATA: data,
-                USER_EXISTS: data != {}
             }
             status = OK
         except ValueError:
@@ -143,24 +142,30 @@ class PantryById(Resource):
         """
         This method returns the pantry of user with name
         """
-        data = users.get_pantry(username)
-        return {
-            TYPE: DATA,
-            TITLE: PANTRY_TITLE,
-            PANTRY_OWNER: username,
-            DATA: {} if data is None else data,
-            USER_EXISTS: data is not None,
-        }
+        try:
+            data = users.get_pantry(username)
+            resp = {
+                TYPE: DATA,
+                TITLE: PANTRY_TITLE,
+                PANTRY_OWNER: username,
+                DATA: data,
+            }
+            status = OK
+        except ValueError:
+            resp = None
+            status = CONFLICT
+
+        return resp, status
 
     def post(self, username):
         data = request.json
         print(f'{data=}')
 
-        resp = users.add_to_pantry(username, data['food'])
-
-        if resp == f'User {username} does not exist':
+        try:
+            resp = users.add_to_pantry(username, data['food'])
             status = OK
-        else:
+        except ValueError:
+            resp = None
             status = CONFLICT
 
         return resp, status
@@ -172,24 +177,30 @@ class RecipeById(Resource):
         """
         This method returns the pantry of user with name
         """
-        data = users.get_recipes(username)
-        return {
-            TYPE: DATA,
-            TITLE: RECIPE_TITLE,
-            RECIPE_OWNER: username,
-            DATA: {} if data is None else data,
-            USER_EXISTS: data is not None,
-        }
+        try:
+            data = users.get_recipes(username)
+            resp = {
+                TYPE: DATA,
+                TITLE: RECIPE_TITLE,
+                RECIPE_OWNER: username,
+                DATA: data,
+            }
+            status_code = OK
+        except ValueError:
+            resp = None
+            status_code = CONFLICT
+
+        return resp, status_code
 
     def post(self, username):
         data = request.json
         print(f'{data=}')
 
-        resp = users.add_to_recipes(username, data['recipe'])
-
-        if resp == f'User {username} does not exist':
+        try:
+            resp = users.add_to_recipes(username, data['food'])
             status = OK
-        else:
+        except ValueError:
+            resp = None
             status = CONFLICT
 
         return resp, status

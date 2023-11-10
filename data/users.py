@@ -141,7 +141,7 @@ def remove_user(username):
 
 def get_pantry(username):
     if not user_exists(username):
-        return None
+        raise ValueError(f'User {username} does not exist')
 
     return USERS[username][PANTRY]
 
@@ -156,7 +156,7 @@ def add_to_pantry(username: str, food: str) -> str:
 
 def get_recipes(username):
     if not user_exists(username):
-        return None
+        raise ValueError(f'User {username} does not exist')
 
     return USERS[username][SAVED_RECIPES]
 
