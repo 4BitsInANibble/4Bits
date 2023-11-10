@@ -90,6 +90,13 @@ def _get_test_name():
     return name
 
 
+def _get_test_user():
+    test_user = {}
+    test_user['username'] = _get_test_username()
+    test_user['name'] = _get_test_name()
+    return test_user
+
+
 def get_users():
 
     return USERS
@@ -97,7 +104,7 @@ def get_users():
 
 def get_user(username: str) -> str:
     if not user_exists(username):
-        return {}
+        raise ValueError(f'User {username} does not exist')
 
     return USERS[username]
 

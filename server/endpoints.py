@@ -6,7 +6,10 @@ The endpoint called `endpoints` will return all available endpoints.
 from flask import Flask, request
 from flask_restx import Resource, Api
 import data.users as users
-
+from http.client import (
+    OK,
+    CONFLICT,
+)
 
 app = Flask(__name__)
 api = Api(app)
@@ -77,11 +80,13 @@ class Users(Resource):
         This method returns all users.
         """
         data = users.get_users()
-        return {
-                    TYPE: DATA,
-                    TITLE: USER_TITLE,
-                    DATA: data,
-                }
+        resp = {
+                TYPE: DATA,
+                TITLE: USER_TITLE,
+                DATA: data,
+            }
+
+        return resp
 
     def post(self):
         """
@@ -93,10 +98,10 @@ class Users(Resource):
 
         try:
             resp = users.create_user(data['username'], data['name'])
-            status = 200
+            status = OK
         except ValueError:
             resp = None
-            status = 409
+            status = CONFLICT
 
         print(resp, status)
         return resp, status
@@ -108,14 +113,20 @@ class UserById(Resource):
         """
         This method returns a user of username 'username'
         """
-        data = users.get_user(username)
+        try:
+            data = users.get_user(username)
+            resp = {
+                TYPE: DATA,
+                TITLE: USER_TITLE_SINGULAR,
+                DATA: data,
+                USER_EXISTS: data != {}
+            }
+            status = OK
+        except ValueError:
+            resp = None
+            status = CONFLICT
 
-        return {
-            TYPE: DATA,
-            TITLE: USER_TITLE_SINGULAR,
-            DATA: data,
-            USER_EXISTS: data != {}
-        }
+        return resp, status
 
     def delete(self, username):
         """
@@ -148,9 +159,9 @@ class PantryById(Resource):
         resp = users.add_to_pantry(username, data['food'])
 
         if resp == f'User {username} does not exist':
-            status = 200
+            status = OK
         else:
-            status = 409
+            status = CONFLICT
 
         return resp, status
 
@@ -177,8 +188,8 @@ class RecipeById(Resource):
         resp = users.add_to_recipes(username, data['recipe'])
 
         if resp == f'User {username} does not exist':
-            status = 200
+            status = OK
         else:
-            status = 409
+            status = CONFLICT
 
         return resp, status

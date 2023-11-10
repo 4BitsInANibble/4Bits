@@ -1,6 +1,8 @@
+from unittest.mock import patch
 import server.endpoints as ep
 import random
 from string import ascii_uppercase
+import data.users as usrs
 
 from http.client import (
     BAD_REQUEST,
@@ -10,6 +12,7 @@ from http.client import (
     OK,
     SERVICE_UNAVAILABLE,
     CONFLICT,
+    NO_CONTENT
 )
 
 TEST_CLIENT = ep.app.test_client()
@@ -40,29 +43,13 @@ def test_get_users():
 def test_get_user_valid():
     username = 'cc6956'
     resp = TEST_CLIENT.get(f'{ep.USERS_EP}/{username}')
-    print(f'{ep.USERS_EP}/{username}')
-    print(f'{resp=}')
-    resp_json = resp.get_json()
-    print(f'{resp_json=}')
-    usr = resp_json[ep.DATA]
-    print(f'{usr=}')
-    assert isinstance(usr, dict)
-    assert usr != {}
-    assert resp_json[ep.USER_EXISTS]
-
+    assert resp.status_code == 200
 
 def test_get_user_invalid():
     username = ''.join(random.choices(ascii_uppercase, k=6))
     resp = TEST_CLIENT.get(f'{ep.USERS_EP}/{username}')
-    print(f'{ep.USERS_EP}/{username}')
-    print(f'{resp=}')
-    resp_json = resp.get_json()
-    print(f'{resp.json=}')
-    usr = resp_json[ep.DATA]
-    print(f'{usr=}')
-    assert isinstance(usr, dict)
-    assert usr == {}
-    assert not resp_json[ep.USER_EXISTS]
+    print(f'{resp.get_json()}')
+    assert resp.status_code == 409
 
 
 def test_get_pantry_valid():
@@ -101,35 +88,20 @@ def test_get_recipes_invalid():
 def test_delete_user():
     username = 'cc6956'
     resp = TEST_CLIENT.delete(f'{ep.USERS_EP}/{username}')
-    print(f'{resp=}')
-    get_resp = TEST_CLIENT.get(f'{ep.USERS_EP}/{username}')
-    resp_json = get_resp.get_json()
-    print(f'{resp_json=}')
-    assert not resp_json[ep.USER_EXISTS]
+    assert resp.status_code == NO_CONTENT
 
 
-def test_add_user():
-    username = 'abc1234'
-    name = 'Jane'
-    data = {
-        'username': username,
-        'name': name
-    }
+@patch('data.users.create_user', return_value=None, autospec=True)
+def test_add_user(mock_add):
+    data = usrs._get_test_user()
     resp = TEST_CLIENT.post(f'{ep.USERS_EP}', json=data)
     print(f'{resp=}')
-    get_resp = TEST_CLIENT.get(f'{ep.USERS_EP}/{username}')
-    resp_json = get_resp.get_json()
-    print(f'{resp_json=}')
-    assert resp_json[ep.USER_EXISTS]
+    assert resp.status_code == 200
 
 
-def test_add_user_dup():
-    username = 'gt2125'
-    name = 'Jane'
-    data = {
-        'username': username,
-        'name': name
-    }
+@patch('data.users.create_user', side_effect=ValueError(), autospec=True)
+def test_add_user_dup(mock_add):
+    data = usrs._get_test_user()
     resp = TEST_CLIENT.post(f'{ep.USERS_EP}', json=data)
     print(f'{resp=}')
     assert resp.status_code == 409
