@@ -5,6 +5,7 @@ This module interfaces with user data.
 import data.food
 import random
 from string import ascii_uppercase
+import requests
 
 TEST_USERNAME_LENGTH = 6
 TEST_NAME_LENGTH = 6
@@ -152,6 +153,11 @@ def get_recipes(username):
 
     return USERS[username][SAVED_RECIPES]
 
+def generate_recipe(username, query):
+    app_key = '274c6a9381c49bc303a30cebb49c84d4'
+    app_id = '29bf3511'
+    x = requests.get('https://api.edamam.com/api/recipes/v2?type=public&q='+query+'&app_id='+app_id+'&app_key='+app_key)
+    return x #return full recipe response body
 
 def add_to_recipes(username, recipe):
     if not user_exists(username):
