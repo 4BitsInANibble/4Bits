@@ -23,9 +23,7 @@ USERS = {
                 data.food.get_food('chicken breast', 1, 'lb'),
                 data.food.get_food('soy sauce', 1, 'gal'),
                 ],
-            SAVED_RECIPES: [
-
-                ],
+            SAVED_RECIPES: {},
             INSTACART_USR: None,
             GROCERY_LIST: [],
             ALLERGENS: [],
@@ -37,9 +35,7 @@ USERS = {
                 data.food.get_food('romaine lettace', 1, 'lb'),
                 data.food.get_food('egg', 24, 'count'),
                 ],
-            SAVED_RECIPES: [
-
-                ],
+            SAVED_RECIPES: {},
             INSTACART_USR: None,
             GROCERY_LIST: [],
             ALLERGENS: [],
@@ -51,9 +47,7 @@ USERS = {
                 data.food.get_food('steak', 3, 'lb'),
                 data.food.get_food('potatoes', 5, 'count'),
                 ],
-            SAVED_RECIPES: [
-
-                ],
+            SAVED_RECIPES: {},
             INSTACART_USR: None,
             GROCERY_LIST: [],
             ALLERGENS: [],
@@ -65,9 +59,7 @@ USERS = {
                 data.food.get_food('chicken thigh', 0.25, 'lb'),
                 data.food.get_food('grapes', 5, 'count'),
                 ],
-            SAVED_RECIPES: [
-
-                ],
+            SAVED_RECIPES: {},
             INSTACART_USR: None,
             GROCERY_LIST: [],
             ALLERGENS: [],
@@ -121,7 +113,7 @@ def create_user(username: str, name: str) -> str:
     USERS[username] = {
         NAME: name,
         PANTRY: [],
-        SAVED_RECIPES: [],
+        SAVED_RECIPES: {},
         INSTACART_USR: None,
         GROCERY_LIST: [],
         ALLERGENS: [],
@@ -165,8 +157,24 @@ def add_to_recipes(username, recipe):
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
-    USERS[username][SAVED_RECIPES].append(recipe)
+    USERS[username][SAVED_RECIPES][recipe] = 0
     return f'Successfully added {recipe}'
+
+
+def made_recipe(username, recipe):
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+
+    USERS[username][SAVED_RECIPES][recipe] += 1
+    return f'Successfully incremented streak counter for {recipe}'
+
+
+def remove_recipe(username, recipe):
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+
+    USERS[username][SAVED_RECIPES].remove(recipe)
+    return f'Successfully removed {recipe}'
 
 
 def user_exists(username):
