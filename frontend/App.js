@@ -1,21 +1,29 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React, { Component } from 'react';
-import { Appbar, FAB, useTheme } from 'react-native-paper';
+import { Appbar, BottomNavigation, FAB, useTheme, Searchbar } from 'react-native-paper';
 import {useSafeAreaInsets, SafeAreaProvider} from 'react-native-safe-area-context';
+
 
 const BOTTOM_APPBAR_HEIGHT = 80;
 const MEDIUM_FAB_HEIGHT = 56;
 
 const App = () => {
-  
-  // const { bottom } = useSafeAreaInsets();
+
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const onChangeSearch = query => setSearchQuery(query);
+
   const theme = useTheme();
+  return(
+    <Searchbar placeholder="Search"
+    onChangeText={onChangeSearch}
+    value={searchQuery}
+    />
+  );
 
   return (
     <SafeAreaProvider>
     <SafeAreaView>
-
         <Appbar style={styles.item} >  
         <Appbar.Action size= {30} color= 'orange' icon="home" onPress={() => {}} />
         <Appbar.Action size= {30} color= 'orange' icon="scan-helper" onPress={() => {}} /> 
@@ -31,14 +39,10 @@ const App = () => {
     
 };
 
-// const Toolbar = () => {
-//   return <SafeAreaView style={styles.container}>
-//     <View style={styles.toolbarView}></View>
-//   </SafeAreaView>
-// }
 
 const styles = StyleSheet.create({
   item: {
+    marginTop: 720,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
