@@ -30,8 +30,8 @@ def connect_db():
                 raise ValueError('You must set your password '
                                  + 'to use Mongo in the cloud.')
             print("Connecting to Mongo in the cloud.")
-            client = pm.MongoClient(f'mongodb+srv://gcallah:{password}'
-                                    + '@cluster0.eqxbbqd.mongodb.net/'
+            client = pm.MongoClient(f'mongodb+srv://nz2065:{password}'
+                                    + '@nibble.pcnhctc.mongodb.net/'
                                     + '?retryWrites=true&w=majority')
             # PA recommends these settings:
             # + 'connectTimeoutMS=30000&'
@@ -56,12 +56,17 @@ def fetch_one(collection, filt, db=RECIPE_DB):
     """
     Find with a filter and return on the first doc found.
     """
-    for doc in client[db][collection].find(filt):
-        if MONGO_ID in doc:
-            # Convert mongo ID to a string so it works as JSON
-            doc[MONGO_ID] = str(doc[MONGO_ID])
-        return doc
-    raise ValueError("Object to fetch does not exist")
+    print(f'{client}')
+    print(f'{client[db]}')
+    res = client[db][collection].find(filt)
+    if res is not None:
+        for doc in res:
+            if MONGO_ID in doc:
+                # Convert mongo ID to a string so it works as JSON
+                doc[MONGO_ID] = str(doc[MONGO_ID])
+            return doc
+    else:
+        raise ValueError("Object to fetch does not exist")
 
 
 def del_one(collection, filt, db=RECIPE_DB):
@@ -73,14 +78,22 @@ def del_one(collection, filt, db=RECIPE_DB):
 
 def fetch_all(collection, db=RECIPE_DB):
     ret = []
-    for doc in client[db][collection].find():
-        ret.append(doc)
+    res = client[db][collection].find()
+    if res is not None:
+        for doc in res:
+            ret.append(doc)
     return ret
 
 
 def fetch_all_as_dict(key, collection, db=RECIPE_DB):
     ret = {}
-    for doc in client[db][collection].find():
-        del doc[MONGO_ID]
-        ret[doc[key]] = doc
+    res = client[db][collection].find()
+    if res is not None:
+        for doc in res:
+            del doc[MONGO_ID]
+            ret[doc[key]] = doc
     return ret
+
+
+def update_one(collection, filter, query, db=RECIPE_DB):
+    return client[db][collection].update_one(filter, query)
