@@ -6,6 +6,7 @@ import data.food
 import random
 from string import ascii_uppercase
 import requests
+import db_connect as con
 
 TEST_USERNAME_LENGTH = 6
 TEST_NAME_LENGTH = 6
@@ -82,6 +83,13 @@ def _get_test_name():
         name = ''.join(random.choices(ascii_uppercase, k=TEST_NAME_LENGTH))
     return name
 
+def user_exists(username):
+    try:
+        con.fetch_one(con.USERS_COLLECTION, {"Username": username})
+    except:
+        return False
+    
+    return True
 
 def _get_test_user():
     test_user = {}
@@ -89,24 +97,27 @@ def _get_test_user():
     test_user['name'] = _get_test_name()
     return test_user
 
-
 def get_users():
 
-    return USERS
+    return con.fetch_all(con.USERS_COLLECTION)
 
 
 def get_user(username: str) -> str:
-    if not user_exists(username):
+    try: 
+        res = con.fetch_one(con.USERS_COLLECTION, {"_id": username})
+    except ValueError:
         raise ValueError(f'User {username} does not exist')
+        
 
-    return USERS[username]
+    return res
 
 
 def create_user(username: str, name: str) -> str:
-    if user_exists(username):
-        raise ValueError(f'User {username} already exists')
     if len(username) < 5:
         raise ValueError(f'Username {username} is too short')
+    
+    if user_exists(username):
+        raise ValueError(f'User {username} already exists')
 
     print(type(username))
     print(type(name))
@@ -189,4 +200,4 @@ def remove_recipe(username, recipe):
 
 
 def user_exists(username):
-    return username in USERS
+    return 

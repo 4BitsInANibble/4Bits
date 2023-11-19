@@ -6,6 +6,7 @@ LOCAL = "0"
 CLOUD = "1"
 
 RECIPE_DB = 'recipeDB'
+USERS_COLLECTION = 'Users'
 
 client = None
 
@@ -60,6 +61,7 @@ def fetch_one(collection, filt, db=RECIPE_DB):
             # Convert mongo ID to a string so it works as JSON
             doc[MONGO_ID] = str(doc[MONGO_ID])
         return doc
+    raise ValueError("Object to fetch does not exist")
 
 
 def del_one(collection, filt, db=RECIPE_DB):
