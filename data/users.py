@@ -7,6 +7,9 @@ import random
 from string import ascii_uppercase
 import requests
 import data.db_connect as con
+from PIL import Image
+import pytesseract
+
 
 TEST_USERNAME_LENGTH = 6
 TEST_NAME_LENGTH = 6
@@ -199,3 +202,23 @@ def remove_recipe(username, recipe):
 
     USERS[username][SAVED_RECIPES].remove(recipe)
     return f'Successfully removed {recipe}'
+
+
+def recognize_receipt(image_path=None, image=None):
+    if(image_path and not image):
+        # Load the image from the specified path
+        image = Image.open(image_path)
+    elif(not image): #neither the path nor image is provided
+        return None
+    
+    # Perform OCR using pytesseract
+    text = pytesseract.image_to_string(image)
+    
+
+    # Print or save the extracted text
+    print(text)
+    # Optionally, save the text to a file
+    # with open('extracted_text.txt', 'w', encoding='utf-8') as file:
+    #     file.write(text)
+
+    return text
