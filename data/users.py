@@ -205,20 +205,16 @@ def remove_recipe(username, recipe):
 
 
 def recognize_receipt(image_path=None, image=None):
-    if(image_path and not image):
+    if (image_path and not image):
         # Load the image from the specified path
         image = Image.open(image_path)
-    elif(not image): #neither the path nor image is provided
+    elif (not image):  # neither the path nor image is provided
         return None
-    
     # Perform OCR using pytesseract
     text = pytesseract.image_to_string(image)
-    
-
     # Print or save the extracted text
     print(text)
     # Optionally, save the text to a file
     # with open('extracted_text.txt', 'w', encoding='utf-8') as file:
     #     file.write(text)
-
     return text
