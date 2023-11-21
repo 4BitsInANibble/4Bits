@@ -1,6 +1,6 @@
 import data.users as usrs
 import data.food as food
-
+import data.db_connect as con
 import pytest
 
 MIN_USERS = 1
@@ -9,6 +9,8 @@ MIN_USERNAME_LEN = 4
 
 @pytest.fixture(scope='function')
 def temp_user():
+    print("GOING TO CONNECT")
+    con.connect_db()
     username = usrs._get_test_username()
     name = usrs._get_test_name()
     ret = usrs.create_user(username, name)
@@ -18,15 +20,10 @@ def temp_user():
         usrs.remove_user(username)
 
 
-def test_get_test_name():
-    username = usrs._get_test_username()
-    assert isinstance(username, str)
-    assert len(username) == usrs.TEST_USERNAME_LENGTH
-
 
 def test_get_users(temp_user):
     users = usrs.get_users()
-    assert isinstance(users, dict)
+    assert isinstance(users, list)
     assert len(users) > 0
     for user in users:
         assert isinstance(user, str)
@@ -53,6 +50,13 @@ def test_get_users(temp_user):
             assert isinstance(fooditem[food.UNITS], str)
     print(f'{temp_user=}')
     assert usrs.user_exists(temp_user)
+
+
+def test_get_test_name():
+    print(f'{username=}')
+    username = usrs._get_test_username()
+    assert isinstance(username, str)
+    assert len(username) == usrs.TEST_USERNAME_LENGTH
 
 
 def test_add_user_dup_name(temp_user):

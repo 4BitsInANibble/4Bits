@@ -88,12 +88,9 @@ def _get_test_name():
 
 
 def user_exists(username):
-    try:
-        con.fetch_one(con.USERS_COLLECTION, {"Username": username})
-    except ValueError:
-        return False
+    user = con.fetch_one(con.USERS_COLLECTION, {"Username": username})
 
-    return True
+    return user is not None
 
 
 def _get_test_user():

@@ -21,6 +21,7 @@ def connect_db():
     We should probably either return a client OR set a
     client global.
     """
+    print("CONNECTING!!!!")
     global client
     if client is None:  # not connected yet!
         print("Setting client because it is None.")
@@ -39,6 +40,7 @@ def connect_db():
             # + '&connect=false'
             # + 'maxPoolsize=1')
             # but they don't seem necessary
+
         else:
             print("Connecting to Mongo locally.")
             client = pm.MongoClient()

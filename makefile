@@ -17,8 +17,8 @@ github: FORCE
 all_tests: lint unit
 
 unit: FORCE
-	cd $(API_DIR); make tests
 	cd $(DB_DIR); make tests
+	cd $(API_DIR); make tests
 
 lint: FORCE
 	$(LINTER) $(API_DIR)/*.py
