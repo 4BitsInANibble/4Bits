@@ -21,59 +21,60 @@ SAVED_RECIPES = 'Saved_Recipes'
 INSTACART_USR = 'Instacart_User_Info'
 GROCERY_LIST = 'Grocery List'
 ALLERGENS = 'Allergens'
-USERS = {
-    'cc6956':
-        {
-            NAME: 'Calvin',
-            PANTRY: [
-                data.food.get_food('chicken breast', 1, 'lb'),
-                data.food.get_food('soy sauce', 1, 'gal'),
-                ],
-            SAVED_RECIPES: {},
-            INSTACART_USR: None,
-            GROCERY_LIST: [],
-            ALLERGENS: [],
-        },
-    'gt2125':
-        {
-            NAME: 'Gayatri',
-            PANTRY: [
-                data.food.get_food('romaine lettace', 1, 'lb'),
-                data.food.get_food('egg', 24, 'count'),
-                ],
-            SAVED_RECIPES: {},
-            INSTACART_USR: None,
-            GROCERY_LIST: [],
-            ALLERGENS: [],
-        },
-    'yh3595':
-        {
-            NAME: 'Jason',
-            PANTRY: [
-                data.food.get_food('steak', 3, 'lb'),
-                data.food.get_food('potatoes', 5, 'count'),
-                ],
-            SAVED_RECIPES: {},
-            INSTACART_USR: None,
-            GROCERY_LIST: [],
-            ALLERGENS: [],
-        },
-    'nz2065':
-        {
-            NAME: 'Nashra',
-            PANTRY: [
-                data.food.get_food('chicken thigh', 0.25, 'lb'),
-                data.food.get_food('grapes', 5, 'count'),
-                ],
-            SAVED_RECIPES: {},
-            INSTACART_USR: None,
-            GROCERY_LIST: [],
-            ALLERGENS: [],
-        },
-}
+# USERS = {
+#     'cc6956':
+#         {
+#             NAME: 'Calvin',
+#             PANTRY: [
+#                 data.food.get_food('chicken breast', 1, 'lb'),
+#                 data.food.get_food('soy sauce', 1, 'gal'),
+#                 ],
+#             SAVED_RECIPES: {},
+#             INSTACART_USR: None,
+#             GROCERY_LIST: [],
+#             ALLERGENS: [],
+#         },
+#     'gt2125':
+#         {
+#             NAME: 'Gayatri',
+#             PANTRY: [
+#                 data.food.get_food('romaine lettace', 1, 'lb'),
+#                 data.food.get_food('egg', 24, 'count'),
+#                 ],
+#             SAVED_RECIPES: {},
+#             INSTACART_USR: None,
+#             GROCERY_LIST: [],
+#             ALLERGENS: [],
+#         },
+#     'yh3595':
+#         {
+#             NAME: 'Jason',
+#             PANTRY: [
+#                 data.food.get_food('steak', 3, 'lb'),
+#                 data.food.get_food('potatoes', 5, 'count'),
+#                 ],
+#             SAVED_RECIPES: {},
+#             INSTACART_USR: None,
+#             GROCERY_LIST: [],
+#             ALLERGENS: [],
+#         },
+#     'nz2065':
+#         {
+#             NAME: 'Nashra',
+#             PANTRY: [
+#                 data.food.get_food('chicken thigh', 0.25, 'lb'),
+#                 data.food.get_food('grapes', 5, 'count'),
+#                 ],
+#             SAVED_RECIPES: {},
+#             INSTACART_USR: None,
+#             GROCERY_LIST: [],
+#             ALLERGENS: [],
+#         },
+# }
 
 
 def _get_test_username():
+    con.connect_db()
     username = ''.join(random.choices(ascii_uppercase, k=TEST_USERNAME_LENGTH))
     while user_exists(username):
         username = ''.join(random.choices(
@@ -82,6 +83,7 @@ def _get_test_username():
 
 
 def _get_test_name():
+    con.connect_db()
     name = ''.join(random.choices(ascii_uppercase, k=TEST_NAME_LENGTH))
     while user_exists(name):
         name = ''.join(random.choices(ascii_uppercase, k=TEST_NAME_LENGTH))
@@ -89,6 +91,7 @@ def _get_test_name():
 
 
 def user_exists(username):
+    con.connect_db()
     try:
         con.fetch_one(con.USERS_COLLECTION, {USERNAME: username})
         res = True
@@ -113,7 +116,7 @@ def get_users():
 
 
 def get_user(username: str) -> str:
-
+    con.connect_db()
     try:
         res = con.fetch_one(con.USERS_COLLECTION, {USERNAME: username})
         res["_id"] = str(res["_id"])
@@ -150,6 +153,7 @@ def create_user(username: str, name: str) -> str:
 
 
 def remove_user(username):
+    con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
@@ -160,6 +164,7 @@ def remove_user(username):
 
 
 def get_pantry(username):
+    con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
@@ -173,6 +178,7 @@ def get_pantry(username):
 
 
 def add_to_pantry(username: str, food: list[str]) -> str:
+    con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
@@ -185,6 +191,7 @@ def add_to_pantry(username: str, food: list[str]) -> str:
 
 
 def get_recipes(username):
+    con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
@@ -208,6 +215,7 @@ def generate_recipe(username, query):
 
 
 def add_to_recipes(username, recipe):
+    con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
@@ -221,6 +229,7 @@ def add_to_recipes(username, recipe):
 
 
 def made_recipe(username, recipe):
+    con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
@@ -234,10 +243,10 @@ def made_recipe(username, recipe):
 
 
 def remove_recipe(username, recipe):
+    con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
-    USERS[username][SAVED_RECIPES].remove(recipe)
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
