@@ -89,9 +89,12 @@ def _get_test_name():
 
 
 def user_exists(username):
-    user = con.fetch_one(con.USERS_COLLECTION, {USERNAME: username})
-
-    return user is not None
+    try:
+        con.fetch_one(con.USERS_COLLECTION, {USERNAME: username})
+        res = True
+    except ValueError:
+        res = False
+    return res
 
 
 def _get_test_user():
@@ -102,13 +105,18 @@ def _get_test_user():
 
 
 def get_users():
-
-    return con.fetch_all(con.USERS_COLLECTION)
+    con.connect_db()
+    users = con.fetch_all(con.USERS_COLLECTION)
+    for user in users:
+        user["_id"] = str(user["_id"])
+    return users
 
 
 def get_user(username: str) -> str:
+
     try:
-        res = con.fetch_one(con.USERS_COLLECTION, {"_id": username})
+        res = con.fetch_one(con.USERS_COLLECTION, {USERNAME: username})
+        res["_id"] = str(res["_id"])
     except ValueError:
         raise ValueError(f'User {username} does not exist')
 
@@ -116,6 +124,7 @@ def get_user(username: str) -> str:
 
 
 def create_user(username: str, name: str) -> str:
+    con.connect_db()
     if len(username) < 5:
         raise ValueError(f'Username {username} is too short')
 

@@ -58,17 +58,17 @@ def fetch_one(collection, filt, fields=None, db=RECIPE_DB):
     """
     Find with a filter and return on the first doc found.
     """
-    print(f'{client}')
-    print(f'{client[db]}')
+
     res = client[db][collection].find(filt, fields)
+    print(f'{res=}')
     if res is not None:
         for doc in res:
             if MONGO_ID in doc:
                 # Convert mongo ID to a string so it works as JSON
                 doc[MONGO_ID] = str(doc[MONGO_ID])
             return doc
-    else:
-        raise ValueError("Object to fetch does not exist")
+
+    raise ValueError("Object to fetch does not exist")
 
 
 def del_one(collection, filt, db=RECIPE_DB):
