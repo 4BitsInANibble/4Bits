@@ -2,7 +2,7 @@
 This module interfaces with user data.
 """
 
-import data.food
+# import data.food
 import random
 from string import ascii_uppercase
 import requests
@@ -102,8 +102,8 @@ def user_exists(username):
 
 def _get_test_user():
     test_user = {}
-    test_user['username'] = _get_test_username()
-    test_user['name'] = _get_test_name()
+    test_user[USERNAME] = _get_test_username()
+    test_user[NAME] = _get_test_name()
     return test_user
 
 

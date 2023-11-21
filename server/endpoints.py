@@ -4,7 +4,7 @@ The endpoint called `endpoints` will return all available endpoints.
 """
 
 from flask import Flask, request
-from flask_restx import Resource, Api
+from flask_restx import Resource, Api, fields
 import data.users as users
 from http.client import (
     OK,
@@ -40,6 +40,19 @@ RETURN = 'Return'
 RECIPE_EP = '/recipe'
 RECIPE_OWNER = 'User'
 USER_EXISTS = 'User_Exists'
+
+user_fields = api.model('User', {
+    users.USERNAME: fields.String,
+    users.NAME: fields.String,
+})
+
+recipe_fields = api.model('Recipe', {
+    "Recipe": fields.String,
+})
+
+pantry_fields = api.model('Pantry', {
+    "Food": fields.String,
+})
 
 
 @api.route('/hello')
@@ -89,6 +102,7 @@ class Users(Resource):
 
         return resp
 
+    @api.expect(user_fields)
     def post(self):
         """
         This method creates a new user with a username & name
@@ -98,7 +112,11 @@ class Users(Resource):
         print(f'{data=}')
 
         try:
-            resp = users.create_user(data['username'], data['name'])
+            resp = users.create_user(
+                data[users.USERNAME],
+                data[users.USERNAME]
+            )
+
             status = OK
         except ValueError:
             resp = None
@@ -160,6 +178,7 @@ class PantryById(Resource):
 
         return resp, status
 
+    @api.expect(pantry_fields)
     def post(self, username):
         data = request.json
         print(f'{data=}')
@@ -195,12 +214,13 @@ class RecipeById(Resource):
 
         return resp, status_code
 
+    @api.expect(recipe_fields)
     def post(self, username):
         data = request.json
         print(f'{data=}')
 
         try:
-            resp = users.add_to_recipes(username, data['food'])
+            resp = users.add_to_recipes(username, data['recipe'])
             status = OK
         except ValueError:
             resp = None
