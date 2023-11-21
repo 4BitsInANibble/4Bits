@@ -16,6 +16,7 @@ TEST_NAME_LENGTH = 6
 
 NAME = 'Name'
 PANTRY = 'Pantry'
+USERNAME = "Username"
 SAVED_RECIPES = 'Saved_Recipes'
 INSTACART_USR = 'Instacart_User_Info'
 GROCERY_LIST = 'Grocery List'
@@ -88,7 +89,7 @@ def _get_test_name():
 
 
 def user_exists(username):
-    user = con.fetch_one(con.USERS_COLLECTION, {"Username": username})
+    user = con.fetch_one(con.USERS_COLLECTION, {USERNAME: username})
 
     return user is not None
 
@@ -124,7 +125,8 @@ def create_user(username: str, name: str) -> str:
     print(type(username))
     print(type(name))
 
-    USERS[username] = {
+    new_user = {
+        USERNAME: username,
         NAME: name,
         PANTRY: [],
         SAVED_RECIPES: {},
@@ -133,6 +135,8 @@ def create_user(username: str, name: str) -> str:
         ALLERGENS: [],
     }
 
+    add_ret = con.insert_one(con.USERS_COLLECTION, new_user)
+    print(f'{add_ret}')
     return f'Successfully added {username}'
 
 
@@ -140,8 +144,9 @@ def remove_user(username):
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
-    del USERS[username]
+    del_res = con.del_one(con.USERS_COLLECTION, {USERNAME: username})
 
+    print(f'{del_res}')
     return f'Successfully deleted {username}'
 
 
@@ -149,14 +154,24 @@ def get_pantry(username):
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
-    return USERS[username][PANTRY]
+    pantry_res = con.fetch_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {PANTRY: 1, "_id": 0}
+    )
+
+    return pantry_res
 
 
-def add_to_pantry(username: str, food: str) -> str:
+def add_to_pantry(username: str, food: list[str]) -> str:
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
-    USERS[username][PANTRY].append(food)
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {"$push": {PANTRY: {"$each": food}}}
+    )
     return f'Successfully added {food}'
 
 
@@ -164,7 +179,13 @@ def get_recipes(username):
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
-    return USERS[username][SAVED_RECIPES]
+    recipes_res = con.fetch_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {SAVED_RECIPES: 1, "_id": 0}
+    )
+
+    return recipes_res
 
 
 def generate_recipe(username, query):
@@ -181,7 +202,12 @@ def add_to_recipes(username, recipe):
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
-    USERS[username][SAVED_RECIPES][recipe] = 0
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {"$push": {SAVED_RECIPES: {recipe: 0}}}
+    )
+
     return f'Successfully added {recipe}'
 
 
@@ -189,7 +215,12 @@ def made_recipe(username, recipe):
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
 
-    USERS[username][SAVED_RECIPES][recipe] += 1
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {"$inc": {f'{SAVED_RECIPES}.{recipe}': 1}}
+    )
+
     return f'Successfully incremented streak counter for {recipe}'
 
 
@@ -198,6 +229,12 @@ def remove_recipe(username, recipe):
         raise ValueError(f'User {username} does not exist')
 
     USERS[username][SAVED_RECIPES].remove(recipe)
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {"$pull": {SAVED_RECIPES: recipe}}
+    )
+
     return f'Successfully removed {recipe}'
 
 

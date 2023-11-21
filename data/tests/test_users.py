@@ -15,6 +15,7 @@ def temp_user():
     name = usrs._get_test_name()
     ret = usrs.create_user(username, name)
     print(f'{ret=}')
+    print(f'User {username}: {usrs.user_exists(username)}')
     yield username
     if usrs.user_exists(username):
         usrs.remove_user(username)
@@ -23,21 +24,22 @@ def temp_user():
 
 def test_get_users(temp_user):
     users = usrs.get_users()
+    print(f'{users}')
     assert isinstance(users, list)
     assert len(users) > 0
     for user in users:
-        assert isinstance(user, str)
+        assert isinstance(user, dict)
 
         assert len(user) > MIN_USERNAME_LEN
-        assert isinstance(users[user], dict)
+        assert isinstance(user, dict)
 
-        assert usrs.NAME in users[user]
-        assert isinstance(users[user][usrs.NAME], str)
+        assert usrs.NAME in user
+        assert isinstance(user[usrs.NAME], str)
         
-        assert usrs.PANTRY in users[user]
-        assert isinstance(users[user][usrs.PANTRY], list)
+        assert usrs.PANTRY in user
+        assert isinstance(user[usrs.PANTRY], list)
         
-        for fooditem in users[user][usrs.PANTRY]:
+        for fooditem in user[usrs.PANTRY]:
             assert isinstance(fooditem, dict)
 
             assert food.INGREDIENT in fooditem
@@ -53,8 +55,8 @@ def test_get_users(temp_user):
 
 
 def test_get_test_name():
-    print(f'{username=}')
     username = usrs._get_test_username()
+    print(f'{username=}')
     assert isinstance(username, str)
     assert len(username) == usrs.TEST_USERNAME_LENGTH
 
@@ -64,8 +66,11 @@ def test_add_user_dup_name(temp_user):
     Make sure a duplicate game name raises a ValueError.
     `temp_game` is the name of the game that our fixture added.
     """
+    print(f'{temp_user=}')
+    print(f'{usrs.user_exists(temp_user)}')
     with pytest.raises(ValueError):
         usrs.create_user(temp_user, 'Jane')
+
 
 
 def test_add_user_blank_name():

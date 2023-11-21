@@ -54,13 +54,13 @@ def insert_one(collection, doc, db=RECIPE_DB):
     return client[db][collection].insert_one(doc)
 
 
-def fetch_one(collection, filt, db=RECIPE_DB):
+def fetch_one(collection, filt, fields=None, db=RECIPE_DB):
     """
     Find with a filter and return on the first doc found.
     """
     print(f'{client}')
     print(f'{client[db]}')
-    res = client[db][collection].find(filt)
+    res = client[db][collection].find(filt, fields)
     if res is not None:
         for doc in res:
             if MONGO_ID in doc:

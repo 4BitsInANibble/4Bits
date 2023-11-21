@@ -138,24 +138,24 @@ class UserById(Resource):
 
 @api.route(f'{USERS_EP}/<username>{PANTRY_EP}')
 class PantryById(Resource):
-    def get(self, username: str) -> dict:
-        """
-        This method returns the pantry of user with name
-        """
-        try:
-            data = users.get_pantry(username)
-            resp = {
-                TYPE: DATA,
-                TITLE: PANTRY_TITLE,
-                PANTRY_OWNER: username,
-                DATA: data,
-            }
-            status = OK
-        except ValueError:
-            resp = None
-            status = CONFLICT
+    # def get(self, username: str) -> dict:
+    #     """
+    #     This method returns the pantry of user with name
+    #     """
+    #     try:
+    #         data = users.get_pantry(username)
+    #         resp = {
+    #             TYPE: DATA,
+    #             TITLE: PANTRY_TITLE,
+    #             PANTRY_OWNER: username,
+    #             DATA: data,
+    #         }
+    #         status = OK
+    #     except ValueError:
+    #         resp = None
+    #         status = CONFLICT
 
-        return resp, status
+    #     return resp, status
 
     def post(self, username):
         data = request.json
@@ -173,24 +173,24 @@ class PantryById(Resource):
 
 @api.route(f'{USERS_EP}/<username>{RECIPE_EP}')
 class RecipeById(Resource):
-    def get(self, username):
-        """
-        This method returns the pantry of user with name
-        """
-        try:
-            data = users.get_recipes(username)
-            resp = {
-                TYPE: DATA,
-                TITLE: RECIPE_TITLE,
-                RECIPE_OWNER: username,
-                DATA: data,
-            }
-            status_code = OK
-        except ValueError:
-            resp = None
-            status_code = CONFLICT
+    # def get(self, username):
+    #     """
+    #     This method returns the pantry of user with name
+    #     """
+    #     try:
+    #         data = users.get_recipes(username)
+    #         resp = {
+    #             TYPE: DATA,
+    #             TITLE: RECIPE_TITLE,
+    #             RECIPE_OWNER: username,
+    #             DATA: data,
+    #         }
+    #         status_code = OK
+    #     except ValueError:
+    #         resp = None
+    #         status_code = CONFLICT
 
-        return resp, status_code
+    #     return resp, status_code
 
     def post(self, username):
         data = request.json
