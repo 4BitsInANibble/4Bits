@@ -26,12 +26,24 @@ def connect_db():
 
 @pytest.fixture(scope='function')
 def valid_username():
-    user = usrs.get_users()[0]
-    print(f'{user}')
-    username = user[usrs.USERNAME]
+    temp_user = False
+    try:
+        user = usrs.get_users()[0]
+        print(f'{user}')
+        username = user[usrs.USERNAME]
+        
+        print(f'{username=}')
+    except:
+        temp_user = True
+        user = usrs.create_user("TESTING", "TESTING")
+        username = "TESTING"
+        
+    yield username
+
+    if temp_user:
+        usrs.remove_user(username)
     
-    print(f'{username=}')
-    return username
+
 
 
 def test_hello():
