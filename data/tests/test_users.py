@@ -27,7 +27,7 @@ def test_get_users(temp_user):
     assert len(users) > 0
     for user in users:
         assert isinstance(user, dict)
-
+        print(f'{user=}')
         assert len(user) > MIN_USERNAME_LEN
         assert isinstance(user, dict)
 
