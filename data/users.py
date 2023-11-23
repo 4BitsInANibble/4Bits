@@ -26,6 +26,10 @@ ALLERGENS = 'Allergens'
 AUTH_EXPIRES = "Auth_Exp"
 
 
+class AuthTokenExpired(Exception):
+    pass
+
+
 def _get_test_username():
     con.connect_db()
     username = ''.join(random.choices(ascii_uppercase, k=TEST_USERNAME_LENGTH))
@@ -93,7 +97,7 @@ def valid_authentication(google_id_token):
     idinfo = id_token.verify_oauth2_token(google_id_token, requests.Request())
     exp = datetime.datetime(idinfo['exp'])
     if exp < datetime.datetime.now():
-        raise ValueError("Expired token")
+        raise AuthTokenExpired("Expired token")
     return idinfo
 
 
