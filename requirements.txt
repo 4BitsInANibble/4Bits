@@ -5,5 +5,3 @@ pymongo==4.6.0
 pytesseract
 pillow
 google
-google.oauth2
-google.auth
