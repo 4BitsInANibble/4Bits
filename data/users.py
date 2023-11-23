@@ -5,7 +5,7 @@ This module interfaces with user data.
 # import data.food
 import random
 from string import ascii_uppercase
-import requests
+# import requests
 import data.db_connect as con
 from PIL import Image
 import pytesseract
@@ -42,9 +42,12 @@ def _get_test_username():
 def _get_test_name():
     con.connect_db()
     name = ''.join(random.choices(ascii_uppercase, k=TEST_NAME_LENGTH))
-    while user_exists(name):
-        name = ''.join(random.choices(ascii_uppercase, k=TEST_NAME_LENGTH))
+
     return name
+
+
+def _get_test_exp():
+    return datetime.datetime.now() + datetime.timedelta(hours=1)
 
 
 def user_exists(username):
@@ -57,10 +60,12 @@ def user_exists(username):
     return res
 
 
-def _get_test_user():
-    test_user = {}
-    test_user[USERNAME] = _get_test_username()
-    test_user[NAME] = _get_test_name()
+def _create_test_user():
+    username = _get_test_username()
+    name = _get_test_name()
+    exp = _get_test_exp()
+    print(username, name, exp)
+    test_user = create_user(username, name, exp)
     return test_user
 
 
@@ -89,14 +94,16 @@ def auth_expired(username: str) -> bool:
         {USERNAME: username},
         {AUTH_EXPIRES: 1, con.MONGO_ID: 0}
     )
-    
-    return exp > datetime.datetime.now()
+
+    return exp > datetime.datetime.now().timestamp()
 
 
 def valid_authentication(google_id_token):
+    # Add check for CLIENT ID for app that accesses authentication
+    # Maybe save valid CLIENT ID to check against in os.environ()
     idinfo = id_token.verify_oauth2_token(google_id_token, requests.Request())
-    exp = datetime.datetime(idinfo['exp'])
-    if exp < datetime.datetime.now():
+    exp = idinfo['exp']
+    if exp < datetime.datetime.now().timestamp():
         raise AuthTokenExpired("Expired token")
     return idinfo
 
@@ -120,7 +127,7 @@ def auth_user(google_id_token):
         raise ex
 
 
-def create_user(username: str, name: str, expires: datetime.datetime) -> str:
+def create_user(username: str, name: str, expires: datetime.datetime) -> dict:
     con.connect_db()
     if len(username) < 5:
         raise ValueError(f'Username {username} is too short')
@@ -139,12 +146,13 @@ def create_user(username: str, name: str, expires: datetime.datetime) -> str:
         INSTACART_USR: None,
         GROCERY_LIST: [],
         ALLERGENS: [],
-        AUTH_EXPIRES: expires,
+        AUTH_EXPIRES: int(expires.timestamp()),
     }
+    print(f'{new_user=}')
 
     add_ret = con.insert_one(con.USERS_COLLECTION, new_user)
     print(f'{add_ret}')
-    return f'Successfully added {username}'
+    return new_user
 
 
 def remove_user(username):

@@ -1,3 +1,4 @@
+import datetime
 from unittest.mock import patch
 import server.endpoints as ep
 import random
@@ -27,17 +28,17 @@ def connect_db():
 @pytest.fixture(scope='function')
 def valid_username():
     temp_user = False
+    
     try:
         user = usrs.get_users()[0]
         print(f'{user}')
-        username = user[usrs.USERNAME]
-        
-        print(f'{username=}')
-    except:
+    except IndexError:
         temp_user = True
-        user = usrs.create_user("TESTING", "TESTING")
-        username = "TESTING"
+        user = usrs._create_test_user()
         
+    username = user[usrs.USERNAME]
+    
+    print(f'{username=}')
     yield username
 
     if temp_user:
@@ -121,15 +122,34 @@ def test_remove_user(connect_db):
 
 @patch('data.users.create_user', return_value=None, autospec=True)
 def test_add_user(mock_add):
-    data = usrs._get_test_user()
+    exp = datetime.datetime.now() + datetime.timedelta(hours=1)
+    exp = int(exp.timestamp())
+
+    data = {
+        "id_token": {
+            'email': "TESTING",
+            'name': "TESTING",
+            'exp': exp
+        }
+    }
+
     resp = TEST_CLIENT.post(f'{ep.USERS_EP}', json=data)
     print(f'{resp=}')
     assert resp.status_code == OK
 
-
 @patch('data.users.create_user', side_effect=ValueError(), autospec=True)
 def test_add_user_dup(mock_add):
-    data = usrs._get_test_user()
+    exp = datetime.datetime.now() + datetime.timedelta(hours=1)
+    exp = int(exp.timestamp())
+
+    data = {
+        "id_token": {
+            'email': "TESTING",
+            'name': "TESTING",
+            'exp': exp
+        }
+    }
+
     resp = TEST_CLIENT.post(f'{ep.USERS_EP}', json=data)
     print(f'{resp=}')
     assert resp.status_code == CONFLICT

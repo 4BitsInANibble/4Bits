@@ -94,6 +94,7 @@ class Users(Resource):
         This method returns all users.
         """
         data = users.get_users()
+        print(f'{data=}')
         resp = {
                 TYPE: DATA,
                 TITLE: USER_TITLE,
@@ -111,23 +112,23 @@ class Users(Resource):
         """
         data = request.json
         print(f'{data=}')
-        
-        try:
-            id_token = data['id_token']
-            id_info = users.valid_authentication(id_token)
 
+        try:
+            # id_token = data['id_token']
+            # id_info = users.valid_authentication(id_token)
+
+            id_info = data['id_token']
             username = id_info['email']
             name = id_info['name']
-            exp = datetime.datetime(id_info['exp'])
+            exp = datetime.datetime.fromtimestamp(id_info['exp'])
+            print(username, name, exp)
             users.create_user(username, name, exp)
 
             status = OK
         except ValueError:
-            resp = None
             status = CONFLICT
 
-        print(resp, status)
-        return resp, status
+        return None, status
 
 
 @api.route(f'{USERS_EP}/<username>')

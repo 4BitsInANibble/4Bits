@@ -2,6 +2,7 @@ import data.users as usrs
 import data.food as food
 import data.db_connect as con
 import pytest
+import datetime
 
 MIN_USERS = 1
 MIN_USERNAME_LEN = 4
@@ -11,11 +12,8 @@ MIN_USERNAME_LEN = 4
 def temp_user():
     print("GOING TO CONNECT")
     con.connect_db()
-    username = usrs._get_test_username()
-    name = usrs._get_test_name()
-    ret = usrs.create_user(username, name)
-    print(f'{ret=}')
-    print(f'User {username}: {usrs.user_exists(username)}')
+    test_user = usrs._create_test_user()
+    username = test_user[usrs.USERNAME]
     yield username
     if usrs.user_exists(username):
         usrs.remove_user(username)
@@ -69,8 +67,8 @@ def test_add_user_dup_name(temp_user):
     print(f'{temp_user=}')
     print(f'{usrs.user_exists(temp_user)}')
     with pytest.raises(ValueError):
-        usrs.create_user(temp_user, 'Jane')
-
+        exp = usrs._get_test_exp()
+        usrs.create_user(temp_user, 'Jane', exp)
 
 
 def test_add_user_blank_name():
@@ -78,7 +76,8 @@ def test_add_user_blank_name():
     Make sure a blank game name raises a ValueError.
     """
     with pytest.raises(ValueError):
-        usrs.create_user('', 'Jane')
+        exp = usrs._get_test_exp()
+        usrs.create_user('', 'Jane', exp)
 
 
 def test_del_game(temp_user):
