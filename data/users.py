@@ -9,7 +9,9 @@ import requests
 import data.db_connect as con
 from PIL import Image
 import pytesseract
-
+import datetime
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 TEST_USERNAME_LENGTH = 6
 TEST_NAME_LENGTH = 6
@@ -21,56 +23,7 @@ SAVED_RECIPES = 'Saved_Recipes'
 INSTACART_USR = 'Instacart_User_Info'
 GROCERY_LIST = 'Grocery List'
 ALLERGENS = 'Allergens'
-# USERS = {
-#     'cc6956':
-#         {
-#             NAME: 'Calvin',
-#             PANTRY: [
-#                 data.food.get_food('chicken breast', 1, 'lb'),
-#                 data.food.get_food('soy sauce', 1, 'gal'),
-#                 ],
-#             SAVED_RECIPES: {},
-#             INSTACART_USR: None,
-#             GROCERY_LIST: [],
-#             ALLERGENS: [],
-#         },
-#     'gt2125':
-#         {
-#             NAME: 'Gayatri',
-#             PANTRY: [
-#                 data.food.get_food('romaine lettace', 1, 'lb'),
-#                 data.food.get_food('egg', 24, 'count'),
-#                 ],
-#             SAVED_RECIPES: {},
-#             INSTACART_USR: None,
-#             GROCERY_LIST: [],
-#             ALLERGENS: [],
-#         },
-#     'yh3595':
-#         {
-#             NAME: 'Jason',
-#             PANTRY: [
-#                 data.food.get_food('steak', 3, 'lb'),
-#                 data.food.get_food('potatoes', 5, 'count'),
-#                 ],
-#             SAVED_RECIPES: {},
-#             INSTACART_USR: None,
-#             GROCERY_LIST: [],
-#             ALLERGENS: [],
-#         },
-#     'nz2065':
-#         {
-#             NAME: 'Nashra',
-#             PANTRY: [
-#                 data.food.get_food('chicken thigh', 0.25, 'lb'),
-#                 data.food.get_food('grapes', 5, 'count'),
-#                 ],
-#             SAVED_RECIPES: {},
-#             INSTACART_USR: None,
-#             GROCERY_LIST: [],
-#             ALLERGENS: [],
-#         },
-# }
+AUTH_EXPIRES = "Auth_Exp"
 
 
 def _get_test_username():
@@ -111,7 +64,7 @@ def get_users():
     con.connect_db()
     users = con.fetch_all(con.USERS_COLLECTION)
     for user in users:
-        user["_id"] = str(user["_id"])
+        user[con.MONGO_ID] = str(user[con.MONGO_ID])
     return users
 
 
@@ -119,14 +72,51 @@ def get_user(username: str) -> str:
     con.connect_db()
     try:
         res = con.fetch_one(con.USERS_COLLECTION, {USERNAME: username})
-        res["_id"] = str(res["_id"])
+        res[con.MONGO_ID] = str(res[con.MONGO_ID])
     except ValueError:
         raise ValueError(f'User {username} does not exist')
 
     return res
 
 
-def create_user(username: str, name: str) -> str:
+def auth_expired(username: str) -> bool:
+    exp = con.fetch_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {AUTH_EXPIRES: 1, con.MONGO_ID: 0}
+    )
+    
+    return exp > datetime.datetime.now()
+
+
+def valid_authentication(google_id_token):
+    idinfo = id_token.verify_oauth2_token(google_id_token, requests.Request())
+    exp = datetime.datetime(idinfo['exp'])
+    if exp < datetime.datetime.now():
+        raise ValueError("Expired token")
+    return idinfo
+
+
+def auth_user(google_id_token):
+    try:
+        id_info = valid_authentication(google_id_token)
+        username = id_info['email']
+        if not user_exists(username):
+            raise ValueError("User associated with token does not exist")
+
+        exp = datetime.datetime(id_info['exp'])
+        con.update_one(
+            con.USERS_COLLECTION,
+            {USERNAME: username},
+            {AUTH_EXPIRES: exp}
+        )
+
+    except ValueError as ex:
+        # Invalid token
+        raise ex
+
+
+def create_user(username: str, name: str, expires: datetime.datetime) -> str:
     con.connect_db()
     if len(username) < 5:
         raise ValueError(f'Username {username} is too short')
@@ -145,6 +135,7 @@ def create_user(username: str, name: str) -> str:
         INSTACART_USR: None,
         GROCERY_LIST: [],
         ALLERGENS: [],
+        AUTH_EXPIRES: expires,
     }
 
     add_ret = con.insert_one(con.USERS_COLLECTION, new_user)
@@ -171,7 +162,7 @@ def get_pantry(username):
     pantry_res = con.fetch_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {PANTRY: 1, "_id": 0}
+        {PANTRY: 1, con.MONGO_ID: 0}
     )
 
     return pantry_res
@@ -198,7 +189,7 @@ def get_recipes(username):
     recipes_res = con.fetch_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {SAVED_RECIPES: 1, "_id": 0}
+        {SAVED_RECIPES: 1, con.MONGO_ID: 0}
     )
 
     return recipes_res

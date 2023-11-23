@@ -3,6 +3,7 @@ This is the file containing all of the endpoints for our flask app.
 The endpoint called `endpoints` will return all available endpoints.
 """
 
+import datetime
 from flask import Flask, request
 from flask_restx import Resource, Api, fields
 import data.users as users
@@ -105,17 +106,20 @@ class Users(Resource):
     @api.expect(user_fields)
     def post(self):
         """
-        This method creates a new user with a username & name
+        This method creates a new user with an id_token
         in request body
         """
         data = request.json
         print(f'{data=}')
-
+        
         try:
-            resp = users.create_user(
-                data[users.USERNAME],
-                data[users.USERNAME]
-            )
+            id_token = data['id_token']
+            id_info = users.valid_authentication(id_token)
+
+            username = id_info['email']
+            name = id_info['name']
+            exp = datetime.datetime(id_info['exp'])
+            users.create_user(username, name, exp)
 
             status = OK
         except ValueError:
