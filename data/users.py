@@ -95,7 +95,7 @@ def auth_expired(username: str) -> bool:
         {AUTH_EXPIRES: 1, con.MONGO_ID: 0}
     )
 
-    return exp > datetime.datetime.now().timestamp()
+    return exp[AUTH_EXPIRES] <= datetime.datetime.now().timestamp()
 
 
 def valid_authentication(google_id_token):

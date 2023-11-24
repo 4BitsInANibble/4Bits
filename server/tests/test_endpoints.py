@@ -121,8 +121,15 @@ def test_get_recipes_invalid(connect_db):
 
 
 @patch('data.users.remove_user', return_value=None, autospec=True)
-def test_remove_user(connect_db):
-    username = 'cc6956'
+def test_remove_user(connect_db, valid_username):
+    username = valid_username
+    resp = TEST_CLIENT.delete(f'{ep.USERS_EP}/{username}')
+    assert resp.status_code == NO_CONTENT
+
+
+@patch('data.users.remove_user', return_value=None, autospec=True)
+def test_remove_nonexist_user(connect_db):
+    username = usrs._get_test_username()
     resp = TEST_CLIENT.delete(f'{ep.USERS_EP}/{username}')
     assert resp.status_code == NO_CONTENT
 

@@ -10,7 +10,8 @@ import data.users as users
 from http.client import (
     OK,
     CONFLICT,
-    UNAUTHORIZED
+    UNAUTHORIZED,
+    NO_CONTENT
 )
 
 app = Flask(__name__)
@@ -42,6 +43,7 @@ RETURN = 'Return'
 RECIPE_EP = '/recipe'
 RECIPE_OWNER = 'User'
 USER_EXISTS = 'User_Exists'
+AUTH_EP = '/auth'
 
 user_fields = api.model('User', {
     users.USERNAME: fields.String,
@@ -118,7 +120,6 @@ class Users(Resource):
             id_token = data['id_token']
             id_info = users.valid_authentication(id_token)
 
-            # id_info = data['id_token']
             username = id_info['email']
             name = id_info['name']
             exp = datetime.datetime.fromtimestamp(id_info['exp'])
@@ -141,6 +142,8 @@ class UserById(Resource):
         This method returns a user of username 'username'
         """
         try:
+            if users.auth_expired(username):
+                raise users.AuthTokenExpired()
 
             data = users.get_user(username)
             print(f"{data=}")
@@ -153,6 +156,9 @@ class UserById(Resource):
         except ValueError:
             resp = None
             status = CONFLICT
+        except users.AuthTokenExpired():
+            resp = None
+            status = UNAUTHORIZED
 
         return resp, status
 
@@ -160,9 +166,32 @@ class UserById(Resource):
         """
         This method removes a user of username 'username'
         """
+        if users.user_exists(username) and users.auth_expired(username):
+            status = UNAUTHORIZED
+        else:
+            users.remove_user(username)
+            status = NO_CONTENT
 
-        users.remove_user(username)
-        return None, 204
+        return None, status
+
+
+@api.route(f'{USERS_EP}{AUTH_EP}')
+class AuthUser(Resource):
+    def post(self) -> dict:
+        """
+        This method accepts a google id_token and updates the
+        expiry date of the corresponding user
+        """
+        data = request.json
+        try:
+            users.auth_user(data['id_token'])
+
+            status = OK
+        except ValueError:
+            resp = None
+            status = CONFLICT
+
+        return resp, status
 
 
 @api.route(f'{USERS_EP}/<username>{PANTRY_EP}')
