@@ -10,6 +10,7 @@ import data.users as users
 from http.client import (
     OK,
     CONFLICT,
+    UNAUTHORIZED
 )
 
 app = Flask(__name__)
@@ -114,10 +115,10 @@ class Users(Resource):
         print(f'{data=}')
 
         try:
-            # id_token = data['id_token']
-            # id_info = users.valid_authentication(id_token)
+            id_token = data['id_token']
+            id_info = users.valid_authentication(id_token)
 
-            id_info = data['id_token']
+            # id_info = data['id_token']
             username = id_info['email']
             name = id_info['name']
             exp = datetime.datetime.fromtimestamp(id_info['exp'])
@@ -127,6 +128,8 @@ class Users(Resource):
             status = OK
         except ValueError:
             status = CONFLICT
+        except users.AuthTokenExpired:
+            status = UNAUTHORIZED
 
         return None, status
 

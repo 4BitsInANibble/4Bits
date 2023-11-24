@@ -15,10 +15,17 @@ from http.client import (
     OK,
     SERVICE_UNAVAILABLE,
     CONFLICT,
-    NO_CONTENT
+    NO_CONTENT,
+    UNAUTHORIZED
 )
 
 TEST_CLIENT = ep.app.test_client()
+
+TEST_OAUTH_TOKEN = {
+        'email': "TESTING",
+        'name': "TESTING",
+        'exp': int((datetime.datetime.now() + datetime.timedelta(hours=1)).timestamp())
+    }
 
 @pytest.fixture(scope='function')
 def connect_db():
@@ -121,16 +128,10 @@ def test_remove_user(connect_db):
 
 
 @patch('data.users.create_user', return_value=None, autospec=True)
-def test_add_user(mock_add):
-    exp = datetime.datetime.now() + datetime.timedelta(hours=1)
-    exp = int(exp.timestamp())
-
+@patch('google.oauth2.id_token.verify_oauth2_token', return_value=TEST_OAUTH_TOKEN, autospec=True)
+def test_add_user(mock_add, mock_token):
     data = {
-        "id_token": {
-            'email': "TESTING",
-            'name': "TESTING",
-            'exp': exp
-        }
+        "id_token": "TESTING"
     }
 
     resp = TEST_CLIENT.post(f'{ep.USERS_EP}', json=data)
@@ -138,19 +139,25 @@ def test_add_user(mock_add):
     assert resp.status_code == OK
 
 @patch('data.users.create_user', side_effect=ValueError(), autospec=True)
-def test_add_user_dup(mock_add):
-    exp = datetime.datetime.now() + datetime.timedelta(hours=1)
-    exp = int(exp.timestamp())
-
+@patch('google.oauth2.id_token.verify_oauth2_token', return_value=TEST_OAUTH_TOKEN, autospec=True)
+def test_add_user_dup(mock_add, mock_token):
     data = {
-        "id_token": {
-            'email': "TESTING",
-            'name': "TESTING",
-            'exp': exp
-        }
+        "id_token": "TESTING"
     }
 
     resp = TEST_CLIENT.post(f'{ep.USERS_EP}', json=data)
     print(f'{resp=}')
     assert resp.status_code == CONFLICT
+
+
+@patch('data.users.create_user', return_value=None, autospec=True)
+@patch('google.oauth2.id_token.verify_oauth2_token', side_effect=usrs.AuthTokenExpired(), autospec=True)
+def test_add_user_expired(mock_add, mock_token):
+    data = {
+        "id_token": "TESTING"
+    }
+
+    resp = TEST_CLIENT.post(f'{ep.USERS_EP}', json=data)
+    print(f'{resp=}')
+    assert resp.status_code == UNAUTHORIZED
 
