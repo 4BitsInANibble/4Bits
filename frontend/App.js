@@ -14,16 +14,19 @@ const App = () => {
   const onChangeSearch = query => setSearchQuery(query);
 
   const theme = useTheme();
-  return(
-    <Searchbar placeholder="Search"
-    onChangeText={onChangeSearch}
-    value={searchQuery}
-    />
-  );
+  // return(
+    
+  //   <Searchbar placeholder="Search"
+  //   onChangeText={onChangeSearch}
+  //   value={searchQuery}
+  //   />
+  // );
 
   return (
+
     <SafeAreaProvider>
     <SafeAreaView>
+      <Searchbar style={styles.search} placeholder="What would you like to cook today?" onChangeText={onChangeSearch} value={searchQuery} elevation="2"/>
         <Appbar style={styles.item} >  
         <Appbar.Action size= {30} color= 'orange' icon="home" onPress={() => {}} />
         <Appbar.Action size= {30} color= 'orange' icon="scan-helper" onPress={() => {}} /> 
@@ -35,18 +38,27 @@ const App = () => {
 
     </SafeAreaView>
     </SafeAreaProvider>
+
+
   );
     
 };
 
 
+
+
 const styles = StyleSheet.create({
   item: {
-    marginTop: 720,
+    marginTop: 420,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  search: {
+    marginTop: 250,
+    backgroundColor: 'orange',
+    placeholderTextColor: 'white',
   }
 });
 
