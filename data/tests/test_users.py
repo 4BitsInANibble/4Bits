@@ -80,13 +80,14 @@ def test_add_user_blank_name():
         usrs.create_user('', 'Jane', exp)
 
 
-def test_del_game(temp_user):
+def test_del_user(temp_user):
     name = temp_user
     usrs.remove_user(name)
     assert not usrs.user_exists(name)
 
 
-def test_del_game_not_there():
+def test_del_user_not_there():
     name = usrs._get_test_name()
     with pytest.raises(ValueError):
         usrs.remove_user(name)
+

@@ -21,12 +21,6 @@ from http.client import (
 
 TEST_CLIENT = ep.app.test_client()
 
-TEST_OAUTH_TOKEN = {
-        'email': "TESTING",
-        'name': "TESTING",
-        'exp': int((datetime.datetime.now() + datetime.timedelta(hours=1)).timestamp())
-    }
-
 @pytest.fixture(scope='function')
 def connect_db():
     con.connect_db()
@@ -48,7 +42,7 @@ def valid_username():
     print(f'{username=}')
     yield username
 
-    if temp_user:
+    if temp_user and usrs.user_exists(username):
         usrs.remove_user(username)
     
 
@@ -135,7 +129,7 @@ def test_remove_nonexist_user(connect_db):
 
 
 @patch('data.users.create_user', return_value=None, autospec=True)
-@patch('google.oauth2.id_token.verify_oauth2_token', return_value=TEST_OAUTH_TOKEN, autospec=True)
+@patch('google.oauth2.id_token.verify_oauth2_token', return_value=usrs._get_test_auth_token(), autospec=True)
 def test_add_user(mock_add, mock_token):
     data = {
         "id_token": "TESTING"
@@ -146,7 +140,7 @@ def test_add_user(mock_add, mock_token):
     assert resp.status_code == OK
 
 @patch('data.users.create_user', side_effect=ValueError(), autospec=True)
-@patch('google.oauth2.id_token.verify_oauth2_token', return_value=TEST_OAUTH_TOKEN, autospec=True)
+@patch('google.oauth2.id_token.verify_oauth2_token', return_value=usrs._get_test_auth_token(), autospec=True)
 def test_add_user_dup(mock_add, mock_token):
     data = {
         "id_token": "TESTING"
@@ -168,3 +162,11 @@ def test_add_user_expired(mock_add, mock_token):
     print(f'{resp=}')
     assert resp.status_code == UNAUTHORIZED
 
+
+
+@patch('data.users.logout_user', return_value=None, autospec=True)
+def test_logout_user(mock_add, valid_username):
+    test_username = valid_username
+    resp = TEST_CLIENT.patch(f'{ep.USERS_EP}/{test_username}{ep.LOGOUT_EP}')
+    print(f'{resp=}')
+    assert resp.status_code == NO_CONTENT

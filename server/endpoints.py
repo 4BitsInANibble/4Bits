@@ -44,6 +44,7 @@ RECIPE_EP = '/recipe'
 RECIPE_OWNER = 'User'
 USER_EXISTS = 'User_Exists'
 AUTH_EP = '/auth'
+LOGOUT_EP = '/logout'
 
 user_fields = api.model('User', {
     users.USERNAME: fields.String,
@@ -156,7 +157,7 @@ class UserById(Resource):
         except ValueError:
             resp = None
             status = CONFLICT
-        except users.AuthTokenExpired():
+        except users.AuthTokenExpired:
             resp = None
             status = UNAUTHORIZED
 
@@ -177,7 +178,7 @@ class UserById(Resource):
 
 @api.route(f'{USERS_EP}{AUTH_EP}')
 class AuthUser(Resource):
-    def post(self) -> dict:
+    def patch(self) -> dict:
         """
         This method accepts a google id_token and updates the
         expiry date of the corresponding user
@@ -192,6 +193,23 @@ class AuthUser(Resource):
             status = CONFLICT
 
         return resp, status
+
+
+@api.route(f'{USERS_EP}/<username>{LOGOUT_EP}')
+class LogoutUser(Resource):
+    def patch(self, username) -> dict:
+        """
+        This method sets the exp of a user to 0
+        """
+        try:
+            users.logout_user(username)
+            status = NO_CONTENT
+        except ValueError:
+            status = CONFLICT
+        except users.AuthTokenExpired:
+            status = UNAUTHORIZED
+
+        return None, status
 
 
 @api.route(f'{USERS_EP}/<username>{PANTRY_EP}')

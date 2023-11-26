@@ -50,6 +50,15 @@ def _get_test_exp():
     return datetime.datetime.now() + datetime.timedelta(hours=1)
 
 
+def _get_test_auth_token(username="TESTING"):
+    return {
+        'email': username,
+        'name': username,
+        'exp': int((datetime.datetime.now() +
+                    datetime.timedelta(hours=1)).timestamp())
+    }
+
+
 def user_exists(username):
     con.connect_db()
     try:
@@ -79,6 +88,8 @@ def get_users():
 
 def get_user(username: str) -> str:
     con.connect_db()
+    if auth_expired(username):
+        raise AuthTokenExpired("User's Authentication Token is expired")
     try:
         res = con.fetch_one(con.USERS_COLLECTION, {USERNAME: username})
         res[con.MONGO_ID] = str(res[con.MONGO_ID])
@@ -115,7 +126,8 @@ def auth_user(google_id_token):
         if not user_exists(username):
             raise ValueError("User associated with token does not exist")
 
-        exp = datetime.datetime(id_info['exp'])
+        exp = datetime.datetime.fromtimestamp(id_info['exp'])
+
         con.update_one(
             con.USERS_COLLECTION,
             {USERNAME: username},
@@ -124,6 +136,8 @@ def auth_user(google_id_token):
 
     except ValueError as ex:
         # Invalid token
+        raise ex
+    except AuthTokenExpired as ex:
         raise ex
 
 
@@ -164,6 +178,20 @@ def remove_user(username):
 
     print(f'{del_res}')
     return f'Successfully deleted {username}'
+
+
+def logout_user(username):
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
+
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {AUTH_EXPIRES: 0}
+    )
 
 
 def get_pantry(username):
