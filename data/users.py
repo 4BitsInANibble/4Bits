@@ -27,8 +27,10 @@ GROCERY_LIST = 'Grocery List'
 ALLERGENS = 'Allergens'
 AUTH_EXPIRES = "Auth_Exp"
 
+
 class AuthTokenExpired(Exception):
     pass
+
 
 def _get_test_username():
     con.connect_db()
