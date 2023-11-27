@@ -3,9 +3,9 @@ This module interfaces with user data.
 """
 
 # import data.food
+import os
 import random
 from string import ascii_uppercase
-# import requests
 import data.db_connect as con
 from PIL import Image
 import pytesseract
@@ -115,6 +115,11 @@ def valid_authentication(google_id_token):
     # Add check for CLIENT ID for app that accesses authentication
     # Maybe save valid CLIENT ID to check against in os.environ()
     idinfo = id_token.verify_oauth2_token(google_id_token, requests.Request())
+
+    # aud = idinfo['aud']
+    # if os.environ.get("GOOGLE_CLIENT_ID") != aud:
+    #     raise ValueError("Invalid Token")
+    
     exp = idinfo['exp']
     if exp < datetime.datetime.now().timestamp():
         raise AuthTokenExpired("Expired token")
