@@ -5,6 +5,7 @@ export PROJ_DIR=$PWD
 export DEBUG=1
 export MONGO_DB_USRNAME=nz2065
 export MONGO_DB_PASSWORD=Cbf6EvI2pewBj8KM
+export OPENAI_KEY=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
 
 # run our server locally:
 PYTHONPATH=$(pwd):$PYTHONPATH
