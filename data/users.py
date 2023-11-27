@@ -27,11 +27,8 @@ GROCERY_LIST = 'Grocery List'
 ALLERGENS = 'Allergens'
 AUTH_EXPIRES = "Auth_Exp"
 
-
-
 class AuthTokenExpired(Exception):
     pass
-
 
 def _get_test_username():
     con.connect_db()
@@ -303,6 +300,7 @@ def remove_recipe(username, recipe):
 
 
 def recognize_receipt(image_path=None, image=None):
+    openai.api_key = os.environ.get("OPENAI_KEY")
     if (image_path and not image):
         # Load the image from the specified path
         image = Image.open(image_path)
@@ -321,7 +319,7 @@ def recognize_receipt(image_path=None, image=None):
     # except:
     #     return None
     return ocr_text
-    # openai.api_key = os.environ.get("OPENAI_KEY")
+    
     # prompt = f"Extract pantry items from the following text: {ocr_text}"
     # response = openai.Completion.create(
     #     engine="gpt-3.5-turbo",
