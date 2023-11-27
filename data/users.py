@@ -315,6 +315,12 @@ def recognize_receipt(image_path=None, image=None):
     # with open('extracted_text.txt', 'w', encoding='utf-8') as file:
     #     file.write(text)
 
+    try{
+        test = openai.key
+    } except{
+        return None
+    }
+    
     prompt = f"Extract pantry items from the following text: {ocr_text}"
     response = openai.Completion.create(
         engine="gpt-3.5-turbo",
