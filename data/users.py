@@ -321,21 +321,16 @@ def recognize_receipt(image_path=None, image=None):
     # except:
     #     return None
     return ocr_text
-    
     # prompt = f"Extract pantry items from the following text: {ocr_text}"
     # response = openai.Completion.create(
     #     engine="gpt-3.5-turbo",
     #     prompt=prompt,
     #     max_tokens=200  # You can adjust this value based on your needs
     # )
-    
     #  # Extract the generated text from ChatGPT's response
-    # generated_text = response.choices[0].text.strip()
-    
+    # generated_text = response.choices[0].text.strip() 
     # # Split the generated text into individual pantry items
-    # pantry_items = generated_text.split('\n')
-    
+    # pantry_items = generated_text.split('\n')    
     # # Remove any empty or whitespace-only items
-    # pantry_items = [item.strip() for item in pantry_items if item.strip()]
-    
+    # pantry_items = [item.strip() for item in pantry_items if item.strip()]  
     # return pantry_items
