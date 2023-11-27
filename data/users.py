@@ -26,7 +26,7 @@ INSTACART_USR = 'Instacart_User_Info'
 GROCERY_LIST = 'Grocery List'
 ALLERGENS = 'Allergens'
 AUTH_EXPIRES = "Auth_Exp"
-openai.api_key = os.environ.get("OPENAI_KEY")
+
 
 
 class AuthTokenExpired(Exception):
@@ -320,8 +320,8 @@ def recognize_receipt(image_path=None, image=None):
     #     test = openai.api_key
     # except:
     #     return None
-    
-    
+    return ocr_text
+    # openai.api_key = os.environ.get("OPENAI_KEY")
     # prompt = f"Extract pantry items from the following text: {ocr_text}"
     # response = openai.Completion.create(
     #     engine="gpt-3.5-turbo",
