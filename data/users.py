@@ -10,6 +10,7 @@ import data.db_connect as con
 from PIL import Image
 import pytesseract
 import datetime
+import openai
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
@@ -24,6 +25,7 @@ INSTACART_USR = 'Instacart_User_Info'
 GROCERY_LIST = 'Grocery List'
 ALLERGENS = 'Allergens'
 AUTH_EXPIRES = "Auth_Exp"
+openai.api_key = 'YOUR_OPENAI_API_KEY'
 
 
 class AuthTokenExpired(Exception):
@@ -306,10 +308,27 @@ def recognize_receipt(image_path=None, image=None):
     elif (not image):  # neither the path nor image is provided
         return None
     # Perform OCR using pytesseract
-    text = pytesseract.image_to_string(image)
+    ocr_text = pytesseract.image_to_string(image)
     # Print or save the extracted text
-    print(text)
+    print(ocr_text)
     # Optionally, save the text to a file
     # with open('extracted_text.txt', 'w', encoding='utf-8') as file:
     #     file.write(text)
-    return text
+
+    prompt = f"Extract pantry items from the following text: {ocr_text}"
+    response = openai.Completion.create(
+        engine="gpt-3.5-turbo",
+        prompt=prompt,
+        max_tokens=200  # You can adjust this value based on your needs
+    )
+    
+     # Extract the generated text from ChatGPT's response
+    generated_text = response.choices[0].text.strip()
+    
+    # Split the generated text into individual pantry items
+    pantry_items = generated_text.split('\n')
+    
+    # Remove any empty or whitespace-only items
+    pantry_items = [item.strip() for item in pantry_items if item.strip()]
+    
+    return pantry_items
