@@ -3,7 +3,6 @@ This is the file containing all of the endpoints for our flask app.
 The endpoint called `endpoints` will return all available endpoints.
 """
 
-import datetime
 from flask import Flask, request
 from flask_restx import Resource, Api, fields
 import data.users as users
@@ -11,7 +10,8 @@ from http.client import (
     OK,
     CONFLICT,
     UNAUTHORIZED,
-    NO_CONTENT
+    NO_CONTENT,
+    BAD_REQUEST
 )
 
 app = Flask(__name__)
@@ -119,19 +119,15 @@ class Users(Resource):
 
         try:
             id_token = data['id_token']
-            id_info = users.valid_authentication(id_token)
-
-            username = id_info['email']
-            name = id_info['name']
-            exp = datetime.datetime.fromtimestamp(id_info['exp'])
-            print(username, name, exp)
-            users.create_user(username, name, exp)
+            users.generate_google_user(id_token)
 
             status = OK
         except ValueError:
             status = CONFLICT
         except users.AuthTokenExpired:
             status = UNAUTHORIZED
+        except KeyError:
+            status = BAD_REQUEST
 
         return None, status
 
@@ -143,9 +139,6 @@ class UserById(Resource):
         This method returns a user of username 'username'
         """
         try:
-            if users.auth_expired(username):
-                raise users.AuthTokenExpired()
-
             data = users.get_user(username)
             print(f"{data=}")
             resp = {
@@ -167,11 +160,13 @@ class UserById(Resource):
         """
         This method removes a user of username 'username'
         """
-        if users.user_exists(username) and users.auth_expired(username):
-            status = UNAUTHORIZED
-        else:
+        try:
             users.remove_user(username)
             status = NO_CONTENT
+        except ValueError:
+            status = CONFLICT
+        except users.AuthTokenExpired:
+            status = UNAUTHORIZED
 
         return None, status
 
@@ -187,12 +182,11 @@ class AuthUser(Resource):
         try:
             users.auth_user(data['id_token'])
 
-            status = OK
+            status = NO_CONTENT
         except ValueError:
-            resp = None
             status = CONFLICT
 
-        return resp, status
+        return None, status
 
 
 @api.route(f'{USERS_EP}/<username>{LOGOUT_EP}')

@@ -141,6 +141,16 @@ def auth_user(google_id_token):
         raise ex
 
 
+def generate_google_user(google_id_token):
+    id_info = valid_authentication(google_id_token)
+
+    username = id_info['email']
+    name = id_info['name']
+    exp = datetime.datetime.fromtimestamp(id_info['exp'])
+    print(username, name, exp)
+    create_user(username, name, exp)
+
+
 def create_user(username: str, name: str, expires: datetime.datetime) -> dict:
     con.connect_db()
     if len(username) < 5:
@@ -173,6 +183,8 @@ def remove_user(username):
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
 
     del_res = con.del_one(con.USERS_COLLECTION, {USERNAME: username})
 
