@@ -10,6 +10,7 @@ import data.db_connect as con
 from PIL import Image
 import pytesseract
 import datetime
+import os
 import openai
 from google.oauth2 import id_token
 from google.auth.transport import requests
