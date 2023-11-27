@@ -10,7 +10,6 @@ import data.db_connect as con
 from PIL import Image
 import pytesseract
 import datetime
-import os
 import openai
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -119,7 +118,7 @@ def valid_authentication(google_id_token):
     # aud = idinfo['aud']
     # if os.environ.get("GOOGLE_CLIENT_ID") != aud:
     #     raise ValueError("Invalid Token")
-    
+
     exp = idinfo['exp']
     if exp < datetime.datetime.now().timestamp():
         raise AuthTokenExpired("Expired token")
