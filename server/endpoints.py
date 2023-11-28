@@ -311,7 +311,7 @@ class RecipeById(Resource):
             resp = None
             status_code = CONFLICT
         except users.AuthTokenExpired:
-            status = UNAUTHORIZED
+            status_code = UNAUTHORIZED
 
         return resp, status_code
 

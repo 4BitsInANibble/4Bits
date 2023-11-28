@@ -218,7 +218,6 @@ def get_pantry(username):
         raise ValueError(f'User {username} does not exist')
     if auth_expired(username):
         raise AuthTokenExpired("User's authentication token is expired")
-    
 
     pantry_res = con.fetch_one(
         con.USERS_COLLECTION,
