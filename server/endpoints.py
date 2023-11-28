@@ -166,7 +166,6 @@ class UserById(Resource):
 
         return resp, status
 
-
     @api.response(204, "No Content")
     @api.response(409, "Conflict")
     @api.response(403, "Unauthorized")
@@ -184,14 +183,13 @@ class UserById(Resource):
 
         return None, status
 
-
     @api.expect(user_fields)
     @api.response(204, "No Content")
     @api.response(409, "Conflict")
     def post(self, username):
         """
         Endpoint to test putting in users into db
-        This method adds a user of username 'username' with a name field 
+        This method adds a user of username 'username' with a name field
         in the request body
         Eventually use this ep for self-implemented authentication/login system
         """
