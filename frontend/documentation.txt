@@ -1,6 +1,0 @@
-10/29
-
-Added a toolbar to app
-
-Next steps:
-    1. Figure out icons/logo for app to add it to the app
