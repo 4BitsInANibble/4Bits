@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React, { Component } from 'react';
-import { Appbar, BottomNavigation, FAB, useTheme, Searchbar } from 'react-native-paper';
+import { Appbar, BottomNavigation, FAB, useTheme, Searchbar, Button } from 'react-native-paper';
 import {useSafeAreaInsets, SafeAreaProvider} from 'react-native-safe-area-context';
 
 
@@ -26,14 +26,16 @@ const App = () => {
 
     <SafeAreaProvider>
     <SafeAreaView>
-      <Searchbar style={styles.search} placeholder="What would you like to cook today?" onChangeText={onChangeSearch} value={searchQuery} elevation="2"/>
+      <Text style={styles.head} variant="displayMedium">What would you like to cook today?</Text>
+      <Searchbar style={styles.search} lightTheme placeholder="Search" onChangeText={onChangeSearch} value={searchQuery} elevation="2"/>
+      <Button style={styles.button} mode="contained-tonal" textColor="#faf0e6" buttonColor="#ffb347" onPress={() => {}}>Explore your pantry</Button>
+      <Button style={styles.button} mode="contained-tonal" textColor="#faf0e6" buttonColor="#ffb347" onPress={() => {}}>Check your shopping cart</Button>
         <Appbar style={styles.item} >  
         <Appbar.Action size= {30} color= 'orange' icon="home" onPress={() => {}} />
         <Appbar.Action size= {30} color= 'orange' icon="scan-helper" onPress={() => {}} /> 
         <Appbar.Action size= {30} color= 'orange' icon="fridge-bottom" onPress={() => {}} />
         <Appbar.Action size= {30} color= 'orange' icon="cart-heart" onPress={() => {}} />
         <Appbar.Action size= {30} color= 'orange' icon="account" onPress={() => {}} /> 
-        
         </Appbar> 
 
     </SafeAreaView>
@@ -48,56 +50,38 @@ const App = () => {
 
 
 const styles = StyleSheet.create({
+  head: {
+    marginTop: 170,
+    textAlign: 'center',
+    fontSize: 35,
+    fontWeight: '500',
+    margin: 50,
+  },
+
   item: {
-    marginTop: 420,
+    marginTop: 245,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: 'black'
   },
   search: {
-    marginTop: 250,
+    marginTop: -30,
+    position: 'relative',
     backgroundColor: 'orange',
-    placeholderTextColor: 'white',
+    textDecorationColor: 'white',
+    shadowColor: 'orange',
+    padding: 5,
+    margin: 10,
+  },
+  button: {
+    padding: 5,
+    margin: 10,
+    fontFamily: 'Arial',
+    
+    
   }
 });
 
 export default App;
-
-
-// export default function App() {
-//   return (
-//   <SafeAreaView style={styles.container}>
-//     <View style={styles.toolbarView}></View>
-//     <ScrollView style={styles.buttonListView}></ScrollView>
-//   </SafeAreaView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   toolbarView: {
-//     width: 340,
-//     height: 66,
-//     backgroundColor: 'white',
-//     shadowColor: 'grey',
-//     shadowOffset: {width: 0, height: 8},
-//     shadowOpacity: 0.4,
-//     shadowRadius: 10,
-//     borderRadius: 12,
-//     marginHorizontal: 24,
-//     marginVertical: 40,
-//   },
-//   buttonListView:{
-//     position:'absolute',
-//     height: 66,
-//     width: '100%',
-//     marginHorizontal: 24,
-//     marginVertical: 40,
-//   }
-// });
-  // container: {
-  //   flex: 1,
-  //   backgroundColor: '#f5f5dc',
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  // },
