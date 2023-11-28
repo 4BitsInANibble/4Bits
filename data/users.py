@@ -216,6 +216,9 @@ def get_pantry(username):
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
+    
 
     pantry_res = con.fetch_one(
         con.USERS_COLLECTION,
@@ -230,6 +233,8 @@ def add_to_pantry(username: str, food: list[str]) -> str:
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
 
     con.update_one(
         con.USERS_COLLECTION,
@@ -243,6 +248,8 @@ def get_recipes(username):
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
 
     recipes_res = con.fetch_one(
         con.USERS_COLLECTION,
@@ -267,6 +274,8 @@ def add_to_recipes(username, recipe):
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
 
     con.update_one(
         con.USERS_COLLECTION,
@@ -281,6 +290,8 @@ def made_recipe(username, recipe):
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
 
     con.update_one(
         con.USERS_COLLECTION,
@@ -295,6 +306,8 @@ def remove_recipe(username, recipe):
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
 
     con.update_one(
         con.USERS_COLLECTION,

@@ -247,6 +247,7 @@ class LogoutUser(Resource):
 class PantryById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
+    @api.response(403, "Unauthorized")
     def get(self, username: str) -> dict:
         """
         This method returns the pantry of user with name
@@ -263,12 +264,15 @@ class PantryById(Resource):
         except ValueError:
             resp = None
             status = CONFLICT
+        except users.AuthTokenExpired:
+            status = UNAUTHORIZED
 
         return resp, status
 
     @api.expect(pantry_fields)
     @api.response(200, "Success")
     @api.response(409, "Conflict")
+    @api.response(403, "Unauthorized")
     def post(self, username):
         data = request.json
         print(f'{data=}')
@@ -279,6 +283,8 @@ class PantryById(Resource):
         except ValueError:
             resp = None
             status = CONFLICT
+        except users.AuthTokenExpired:
+            status = UNAUTHORIZED
 
         return resp, status
 
@@ -287,6 +293,7 @@ class PantryById(Resource):
 class RecipeById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
+    @api.response(403, "Unauthorized")
     def get(self, username):
         """
         This method returns the pantry of user with name
@@ -303,12 +310,15 @@ class RecipeById(Resource):
         except ValueError:
             resp = None
             status_code = CONFLICT
+        except users.AuthTokenExpired:
+            status = UNAUTHORIZED
 
         return resp, status_code
 
     @api.expect(recipe_fields)
     @api.response(200, "Success")
     @api.response(409, "Conflict")
+    @api.response(403, "Unauthorized")
     def post(self, username):
         data = request.json
         print(f'{data=}')
@@ -319,5 +329,7 @@ class RecipeById(Resource):
         except ValueError:
             resp = None
             status = CONFLICT
+        except users.AuthTokenExpired:
+            status = UNAUTHORIZED
 
         return resp, status
