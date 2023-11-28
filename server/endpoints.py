@@ -47,8 +47,11 @@ AUTH_EP = '/auth'
 LOGOUT_EP = '/logout'
 
 user_fields = api.model('User', {
-    users.USERNAME: fields.String,
-    users.NAME: fields.String,
+    "id_token": fields.String
+})
+
+test_fields = api.model('Test_User', {
+    "name": fields.String
 })
 
 recipe_fields = api.model('Recipe', {
@@ -93,6 +96,7 @@ class Users(Resource):
     """
     This class supports fetching a list of all users.
     """
+    @api.response(200, "Success")
     def get(self) -> dict:
         """
         This method returns all users.
@@ -109,6 +113,9 @@ class Users(Resource):
         return resp
 
     @api.expect(user_fields)
+    @api.response(200, "Success")
+    @api.response(403, "Unauthorized")
+    @api.response(400, "Bad Request")
     def post(self):
         """
         This method creates a new user with an id_token
@@ -134,6 +141,9 @@ class Users(Resource):
 
 @api.route(f'{USERS_EP}/<username>')
 class UserById(Resource):
+    @api.response(200, "Success")
+    @api.response(409, "Conflict")
+    @api.response(403, "Unauthorized")
     def get(self, username: str) -> dict:
         """
         This method returns a user of username 'username'
@@ -156,6 +166,10 @@ class UserById(Resource):
 
         return resp, status
 
+
+    @api.response(204, "No Content")
+    @api.response(409, "Conflict")
+    @api.response(403, "Unauthorized")
     def delete(self, username):
         """
         This method removes a user of username 'username'
@@ -171,8 +185,30 @@ class UserById(Resource):
         return None, status
 
 
+    @api.expect(user_fields)
+    @api.response(204, "No Content")
+    @api.response(409, "Conflict")
+    def post(self, username):
+        """
+        Endpoint to test putting in users into db
+        This method adds a user of username 'username' with a name field 
+        in the request body
+        Eventually use this ep for self-implemented authentication/login system
+        """
+        try:
+            data = request.json
+            expiry = users._get_test_exp()
+            users.create_user(username, data['name'], expiry)
+            status = NO_CONTENT
+        except ValueError:
+            status = CONFLICT
+        return None, status
+
+
 @api.route(f'{USERS_EP}{AUTH_EP}')
 class AuthUser(Resource):
+    @api.response(204, "No Content")
+    @api.response(409, "Conflict")
     def patch(self) -> dict:
         """
         This method accepts a google id_token and updates the
@@ -191,6 +227,9 @@ class AuthUser(Resource):
 
 @api.route(f'{USERS_EP}/<username>{LOGOUT_EP}')
 class LogoutUser(Resource):
+    @api.response(204, "No Content")
+    @api.response(409, "Conflict")
+    @api.response(403, "Unauthorized")
     def patch(self, username) -> dict:
         """
         This method sets the exp of a user to 0
@@ -208,6 +247,8 @@ class LogoutUser(Resource):
 
 @api.route(f'{USERS_EP}/<username>{PANTRY_EP}')
 class PantryById(Resource):
+    @api.response(200, "Success")
+    @api.response(409, "Conflict")
     def get(self, username: str) -> dict:
         """
         This method returns the pantry of user with name
@@ -228,6 +269,8 @@ class PantryById(Resource):
         return resp, status
 
     @api.expect(pantry_fields)
+    @api.response(200, "Success")
+    @api.response(409, "Conflict")
     def post(self, username):
         data = request.json
         print(f'{data=}')
@@ -244,6 +287,8 @@ class PantryById(Resource):
 
 @api.route(f'{USERS_EP}/<username>{RECIPE_EP}')
 class RecipeById(Resource):
+    @api.response(200, "Success")
+    @api.response(409, "Conflict")
     def get(self, username):
         """
         This method returns the pantry of user with name
@@ -264,6 +309,8 @@ class RecipeById(Resource):
         return resp, status_code
 
     @api.expect(recipe_fields)
+    @api.response(200, "Success")
+    @api.response(409, "Conflict")
     def post(self, username):
         data = request.json
         print(f'{data=}')

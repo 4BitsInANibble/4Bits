@@ -3,7 +3,7 @@
 export FLASK_ENV=development
 export PROJ_DIR=$PWD
 export DEBUG=1
-export MONGO_DB_USRNAME=nz2065
+export MONGO_DB_USERNAME=nz2065
 export MONGO_DB_PASSWORD=Cbf6EvI2pewBj8KM
 export OPENAI_KEY=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
 
