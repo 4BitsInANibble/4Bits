@@ -343,7 +343,7 @@ def recognize_receipt(image_path=None, image=None):
         prompt=prompt,
         max_tokens=200  # You can adjust this value based on your needs
     )
-     # Extract the generated text from ChatGPT's response
+    # Extract the generated text from ChatGPT's response
     generated_text = response.choices[0].text.strip()
     # Split the generated text into individual pantry items
     pantry_items = generated_text.split('\n')
