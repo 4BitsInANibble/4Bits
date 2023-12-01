@@ -135,7 +135,7 @@ def test_add_user(mock_add, mock_token):
         "id_token": "TESTING"
     }
 
-    resp = TEST_CLIENT.post(f'{ep.USERS_EP}', json=data)
+    resp = TEST_CLIENT.post(f'{ep.USERS_EP}{ep.REGISTER_EP}{ep.GOOGLE_EP}', json=data)
     print(f'{resp=}')
     assert resp.status_code == OK
 
@@ -146,7 +146,7 @@ def test_add_user_dup(mock_add, mock_token):
         "id_token": "TESTING"
     }
 
-    resp = TEST_CLIENT.post(f'{ep.USERS_EP}', json=data)
+    resp = TEST_CLIENT.post(f'{ep.USERS_EP}{ep.REGISTER_EP}{ep.GOOGLE_EP}', json=data)
     print(f'{resp=}')
     assert resp.status_code == CONFLICT
 
@@ -158,7 +158,7 @@ def test_add_user_expired(mock_add, mock_token):
         "id_token": "TESTING"
     }
 
-    resp = TEST_CLIENT.post(f'{ep.USERS_EP}', json=data)
+    resp = TEST_CLIENT.post(f'{ep.USERS_EP}{ep.REGISTER_EP}{ep.GOOGLE_EP}', json=data)
     print(f'{resp=}')
     assert resp.status_code == UNAUTHORIZED
 

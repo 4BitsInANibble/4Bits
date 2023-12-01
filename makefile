@@ -29,3 +29,9 @@ dev_env: FORCE
 
 docs: FORCE
 	cd $(API_DIR); make docs
+
+mongo: FORCE
+	sudo systemctl start mongod
+
+mongo_status:
+	sudo systemctl status mongod

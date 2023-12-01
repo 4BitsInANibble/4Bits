@@ -45,6 +45,9 @@ RECIPE_OWNER = 'User'
 USER_EXISTS = 'User_Exists'
 AUTH_EP = '/auth'
 LOGOUT_EP = '/logout'
+GOOGLE_EP = '/google'
+REGISTER_EP = '/register'
+REGISTER_TITLE = "Registered User Data"
 
 user_fields = api.model('User', {
     "id_token": fields.String
@@ -112,31 +115,24 @@ class Users(Resource):
 
         return resp
 
-    @api.expect(user_fields)
-    @api.response(200, "Success")
-    @api.response(403, "Unauthorized")
-    @api.response(400, "Bad Request")
     def post(self):
-        """
-        This method creates a new user with an id_token
-        in request body
-        """
-        data = request.json
-        print(f'{data=}')
-
+        data = None
         try:
-            id_token = data['id_token']
-            users.generate_google_user(id_token)
+            data = request.json
+            username = data['username']
+            name = data['name']
+            password = data['password']
 
+            data = users.register_user(username, name, password)
             status = OK
         except ValueError:
             status = CONFLICT
-        except users.AuthTokenExpired:
-            status = UNAUTHORIZED
-        except KeyError:
-            status = BAD_REQUEST
-
-        return None, status
+        resp = {
+                TYPE: DATA,
+                TITLE: REGISTER_TITLE,
+                DATA: data,
+            }
+        return resp, status
 
 
 @api.route(f'{USERS_EP}/<username>')
@@ -195,7 +191,7 @@ class UserById(Resource):
         """
         try:
             data = request.json
-            expiry = users._get_test_exp()
+            expiry = users.generate_exp()
             users.create_user(username, data['name'], expiry)
             status = NO_CONTENT
         except ValueError:
@@ -204,7 +200,7 @@ class UserById(Resource):
 
 
 @api.route(f'{USERS_EP}{AUTH_EP}')
-class AuthUser(Resource):
+class AuthUserGoogle(Resource):
     @api.response(204, "No Content")
     @api.response(409, "Conflict")
     def patch(self) -> dict:
@@ -212,9 +208,9 @@ class AuthUser(Resource):
         This method accepts a google id_token and updates the
         expiry date of the corresponding user
         """
-        data = request.json
         try:
-            users.auth_user(data['id_token'])
+            token = request.headers.get('Authorization')
+            users.auth_user(token)
 
             status = NO_CONTENT
         except ValueError:
@@ -239,6 +235,35 @@ class LogoutUser(Resource):
             status = CONFLICT
         except users.AuthTokenExpired:
             status = UNAUTHORIZED
+
+        return None, status
+
+
+@api.route(f'{USERS_EP}{REGISTER_EP}{GOOGLE_EP}')
+class RegisterUserGoogle(Resource):
+    @api.expect(user_fields)
+    @api.response(200, "Success")
+    @api.response(403, "Unauthorized")
+    @api.response(400, "Bad Request")
+    def post(self):
+        """
+        This method creates a new user with an id_token
+        in request body
+        """
+        data = request.json
+        print(f'{data=}')
+
+        try:
+            token = request.headers.get('Authorization')
+            users.generate_google_user(token)
+
+            status = OK
+        except ValueError:
+            status = CONFLICT
+        except users.AuthTokenExpired:
+            status = UNAUTHORIZED
+        except KeyError:
+            status = BAD_REQUEST
 
         return None, status
 

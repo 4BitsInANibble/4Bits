@@ -67,7 +67,7 @@ def test_add_user_dup_name(temp_user):
     print(f'{temp_user=}')
     print(f'{usrs.user_exists(temp_user)}')
     with pytest.raises(ValueError):
-        exp = usrs._get_test_exp()
+        exp = usrs.generate_exp()
         usrs.create_user(temp_user, 'Jane', exp)
 
 
@@ -76,7 +76,7 @@ def test_add_user_blank_name():
     Make sure a blank game name raises a ValueError.
     """
     with pytest.raises(ValueError):
-        exp = usrs._get_test_exp()
+        exp = usrs.generate_exp()
         usrs.create_user('', 'Jane', exp)
 
 

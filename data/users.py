@@ -13,6 +13,8 @@ import datetime
 import openai
 from google.oauth2 import id_token
 from google.auth.transport import requests
+from werkzeug.security import generate_password_hash
+import jwt
 
 TEST_USERNAME_LENGTH = 6
 TEST_NAME_LENGTH = 6
@@ -25,6 +27,8 @@ INSTACART_USR = 'Instacart_User_Info'
 GROCERY_LIST = 'Grocery List'
 ALLERGENS = 'Allergens'
 AUTH_EXPIRES = "Auth_Exp"
+AUTH_TYPE = "Auth_Type"
+PASSWORD = "Password"
 
 
 class AuthTokenExpired(Exception):
@@ -47,7 +51,7 @@ def _get_test_name():
     return name
 
 
-def _get_test_exp():
+def generate_exp():
     return datetime.datetime.now() + datetime.timedelta(hours=1)
 
 
@@ -73,7 +77,7 @@ def user_exists(username):
 def _create_test_user():
     username = _get_test_username()
     name = _get_test_name()
-    exp = _get_test_exp()
+    exp = generate_exp()
     print(username, name, exp)
     test_user = create_user(username, name, exp)
     return test_user
@@ -125,7 +129,11 @@ def valid_authentication(google_id_token):
     return idinfo
 
 
-def auth_user(google_id_token):
+def auth_user(token):
+    auth_user_google(token)
+
+
+def auth_user_google(google_id_token):
     try:
         id_info = valid_authentication(google_id_token)
         username = id_info['email']
@@ -176,6 +184,7 @@ def create_user(username: str, name: str, expires: datetime.datetime) -> dict:
         INSTACART_USR: None,
         GROCERY_LIST: [],
         ALLERGENS: [],
+        AUTH_TYPE: "Google",
         AUTH_EXPIRES: int(expires.timestamp()),
     }
     print(f'{new_user=}')
@@ -210,6 +219,54 @@ def logout_user(username):
         {USERNAME: username},
         {AUTH_EXPIRES: 0}
     )
+
+
+def generate_jwt(username, exp):
+
+    # Create the JWT payload
+    payload = {
+        'username': username,
+        'exp': exp
+    }
+
+    # Encode the JWT
+    token = jwt.encode(
+        payload,
+        os.environ.get("JWT_SECRET_KEY"),
+        algorithm='HS256'
+    )
+    return token
+
+
+def register_user(username, name, password):
+    con.connect_db()
+    if user_exists(username):
+        raise ValueError(f"User {username} already exists")
+
+    hashed_password = generate_password_hash(password, method='sha256')
+    exp = generate_exp().timestamp()
+    token = generate_jwt(username, exp)
+
+    new_user = {
+        USERNAME: username,
+        NAME: name,
+        PANTRY: [],
+        SAVED_RECIPES: {},
+        INSTACART_USR: None,
+        GROCERY_LIST: [],
+        ALLERGENS: [],
+        AUTH_TYPE: "Self",
+        AUTH_EXPIRES: exp,
+        PASSWORD: hashed_password
+    }
+
+    register_res = con.insert_one(
+        con.USERS_COLLECTION,
+        new_user
+    )
+    print(f'{register_res}')
+
+    return token
 
 
 def get_pantry(username):
