@@ -44,6 +44,7 @@ RECIPE_EP = '/recipe'
 RECIPE_OWNER = 'User'
 USER_EXISTS = 'User_Exists'
 AUTH_EP = '/auth'
+LOGIN_EP = '/login'
 LOGOUT_EP = '/logout'
 GOOGLE_EP = '/google'
 REGISTER_EP = '/register'
@@ -217,6 +218,27 @@ class AuthUserGoogle(Resource):
             status = CONFLICT
 
         return None, status
+
+
+@api.route(f'{USERS_EP}{LOGIN_EP}')
+class LoginUser(Resource):
+    @api.response(204, "No Content")
+    @api.response(409, "Conflict")
+    def patch(self) -> dict:
+        """
+        This method sets the exp of a user to 0
+        """
+        data = request.json
+        try:
+            username = data['username']
+            password = data['password']
+            users.login_user(username, password)
+            status = NO_CONTENT
+        except ValueError:
+            status = CONFLICT
+
+        return None, status
+
 
 
 @api.route(f'{USERS_EP}/<username>{LOGOUT_EP}')

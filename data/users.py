@@ -13,7 +13,7 @@ import datetime
 import openai
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 
 TEST_USERNAME_LENGTH = 6
@@ -140,7 +140,7 @@ def auth_user_google(google_id_token):
         if not user_exists(username):
             raise ValueError("User associated with token does not exist")
 
-        exp = datetime.datetime.fromtimestamp(id_info['exp'])
+        exp = int(id_info['exp'])
 
         con.update_one(
             con.USERS_COLLECTION,
@@ -160,7 +160,7 @@ def generate_google_user(google_id_token):
 
     username = id_info['email']
     name = id_info['name']
-    exp = datetime.datetime.fromtimestamp(id_info['exp'])
+    exp = int(id_info['exp'])
     print(username, name, exp)
     create_user(username, name, exp)
 
@@ -207,6 +207,32 @@ def remove_user(username):
     return f'Successfully deleted {username}'
 
 
+def login_user(username, password):
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    
+    user_password_obj = con.fetch_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {PASSWORD: 1, con.MONGO_ID: 0}
+    )
+    user_password = user_password_obj[PASSWORD]
+
+    if not check_password_hash(password, user_password):
+        raise ValueError('Password does not match')
+
+    exp = int(generate_exp().timestamp())
+    access_token = generate_jwt(username, exp)
+
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {AUTH_EXPIRES: exp}
+    )
+    return access_token
+
+
 def logout_user(username):
     con.connect_db()
     if not user_exists(username):
@@ -244,7 +270,7 @@ def register_user(username, name, password):
         raise ValueError(f"User {username} already exists")
 
     hashed_password = generate_password_hash(password, method='sha256')
-    exp = generate_exp().timestamp()
+    exp = int(generate_exp().timestamp())
     token = generate_jwt(username, exp)
 
     new_user = {
