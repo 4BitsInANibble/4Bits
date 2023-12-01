@@ -211,7 +211,7 @@ def login_user(username, password):
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
-    
+
     user_password_obj = con.fetch_one(
         con.USERS_COLLECTION,
         {USERNAME: username},

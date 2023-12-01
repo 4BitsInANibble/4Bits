@@ -240,7 +240,6 @@ class LoginUser(Resource):
         return None, status
 
 
-
 @api.route(f'{USERS_EP}/<username>{LOGOUT_EP}')
 class LogoutUser(Resource):
     @api.response(204, "No Content")
