@@ -51,7 +51,17 @@ REGISTER_EP = '/register'
 REGISTER_TITLE = "Registered User Data"
 
 user_fields = api.model('User', {
-    "id_token": fields.String
+    "Authorization": fields.String
+})
+
+test_user_fields = api.model('Test_User', {
+    "Authorization": fields.String
+})
+
+registered_user_fields = api.model('Registered_User', {
+    "username": fields.String,
+    "name": fields.String,
+    "password": fields.String
 })
 
 test_fields = api.model('Test_User', {
@@ -116,6 +126,9 @@ class Users(Resource):
 
         return resp
 
+    @api.response(200, "Success")
+    @api.response(409, "Conflict")
+    @api.expect(registered_user_fields)
     def post(self):
         data = None
         try:
@@ -180,7 +193,7 @@ class UserById(Resource):
 
         return None, status
 
-    @api.expect(user_fields)
+    @api.expect(test_user_fields)
     @api.response(204, "No Content")
     @api.response(409, "Conflict")
     def post(self, username):
@@ -319,7 +332,7 @@ class PantryById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
     @api.response(403, "Unauthorized")
-    def post(self, username):
+    def patch(self, username):
         data = request.json
         print(f'{data=}')
 
@@ -365,7 +378,7 @@ class RecipeById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
     @api.response(403, "Unauthorized")
-    def post(self, username):
+    def patch(self, username):
         data = request.json
         print(f'{data=}')
 
