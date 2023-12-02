@@ -146,7 +146,7 @@ def auth_user_google(google_id_token):
         con.update_one(
             con.USERS_COLLECTION,
             {USERNAME: username},
-            {AUTH_EXPIRES: exp}
+            {"$set": {AUTH_EXPIRES: exp}}
         )
 
     except ValueError as ex:
@@ -211,6 +211,7 @@ def remove_user(username):
 def login_user(username, password):
     con.connect_db()
     if not user_exists(username):
+        print('user_Exists')
         raise ValueError(f'User {username} does not exist')
 
     user_password_obj = con.fetch_one(
@@ -220,17 +221,21 @@ def login_user(username, password):
     )
     user_password = user_password_obj[PASSWORD]
 
-    if not check_password_hash(password, user_password):
+    if not check_password_hash(user_password, password):
+        print("password")
         raise ValueError('Password does not match')
 
     exp = int(generate_exp().timestamp())
+    print(exp)
     access_token = generate_jwt(username, exp)
+    print(access_token)
 
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {AUTH_EXPIRES: exp}
+        {"$set": {AUTH_EXPIRES: exp}}
     )
+    print("JSDFKLSJD")
     return access_token
 
 
@@ -244,7 +249,7 @@ def logout_user(username):
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {AUTH_EXPIRES: 0}
+        {"$set": {AUTH_EXPIRES: 0}}
     )
 
 
@@ -270,7 +275,7 @@ def register_user(username, name, password):
     if user_exists(username):
         raise ValueError(f"User {username} already exists")
 
-    hashed_password = generate_password_hash(password, method='sha256')
+    hashed_password = generate_password_hash(password, method='scrypt')
     exp = int(generate_exp().timestamp())
     token = generate_jwt(username, exp)
 

@@ -64,6 +64,11 @@ registered_user_fields = api.model('Registered_User', {
     "password": fields.String
 })
 
+login_fields = api.model('Login', {
+    "username": fields.String,
+    "password": fields.String
+})
+
 test_fields = api.model('Test_User', {
     "name": fields.String
 })
@@ -214,6 +219,7 @@ class AuthUserGoogle(Resource):
         return None, status
 
 
+@api.expect(login_fields)
 @api.route(f'{USERS_EP}{LOGIN_EP}')
 class LoginUser(Resource):
     @api.response(204, "No Content")
