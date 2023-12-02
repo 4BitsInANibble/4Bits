@@ -15,6 +15,7 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
+import data.food as fd
 
 TEST_USERNAME_LENGTH = 6
 TEST_NAME_LENGTH = 6
@@ -317,17 +318,24 @@ def get_pantry(username):
     return pantry_res
 
 
-def add_to_pantry(username: str, food: list[str]) -> str:
+def add_to_pantry(username: str, food: list[dict[str]]) -> str:
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
     if auth_expired(username):
         raise AuthTokenExpired("User's authentication token is expired")
+    print(food)
+
+    new_pantry_entries = [fd.get_food(
+        ingredient[fd.INGREDIENT],
+        ingredient[fd.QUANTITY],
+        ingredient[fd.UNITS]
+        ) for ingredient in food]
 
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {"$push": {PANTRY: {"$each": food}}}
+        {"$push": {PANTRY: {"$each": new_pantry_entries}}}
     )
     return f'Successfully added {food}'
 

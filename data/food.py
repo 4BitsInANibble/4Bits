@@ -12,12 +12,13 @@ FOOD_CATEGORIES = {'produce', 'carbs', 'dairy', 'meat', 'oil',
                    'starch', 'vegetables', 'fruits'}
 
 
-def get_food(ingredient: str, quantity: str, units: str) -> str:
+def get_food(ingredient: str, quantity: float, units: str) -> str:
     food = {
         INGREDIENT: ingredient,
         QUANTITY: quantity,
         UNITS: units,
-        CATEGORY: get_food_category(ingredient),
+        # CATEGORY: get_food_category(ingredient),
+        CATEGORY: None
     }
 
     return food

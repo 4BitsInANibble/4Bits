@@ -6,6 +6,7 @@ The endpoint called `endpoints` will return all available endpoints.
 from flask import Flask, request
 from flask_restx import Resource, Api, fields
 import data.users as users
+import data.food as food
 from http.client import (
     OK,
     CONFLICT,
@@ -77,8 +78,15 @@ recipe_fields = api.model('Recipe', {
     "recipe": fields.String,
 })
 
+
+ingredient_fields = api.model('Ingredient', {
+    food.INGREDIENT: fields.String,
+    food.QUANTITY: fields.Float,
+    food.UNITS: fields.String
+})
+
 pantry_fields = api.model('Pantry', {
-    "food": fields.List(fields.String),
+    "food": fields.List(fields.Nested(ingredient_fields)),
 })
 
 
