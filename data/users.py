@@ -110,6 +110,7 @@ def auth_expired(username: str) -> bool:
         {USERNAME: username},
         {AUTH_EXPIRES: 1, con.MONGO_ID: 0}
     )
+    print(exp[AUTH_EXPIRES], datetime.datetime.now().timestamp())
 
     return exp[AUTH_EXPIRES] <= datetime.datetime.now().timestamp()
 

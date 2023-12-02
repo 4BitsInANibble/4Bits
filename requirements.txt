@@ -9,3 +9,5 @@ google
 google-auth 
 google-auth-httplib2
 google-api-python-client
+PYjwt
+werkzeug

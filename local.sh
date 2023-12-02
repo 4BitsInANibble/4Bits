@@ -7,6 +7,7 @@ export MONGO_DB_USERNAME=nz2065
 export MONGO_DB_PASSWORD=Cbf6EvI2pewBj8KM
 export OPENAI_KEY=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
 export JWT_SECRET_KEY=meZzVsL7qhr3epoT
+export CLOUD_MONGO=1
 
 # run our server locally:
 PYTHONPATH=$(pwd):$PYTHONPATH

@@ -69,11 +69,11 @@ test_fields = api.model('Test_User', {
 })
 
 recipe_fields = api.model('Recipe', {
-    "Recipe": fields.String,
+    "recipe": fields.String,
 })
 
 pantry_fields = api.model('Pantry', {
-    "Food": fields.String,
+    "food": fields.List(fields.String),
 })
 
 
@@ -191,25 +191,6 @@ class UserById(Resource):
         except users.AuthTokenExpired:
             status = UNAUTHORIZED
 
-        return None, status
-
-    @api.expect(test_user_fields)
-    @api.response(204, "No Content")
-    @api.response(409, "Conflict")
-    def post(self, username):
-        """
-        Endpoint to test putting in users into db
-        This method adds a user of username 'username' with a name field
-        in the request body
-        Eventually use this ep for self-implemented authentication/login system
-        """
-        try:
-            data = request.json
-            expiry = users.generate_exp()
-            users.create_user(username, data['name'], expiry)
-            status = NO_CONTENT
-        except ValueError:
-            status = CONFLICT
         return None, status
 
 
