@@ -223,6 +223,8 @@ class AuthUserGoogle(Resource):
             status = NO_CONTENT
         except ValueError:
             status = CONFLICT
+        except users.AuthTokenExpired:
+            status = UNAUTHORIZED
 
         return None, status
 
@@ -279,11 +281,12 @@ class RegisterUserGoogle(Resource):
         This method creates a new user with an id_token
         in request body
         """
-        data = request.json
-        print(f'{data=}')
+        # data = request.json
+        # print(f'{data=}')
 
         try:
             token = request.headers.get('Authorization')
+            print(f'{token=}')
             users.generate_google_user(token)
 
             status = OK

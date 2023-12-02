@@ -9,13 +9,25 @@ MIN_USERNAME_LEN = 4
 
 
 @pytest.fixture(scope='function')
-def temp_user():
+def temp_google_user():
     print("GOING TO CONNECT")
     con.connect_db()
-    test_user = usrs._create_test_user()
+    test_user = usrs._create_test_google_user()
     username = test_user[usrs.USERNAME]
     yield username
     if usrs.user_exists(username):
+        usrs.remove_user(username)
+
+
+@pytest.fixture(scope='function')
+def temp_user():
+    print("GOING TO CONNECT")
+    con.connect_db()
+    username = usrs._create_test_user()
+    yield username
+    if usrs.user_exists(username):
+        if usrs.auth_expired(username):
+            usrs.login_user(username, "TEST_PASSWORD")
         usrs.remove_user(username)
 
 
@@ -91,3 +103,38 @@ def test_del_user_not_there():
     with pytest.raises(ValueError):
         usrs.remove_user(name)
 
+
+def test_login_user(temp_user):
+    username = temp_user
+    test_password = "TEST_PASSWORD"
+    usrs.logout_user(username)
+    token = usrs.login_user(username, test_password)
+    assert not usrs.auth_expired(username)
+    assert isinstance(token, str)
+
+
+def test_login_user_wrong_pw(temp_user):
+    username = temp_user
+    test_password = "WRONG_TEST_PASSWORD"
+    with pytest.raises(ValueError):
+        token = usrs.login_user(username, test_password)
+
+
+def test_login_non_existent_user():
+    username = usrs._get_test_username()
+    test_password = "TEST_PASSWORD"
+    with pytest.raises(ValueError):
+        token = usrs.login_user(username, test_password)
+
+
+def test_logout_user(temp_user):
+    username = temp_user
+    usrs.logout_user(username)
+    assert usrs.auth_expired(username)
+
+
+def test_logout_loggedout_user(temp_user):
+    username = temp_user
+    usrs.logout_user(username)
+    with pytest.raises(usrs.AuthTokenExpired):
+        usrs.logout_user(username)

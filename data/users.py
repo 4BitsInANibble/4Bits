@@ -75,13 +75,21 @@ def user_exists(username):
     return res
 
 
-def _create_test_user():
+def _create_test_google_user():
     username = _get_test_username()
     name = _get_test_name()
     exp = generate_exp()
     print(username, name, exp)
     test_user = create_user(username, name, exp)
     return test_user
+
+
+def _create_test_user():
+    username = _get_test_username()
+    name = _get_test_name()
+    password = "TEST_PASSWORD"
+    register_user(username, name, password)
+    return username
 
 
 def get_users():
@@ -167,7 +175,8 @@ def generate_google_user(google_id_token):
     create_user(username, name, exp)
 
 
-def create_user(username: str, name: str, expires: datetime.datetime) -> dict:
+def create_user(username: str, name: str,
+                expires: datetime.datetime, password=None) -> dict:
     con.connect_db()
     if len(username) < 5:
         raise ValueError(f'Username {username} is too short')
@@ -178,6 +187,8 @@ def create_user(username: str, name: str, expires: datetime.datetime) -> dict:
     print(type(username))
     print(type(name))
 
+    auth_type = "Google" if password is None else "Self"
+
     new_user = {
         USERNAME: username,
         NAME: name,
@@ -186,8 +197,9 @@ def create_user(username: str, name: str, expires: datetime.datetime) -> dict:
         INSTACART_USR: None,
         GROCERY_LIST: [],
         ALLERGENS: [],
-        AUTH_TYPE: "Google",
+        AUTH_TYPE: auth_type,
         AUTH_EXPIRES: int(expires.timestamp()),
+        PASSWORD: password
     }
     print(f'{new_user=}')
 
@@ -210,6 +222,7 @@ def remove_user(username):
 
 
 def login_user(username, password):
+    print(f'{username}')
     con.connect_db()
     if not user_exists(username):
         print('user_Exists')
@@ -263,6 +276,7 @@ def generate_jwt(username, exp):
     }
 
     # Encode the JWT
+    # Run openssl rand -base64 12 to generate password
     token = jwt.encode(
         payload,
         os.environ.get("JWT_SECRET_KEY"),
@@ -272,32 +286,11 @@ def generate_jwt(username, exp):
 
 
 def register_user(username, name, password):
-    con.connect_db()
-    if user_exists(username):
-        raise ValueError(f"User {username} already exists")
-
     hashed_password = generate_password_hash(password, method='scrypt')
-    exp = int(generate_exp().timestamp())
+    exp = generate_exp()
+    create_user(username, name, exp, hashed_password)
+
     token = generate_jwt(username, exp)
-
-    new_user = {
-        USERNAME: username,
-        NAME: name,
-        PANTRY: [],
-        SAVED_RECIPES: {},
-        INSTACART_USR: None,
-        GROCERY_LIST: [],
-        ALLERGENS: [],
-        AUTH_TYPE: "Self",
-        AUTH_EXPIRES: exp,
-        PASSWORD: hashed_password
-    }
-
-    register_res = con.insert_one(
-        con.USERS_COLLECTION,
-        new_user
-    )
-    print(f'{register_res}')
 
     return token
 
