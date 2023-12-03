@@ -311,7 +311,7 @@ def get_pantry(username):
     return pantry_res
 
 
-def add_to_pantry(username: str, food: list[dict[str]]) -> str:
+def add_to_pantry(username: str, food) -> str:
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
