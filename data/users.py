@@ -53,15 +53,14 @@ def _get_test_name():
 
 
 def generate_exp():
-    return datetime.datetime.now() + datetime.timedelta(hours=1)
+    return datetime.datetime.utcnow() + datetime.timedelta(hours=1)
 
 
 def _get_test_auth_token(username="TESTING"):
     return {
         'email': username,
         'name': username,
-        'exp': int((datetime.datetime.now() +
-                    datetime.timedelta(hours=1)).timestamp())
+        'exp': int(generate_exp().timestamp())
     }
 
 
@@ -119,9 +118,9 @@ def auth_expired(username: str) -> bool:
         {USERNAME: username},
         {AUTH_EXPIRES: 1, con.MONGO_ID: 0}
     )
-    print(exp[AUTH_EXPIRES], datetime.datetime.now().timestamp())
+    print(exp[AUTH_EXPIRES], datetime.datetime.utcnow().timestamp())
 
-    return exp[AUTH_EXPIRES] <= datetime.datetime.now().timestamp()
+    return exp[AUTH_EXPIRES] <= datetime.datetime.utcnow().timestamp()
 
 
 def valid_authentication(google_id_token):
@@ -134,9 +133,28 @@ def valid_authentication(google_id_token):
     #     raise ValueError("Invalid Token")
 
     exp = idinfo['exp']
-    if exp < datetime.datetime.now().timestamp():
+    if exp < datetime.datetime.utcnow().timestamp():
         raise AuthTokenExpired("Expired token")
     return idinfo
+
+
+def generate_refresh_token(username):
+    # Set the expiration time, e.g., 30 days from now
+    expiration_time = datetime.datetime.utcnow() + datetime.timedelta(days=30)
+
+    # Create the refresh token payload
+    payload = {
+        'username': username,
+        'exp': expiration_time
+    }
+
+    # Encode the refresh token
+    refresh_token = jwt.encode(
+        payload,
+        os.environ.get("JWT_SECRET_KEY"),
+        algorithm='HS256'
+    )
+    return refresh_token
 
 
 def auth_user(token):

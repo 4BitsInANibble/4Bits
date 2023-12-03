@@ -208,7 +208,7 @@ class UserById(Resource):
 
 
 @api.route(f'{USERS_EP}{AUTH_EP}')
-class AuthUserGoogle(Resource):
+class AuthUser(Resource):
     @api.response(204, "No Content")
     @api.response(409, "Conflict")
     def patch(self) -> dict:
