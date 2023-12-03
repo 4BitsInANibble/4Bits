@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pip install -r requirements-dev.txt
+
 export FLASK_ENV=development
 export PROJ_DIR=$PWD
 export DEBUG=1
