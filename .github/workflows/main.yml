@@ -15,7 +15,7 @@ on:
 env:
   DEMO_HOME: /home/runner/work/4Bits/4Bits/
   PYTHONPATH: /home/runner/work/4Bits/4Bits/
-  ENV_SECRET: ${{ secrets.ENV_SECRET }} 
+  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }} 
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
