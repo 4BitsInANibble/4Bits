@@ -293,6 +293,8 @@ def generate_jwt(username, exp):
         'exp': exp
     }
 
+    key = os.environ.get("JWT_SECRET_KEY")
+    print(f'{key=}')
     # Encode the JWT
     # Run openssl rand -base64 12 to generate password
     token = jwt.encode(
