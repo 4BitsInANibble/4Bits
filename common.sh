@@ -11,7 +11,7 @@ export MONGO_DB_PASSWORD=Cbf6EvI2pewBj8KM
 
 if [ -z $DATA_DIR ]
 then
-    DATA_DIR=/data
+    DATA_DIR=data/
 fi
 BKUP_DIR=$DATA_DIR/bkup
 EXP=/usr/local/bin/mongoexport
