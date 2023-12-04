@@ -211,7 +211,7 @@ def create_user(username: str, name: str,
         USERNAME: username,
         NAME: name,
         PANTRY: [],
-        SAVED_RECIPES: {},
+        SAVED_RECIPES: [],
         INSTACART_USR: None,
         GROCERY_LIST: [],
         ALLERGENS: [],
@@ -366,7 +366,7 @@ def get_recipes(username):
         {SAVED_RECIPES: 1, con.MONGO_ID: 0}
     )
 
-    return recipes_res
+    return recipes_res[SAVED_RECIPES]
 
 
 def generate_recipe(username, query):
@@ -389,7 +389,7 @@ def add_to_recipes(username, recipe):
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {"$push": {SAVED_RECIPES: {recipe: 0}}}
+        {"$push": {SAVED_RECIPES: recipe}}
     )
 
     return f'Successfully added {recipe}'

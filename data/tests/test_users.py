@@ -169,3 +169,17 @@ def test_add_to_pantry(temp_user):
     assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float) and ingredient[food.QUANTITY] == 2.0
     assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str) and ingredient[food.UNITS] == "EACH"
 
+
+def test_get_recipes(temp_user):
+    username = temp_user
+    usrs.add_to_recipes(username, "stir fry")
+    retrieved_recipes = usrs.get_recipes(username)
+    for recipe in retrieved_recipes:
+        assert isinstance(recipe, str)
+
+
+def test_add_to_recipes(temp_user):
+    username = temp_user
+    usrs.add_to_recipes(username, "stir fry")
+    retrieved_recipes = usrs.get_recipes(username)
+    assert retrieved_recipes[0] == "stir fry"
