@@ -35,3 +35,6 @@ mongo: FORCE
 
 mongo_status:
 	sudo systemctl status mongod
+
+pythonpath:
+	export PYTHONPATH=$(pwd)
