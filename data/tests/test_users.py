@@ -153,3 +153,19 @@ def test_get_pantry(temp_user):
         assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],str)
         assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float)
         assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str)
+
+def test_add_to_pantry(temp_user):
+    username = temp_user
+    ingr_list = [{
+        food.INGREDIENT: "egg",
+        food.QUANTITY: 2.0,
+        food.UNITS: "EACH",
+        }]
+    usrs.add_to_pantry(username, ingr_list)
+    pantry_contents = usrs.get_pantry(username)
+    assert len(pantry_contents) == 1
+    ingredient = pantry_contents[0]
+    assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],str) and ingredient[food.INGREDIENT] == "egg"
+    assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float) and ingredient[food.QUANTITY] == 2.0
+    assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str) and ingredient[food.UNITS] == "EACH"
+
