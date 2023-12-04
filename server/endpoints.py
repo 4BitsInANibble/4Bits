@@ -128,13 +128,7 @@ class Users(Resource):
         """
         This method returns all users.
         """
-        data = users.get_users()
-        print(f'{data=}')
-        resp = {
-                TYPE: DATA,
-                TITLE: USER_TITLE,
-                DATA: data,
-            }
+        resp = users.get_users()
         print(f'{resp=}')
 
         return resp
@@ -174,19 +168,13 @@ class UserById(Resource):
         This method returns a user of username 'username'
         """
         try:
-            data = users.get_user(username)
-            print(f"{data=}")
-            resp = {
-                TYPE: DATA,
-                TITLE: USER_TITLE_SINGULAR,
-                DATA: data,
-            }
+            resp = users.get_user(username)
             status = OK
-        except ValueError:
-            resp = None
+        except ValueError as e:
+            resp = str(e)
             status = CONFLICT
-        except users.AuthTokenExpired:
-            resp = None
+        except users.AuthTokenExpired as e:
+            resp = str(e)
             status = UNAUTHORIZED
 
         return resp, status
@@ -198,15 +186,18 @@ class UserById(Resource):
         """
         This method removes a user of username 'username'
         """
+        resp = None
         try:
             users.remove_user(username)
             status = NO_CONTENT
-        except ValueError:
+        except ValueError as e:
+            resp = str(e)
             status = CONFLICT
-        except users.AuthTokenExpired:
+        except users.AuthTokenExpired as e:
+            resp = str(e)
             status = UNAUTHORIZED
 
-        return None, status
+        return resp, status
 
 
 @api.route(f'{USERS_EP}{REFRESH_EP}')
@@ -222,11 +213,10 @@ class RefreshUser(Resource):
         try:
             data = request.json
             refresh_token = data['refresh_token']
-            token, refresh_token = users.refresh_user_token(refresh_token)
+            token = users.refresh_user_token(refresh_token)
 
             resp = {
                 "access_token": token,
-                "refresh_token": refresh_token,
             }
             status = OK
         except ValueError as e:
@@ -254,12 +244,17 @@ class LoginUser(Resource):
         try:
             username = data['username']
             password = data['password']
-            users.login_user(username, password)
+            token, refresh_token = users.login_user(username, password)
+            resp = {
+                "access_token": token,
+                "refresh_token": refresh_token,
+            }
             status = NO_CONTENT
-        except ValueError:
+        except ValueError as e:
+            resp = str(e)
             status = CONFLICT
 
-        return None, status
+        return resp, status
 
 
 @api.route(f'{USERS_EP}/<username>{LOGOUT_EP}')
@@ -271,15 +266,19 @@ class LogoutUser(Resource):
         """
         This method sets the exp of a user to 0
         """
+        resp = None
         try:
             users.logout_user(username)
-            status = NO_CONTENT
-        except ValueError:
+            resp = f"Successfully logged out {username}"
+            status = OK
+        except ValueError as e:
+            resp = str(e)
             status = CONFLICT
-        except users.AuthTokenExpired:
+        except users.AuthTokenExpired as e:
+            resp = str(e)
             status = UNAUTHORIZED
 
-        return None, status
+        return resp, status
 
 
 @api.route(f'{USERS_EP}{REGISTER_EP}{GOOGLE_EP}')
@@ -295,21 +294,24 @@ class RegisterUserGoogle(Resource):
         """
         # data = request.json
         # print(f'{data=}')
-
+        resp = None
         try:
             token = request.headers.get('Authorization')
             print(f'{token=}')
             users.generate_google_user(token)
 
-            status = OK
-        except ValueError:
+            status = NO_CONTENT
+        except ValueError as e:
+            resp = str(e)
             status = CONFLICT
-        except users.AuthTokenExpired:
+        except users.AuthTokenExpired as e:
+            resp = str(e)
             status = UNAUTHORIZED
-        except KeyError:
+        except KeyError as e:
+            resp = str(e)
             status = BAD_REQUEST
 
-        return None, status
+        return resp, status
 
 
 @api.route(f'{USERS_EP}/<username>{PANTRY_EP}')
@@ -322,18 +324,13 @@ class PantryById(Resource):
         This method returns the pantry of user with name
         """
         try:
-            data = users.get_pantry(username)
-            resp = {
-                TYPE: DATA,
-                TITLE: PANTRY_TITLE,
-                PANTRY_OWNER: username,
-                DATA: data,
-            }
+            resp = users.get_pantry(username)
             status = OK
-        except ValueError:
-            resp = None
+        except ValueError as e:
+            resp = str(e)
             status = CONFLICT
-        except users.AuthTokenExpired:
+        except users.AuthTokenExpired as e:
+            resp = str(e)
             status = UNAUTHORIZED
 
         return resp, status
@@ -349,10 +346,11 @@ class PantryById(Resource):
         try:
             resp = users.add_to_pantry(username, data['food'])
             status = OK
-        except ValueError:
-            resp = None
+        except ValueError as e:
+            resp = str(e)
             status = CONFLICT
-        except users.AuthTokenExpired:
+        except users.AuthTokenExpired as e:
+            resp = str(e)
             status = UNAUTHORIZED
 
         return resp, status
@@ -368,18 +366,13 @@ class RecipeById(Resource):
         This method returns the pantry of user with name
         """
         try:
-            data = users.get_recipes(username)
-            resp = {
-                TYPE: DATA,
-                TITLE: RECIPE_TITLE,
-                RECIPE_OWNER: username,
-                DATA: data,
-            }
+            resp = users.get_recipes(username)
             status_code = OK
-        except ValueError:
-            resp = None
+        except ValueError as e:
+            resp = str(e)
             status_code = CONFLICT
-        except users.AuthTokenExpired:
+        except users.AuthTokenExpired as e:
+            resp = str(e)
             status_code = UNAUTHORIZED
 
         return resp, status_code
@@ -395,10 +388,11 @@ class RecipeById(Resource):
         try:
             resp = users.add_to_recipes(username, data['recipe'])
             status = OK
-        except ValueError:
-            resp = None
+        except ValueError as e:
+            resp = str(e)
             status = CONFLICT
-        except users.AuthTokenExpired:
+        except users.AuthTokenExpired as e:
+            resp = str(e)
             status = UNAUTHORIZED
 
         return resp, status

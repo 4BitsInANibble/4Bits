@@ -113,7 +113,7 @@ def test_add_google_user(mock_add):
 
     resp = TEST_CLIENT.post(f'{ep.USERS_EP}{ep.REGISTER_EP}{ep.GOOGLE_EP}', headers=headers)
     print(f'{resp=}')
-    assert resp.status_code == OK
+    assert resp.status_code == NO_CONTENT
 
 
 @patch('data.users.generate_google_user', side_effect=ValueError(), autospec=True)
@@ -169,4 +169,4 @@ def test_logout_user(mock_add):
     test_username = "TEST_USERNAME"
     resp = TEST_CLIENT.patch(f'{ep.USERS_EP}/{test_username}{ep.LOGOUT_EP}')
     print(f'{resp=}')
-    assert resp.status_code == NO_CONTENT
+    assert resp.status_code == OK
