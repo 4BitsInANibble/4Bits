@@ -1,28 +1,48 @@
-import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
-import React, { Component } from 'react';
-import { Appbar, BottomNavigation, FAB, useTheme, Searchbar } from 'react-native-paper';
-import {useSafeAreaInsets, SafeAreaProvider} from 'react-native-safe-area-context';
+import { useState } from "react";
+import axios from "axios";
 
+function Login(props){
+    const [loginForm, setLoginForm] = useState({
+        email: "",
+        password: ""
+    })
 
-const BOTTOM_APPBAR_HEIGHT = 80;
-const MEDIUM_FAB_HEIGHT = 56;
-
-const LoginScreen = () =>{
-    return(
-        <SafeAreaView style={styles.login}>
-            <Text>Login Screen</Text>
-        </SafeAreaView>
-
-    ) 
-    
-}
-
-
-const styles = StyleSheet.create({
-    login: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center'
+    function logMeIn(event){
+        axios({
+            method: "POST",
+            url: "/token",
+            data:{
+                email: loginForm.email,
+                password: loginForm.password
+            }
+        }).then((response) => {
+            props.setToken(response.data.access_token);
+        }).catch((error) => {
+            if (error.response){
+                console.log(error.response);
+            }
+        })
+        setLoginForm(({
+            email: "",
+            password: ""
+        }))
+        event.preventDefault()
     }
-  });
+    function handleChange(event){
+        const {value, name} = event.target;
+        setLoginForm(prevNote => ({
+            ...prevNote, [name]: value})
+        )}
+        return (
+            <div>
+                <h1>Login</h1>
+                <form className="login">
+                    <input onChange={handleChange} type={loginForm.email} name="email" placeholder="Email"/>
+                    <input onChange={handleChange} type="password" placeholder="Password" value={loginForm.password}/>
+                </form>
+
+            </div>
+        );
+    }
+
+    export default Login;
