@@ -328,7 +328,7 @@ def get_pantry(username):
         {PANTRY: 1, con.MONGO_ID: 0}
     )
 
-    return pantry_res
+    return pantry_res[PANTRY]
 
 
 def add_to_pantry(username: str, food) -> str:

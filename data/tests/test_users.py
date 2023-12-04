@@ -138,3 +138,18 @@ def test_logout_loggedout_user(temp_user):
     usrs.logout_user(username)
     with pytest.raises(usrs.AuthTokenExpired):
         usrs.logout_user(username)
+
+
+def test_get_pantry(temp_user):
+    username = temp_user
+    ingr_list = [{
+        food.INGREDIENT: "egg",
+        food.QUANTITY: 2.0,
+        food.UNITS: "EACH",
+        }]
+    usrs.add_to_pantry(username, ingr_list)
+    pantry_contents = usrs.get_pantry(username)
+    for ingredient in pantry_contents:
+        assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],str)
+        assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float)
+        assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str)
