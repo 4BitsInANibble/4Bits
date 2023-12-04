@@ -30,6 +30,7 @@ ALLERGENS = 'Allergens'
 AUTH_EXPIRES = "Auth_Exp"
 AUTH_TYPE = "Auth_Type"
 PASSWORD = "Password"
+REFRESH_TOKEN = 'Refresh_Token'
 
 
 class AuthTokenExpired(Exception):
@@ -144,8 +145,8 @@ def generate_refresh_token(username):
 
     # Create the refresh token payload
     payload = {
-        'username': username,
-        'exp': expiration_time
+        USERNAME: username,
+        AUTH_EXPIRES: expiration_time
     }
 
     # Encode the refresh token
@@ -155,6 +156,31 @@ def generate_refresh_token(username):
         algorithm='HS256'
     )
     return refresh_token
+
+
+def refresh_user_token(refresh_token):
+    try:
+        payload = jwt.decode(
+            refresh_token,
+            os.environ.get("JWT_SECRET_KEY"),
+            algorithm='HS256'
+        )
+        if datetime.datetime.utcnow().timestamp() > payload[AUTH_EXPIRES]:
+            raise ValueError("Refresh Token Expired")
+
+        stored_refresh_token = con.fetch_one(
+            con.USERS_COLLECTION,
+            {USERNAME: payload[USERNAME]},
+            {REFRESH_TOKEN: 1, con.MONGO_ID: 0}
+        )[REFRESH_TOKEN]
+
+        if refresh_token != stored_refresh_token:
+            raise ValueError("Inconsistent Refresh Token")
+        
+        return generate_jwt(payload[USERNAME])
+    except jwt.ExpiredSignatureError:
+        return ValueError("Refresh Token Expired")
+
 
 
 def auth_user(token):

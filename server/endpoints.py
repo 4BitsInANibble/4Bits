@@ -44,7 +44,7 @@ RETURN = 'Return'
 RECIPE_EP = '/recipe'
 RECIPE_OWNER = 'User'
 USER_EXISTS = 'User_Exists'
-AUTH_EP = '/auth'
+REFRESH_EP = '/refresh'
 LOGIN_EP = '/login'
 LOGOUT_EP = '/logout'
 GOOGLE_EP = '/google'
@@ -207,8 +207,8 @@ class UserById(Resource):
         return None, status
 
 
-@api.route(f'{USERS_EP}{AUTH_EP}')
-class AuthUser(Resource):
+@api.route(f'{USERS_EP}{REFRESH_EP}')
+class RefreshUser(Resource):
     @api.response(204, "No Content")
     @api.response(409, "Conflict")
     def patch(self) -> dict:
@@ -216,17 +216,23 @@ class AuthUser(Resource):
         This method accepts a google id_token and updates the
         expiry date of the corresponding user
         """
+        resp = None
         try:
-            token = request.headers.get('Authorization')
-            users.auth_user(token)
+            data = request.json
+            refresh_token = data['refresh_token']
+            resp = users.refresh_user_token(refresh_token)
 
-            status = NO_CONTENT
-        except ValueError:
+            status = OK
+        except ValueError as e:
+            resp = str(e)
             status = CONFLICT
-        except users.AuthTokenExpired:
+        except users.AuthTokenExpired as e:
+            resp = str(e)
             status = UNAUTHORIZED
+        except KeyError:
+            resp = "Did not include refresh token in request body"
 
-        return None, status
+        return resp, status
 
 
 @api.expect(login_fields)
