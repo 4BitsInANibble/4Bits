@@ -143,22 +143,24 @@ class Users(Resource):
     @api.response(409, "Conflict")
     @api.expect(registered_user_fields)
     def post(self):
-        data = None
+        resp = None
         try:
             data = request.json
             username = data['username']
             name = data['name']
             password = data['password']
 
-            data = users.register_user(username, name, password)
-            status = OK
-        except ValueError:
-            status = CONFLICT
-        resp = {
-                TYPE: DATA,
-                TITLE: REGISTER_TITLE,
-                DATA: data,
+            token, refresh_token = users.register_user(
+                username, name, password)
+
+            resp = {
+                "access_token": token,
+                "refresh_token": refresh_token,
             }
+            status = OK
+        except ValueError as e:
+            resp = str(e)
+            status = CONFLICT
         return resp, status
 
 
@@ -220,8 +222,12 @@ class RefreshUser(Resource):
         try:
             data = request.json
             refresh_token = data['refresh_token']
-            resp = users.refresh_user_token(refresh_token)
+            token, refresh_token = users.refresh_user_token(refresh_token)
 
+            resp = {
+                "access_token": token,
+                "refresh_token": refresh_token,
+            }
             status = OK
         except ValueError as e:
             resp = str(e)

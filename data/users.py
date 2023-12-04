@@ -143,18 +143,8 @@ def generate_refresh_token(username):
     # Set the expiration time, e.g., 30 days from now
     expiration_time = datetime.datetime.utcnow() + datetime.timedelta(days=30)
 
-    # Create the refresh token payload
-    payload = {
-        USERNAME: username,
-        AUTH_EXPIRES: expiration_time
-    }
+    refresh_token = generate_jwt(username, expiration_time.timestamp())
 
-    # Encode the refresh token
-    refresh_token = jwt.encode(
-        payload,
-        os.environ.get("JWT_SECRET_KEY"),
-        algorithm='HS256'
-    )
     return refresh_token
 
 
@@ -175,12 +165,13 @@ def refresh_user_token(refresh_token):
         )[REFRESH_TOKEN]
 
         if refresh_token != stored_refresh_token:
-            raise ValueError("Inconsistent Refresh Token")
-        
+            raise ValueError("Invalid Refresh Token")
+
         return generate_jwt(payload[USERNAME])
     except jwt.ExpiredSignatureError:
         return ValueError("Refresh Token Expired")
-
+    except jwt.InvalidTokenError:
+        return ValueError("Invalid Refresh Token")
 
 
 def auth_user(token):
@@ -286,15 +277,17 @@ def login_user(username, password):
     exp = int(generate_exp().timestamp())
     print(exp)
     access_token = generate_jwt(username, exp)
+    refresh_token = generate_refresh_token(username)
+
     print(access_token)
 
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {"$set": {AUTH_EXPIRES: exp}}
+        {"$set": {AUTH_EXPIRES: exp, REFRESH_TOKEN: refresh_token}}
     )
     print("JSDFKLSJD")
-    return access_token
+    return access_token, refresh_token
 
 
 def logout_user(username):
@@ -337,8 +330,9 @@ def register_user(username, name, password):
     create_user(username, name, exp, hashed_password)
 
     token = generate_jwt(username, exp)
+    refresh_token = generate_refresh_token(username)
 
-    return token
+    return token, refresh_token
 
 
 def get_pantry(username):

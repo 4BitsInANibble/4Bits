@@ -127,7 +127,7 @@ def test_add_google_user_dup(mock_add):
     assert resp.status_code == CONFLICT
 
 
-@patch('data.users.register_user', return_value=None, autospec=True)
+@patch('data.users.register_user', return_value=("test", "test"), autospec=True)
 def test_add_google_user(mock_add):
     data = {
         "username": "TEST_USERNAME",
@@ -153,15 +153,15 @@ def test_add_google_user_dup(mock_add):
     assert resp.status_code == CONFLICT
 
 
-@patch('data.users.auth_user', side_effect=None, autospec=True)
-def test_auth_user(mock_add):
-    headers = {
-        "Authorization": "TESTING"
+@patch('data.users.refresh_user_token', return_value=("test", "test"), autospec=True)
+def test_refresh_user_token(mock_add):
+    data = {
+        "refresh_token": "TEST_REFRESH_TOKEN"
     }
 
-    resp = TEST_CLIENT.patch(f'{ep.USERS_EP}{ep.AUTH_EP }', headers=headers)
+    resp = TEST_CLIENT.patch(f'{ep.USERS_EP}{ep.REFRESH_EP}', json=data)
     print(f'{resp=}')
-    assert resp.status_code == NO_CONTENT
+    assert resp.status_code == OK
 
 
 @patch('data.users.logout_user', return_value=None, autospec=True)

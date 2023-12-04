@@ -108,9 +108,10 @@ def test_login_user(temp_user):
     username = temp_user
     test_password = "TEST_PASSWORD"
     usrs.logout_user(username)
-    token = usrs.login_user(username, test_password)
+    token, refresh_token = usrs.login_user(username, test_password)
     assert not usrs.auth_expired(username)
     assert isinstance(token, str)
+    assert isinstance(refresh_token, str)
 
 
 def test_login_user_wrong_pw(temp_user):
