@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React, { Component } from 'react';
 import { Appbar, BottomNavigation, FAB, useTheme, Searchbar, Button } from 'react-native-paper';
-import {useSafeAreaInsets, SafeAreaProvider} from 'react-native-safe-area-context';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 
 const BOTTOM_APPBAR_HEIGHT = 80;
