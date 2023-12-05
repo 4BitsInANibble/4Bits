@@ -14,8 +14,12 @@ then
     DATA_DIR=data/
 fi
 BKUP_DIR=$DATA_DIR/bkup
-EXP=/usr/local/bin/mongoexport
-IMP=/usr/local/bin/mongoimport
+# EXP=/usr/local/bin/mongoexport
+# IMP=/usr/local/bin/mongoimport
+
+# If can't find path, try
+EXP=/usr/bin/mongoexport
+IMP=/usr/bin/mongoimport
 
 if [ -z $MONGO_DB_PASSWORD ]
 then
@@ -24,4 +28,4 @@ then
 fi
 
 
-declare -a UserCollections=("Username" "Name" "Pantry" "Saved_Recipes" "Instacart_User_Info" "Grocery List" "Allergens" "Auth_Type" "Auth_Exp" "Password") 
+declare -a UserCollections=("Users") 
