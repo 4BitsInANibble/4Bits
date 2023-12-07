@@ -119,7 +119,6 @@ def auth_expired(username: str) -> bool:
         {USERNAME: username},
         {AUTH_EXPIRES: 1, con.MONGO_ID: 0}
     )
-    print(exp[AUTH_EXPIRES], datetime.datetime.utcnow().timestamp())
 
     return exp[AUTH_EXPIRES] <= datetime.datetime.utcnow().timestamp()
 
@@ -219,9 +218,6 @@ def create_user(username: str, name: str,
     if user_exists(username):
         raise ValueError(f'User {username} already exists')
 
-    print(type(username))
-    print(type(name))
-
     auth_type = "Google" if password is None else "Self"
 
     new_user = {
@@ -236,7 +232,6 @@ def create_user(username: str, name: str,
         AUTH_EXPIRES: int(expires.timestamp()),
         PASSWORD: password
     }
-    print(f'{new_user=}')
 
     add_ret = con.insert_one(con.USERS_COLLECTION, new_user)
     print(f'{add_ret}')
@@ -312,8 +307,6 @@ def generate_jwt(username, exp):
         'exp': exp
     }
 
-    key = os.environ.get("JWT_SECRET_KEY")
-    print(f'{key=}')
     # Encode the JWT
     # Run openssl rand -base64 12 to generate password
     token = jwt.encode(
