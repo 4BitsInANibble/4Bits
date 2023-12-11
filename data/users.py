@@ -440,7 +440,7 @@ def remove_recipe(username, recipe):
     return f'Successfully removed {recipe}'
 
 
-def recognize_receipt(image_path=None, image=None):
+def recognize_receipt(username: str, image_path=None, image=None):
     openai.api_key = os.environ.get("OPENAI_KEY")
     if (image_path and not image):
         # Load the image from the specified path
@@ -451,20 +451,11 @@ def recognize_receipt(image_path=None, image=None):
     ocr_text = pytesseract.image_to_string(image)
     # Print or save the extracted text
     print(ocr_text)
-    # Optionally, save the text to a file
-    # with open('extracted_text.txt', 'w', encoding='utf-8') as file:
-    #     file.write(text)
-
-    # try:
-    #     test = openai.api_key
-    # except:
-    #     return None
-    # return ocr_text
     prompt = f"Extract pantry items from the following text: {ocr_text}"
     response = openai.Completion.create(
         engine="gpt-3.5-turbo",
         prompt=prompt,
-        max_tokens=200  # You can adjust this value based on your needs
+        max_tokens=200
     )
     # Extract the generated text from ChatGPT's response
     generated_text = response.choices[0].text.strip()
@@ -472,4 +463,6 @@ def recognize_receipt(image_path=None, image=None):
     pantry_items = generated_text.split('\n')
     # Remove any empty or whitespace-only items
     pantry_items = [item.strip() for item in pantry_items if item.strip()]
+    for food in pantry_items:
+        add_to_pantry(username, food)
     return pantry_items
