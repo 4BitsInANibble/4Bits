@@ -184,3 +184,10 @@ def test_add_to_recipes(temp_user):
     usrs.add_to_recipes(username, "stir fry")
     retrieved_recipes = usrs.get_recipes(username)
     assert retrieved_recipes[0] == "stir fry"
+
+
+def test_inc_streak(temp_user):
+    username = temp_user
+    usrs.inc_streak(username)
+    db_streak = usrs.get_streak(username)
+    assert db_streak == 1
