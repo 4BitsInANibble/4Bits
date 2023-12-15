@@ -31,7 +31,7 @@ AUTH_EXPIRES = "Auth_Exp"
 AUTH_TYPE = "Auth_Type"
 PASSWORD = "Password"
 REFRESH_TOKEN = 'Refresh_Token'
-STREAK= "Streak"
+STREAK = "Streak"
 
 
 class AuthTokenExpired(Exception):
@@ -438,7 +438,7 @@ def inc_streak(username):
         {"$inc": {STREAK: 1}}
     )
 
-    return f'Successfully incremented streak counter for {user}'
+    return 'Successfully incremented streak counter'
 
 
 def remove_recipe(username, recipe):
