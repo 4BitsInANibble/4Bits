@@ -31,6 +31,7 @@ AUTH_EXPIRES = "Auth_Exp"
 AUTH_TYPE = "Auth_Type"
 PASSWORD = "Password"
 REFRESH_TOKEN = 'Refresh_Token'
+STREAK= "Streak"
 
 
 class AuthTokenExpired(Exception):
@@ -230,7 +231,8 @@ def create_user(username: str, name: str,
         ALLERGENS: [],
         AUTH_TYPE: auth_type,
         AUTH_EXPIRES: int(expires.timestamp()),
-        PASSWORD: password
+        PASSWORD: password,
+        STREAK: 0
     }
 
     add_ret = con.insert_one(con.USERS_COLLECTION, new_user)
@@ -423,7 +425,7 @@ def add_to_recipes(username, recipe):
     return f'Successfully added {recipe}'
 
 
-def made_recipe(username, recipe):
+def inc_streak(username):
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
@@ -433,10 +435,10 @@ def made_recipe(username, recipe):
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {"$inc": {f'{SAVED_RECIPES}.{recipe}': 1}}
+        {"$inc": {STREAK: 1}}
     )
 
-    return f'Successfully incremented streak counter for {recipe}'
+    return f'Successfully incremented streak counter for {user}'
 
 
 def remove_recipe(username, recipe):
