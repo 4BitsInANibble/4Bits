@@ -93,6 +93,26 @@ def _create_test_user():
     return username
 
 
+def _create_test_patch_user():
+    username = "TEST"
+    name = "TEST"
+    auth_type = "Google"
+    password = "password"
+    new_user = {
+        USERNAME: username,
+        NAME: name,
+        PANTRY: [],
+        SAVED_RECIPES: [],
+        INSTACART_USR: None,
+        GROCERY_LIST: [],
+        ALLERGENS: [],
+        AUTH_TYPE: auth_type,
+        AUTH_EXPIRES: 0,
+        PASSWORD: password,
+        STREAK: 0
+    }
+
+
 def get_users():
     con.connect_db()
     users = con.fetch_all(con.USERS_COLLECTION)

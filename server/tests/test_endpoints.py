@@ -4,6 +4,7 @@ import server.endpoints as ep
 import random
 from string import ascii_uppercase
 import data.users as usrs
+import data.food as food
 import pytest
 import data.db_connect as con
 
@@ -37,7 +38,7 @@ def test_endpoints():
     assert ep.AVAIL_ENDPOINTS in resp_json
 
 
-@patch('data.users.get_users', return_value=None, autospec=True)
+@patch('data.users.get_users', return_value=[usrs._create_test_patch_user()], autospec=True)
 def test_get_users(connect_db):
     resp = TEST_CLIENT.get(ep.USERS_EP)
     resp_json = resp.get_json()
@@ -45,7 +46,7 @@ def test_get_users(connect_db):
     assert resp.status_code == OK
 
 
-@patch('data.users.get_user', return_value=None, autospec=True)
+@patch('data.users.get_user', return_value=usrs._create_test_patch_user(), autospec=True)
 def test_get_user_valid(mock_user):
     username = "TEST_USERNAME"
     resp = TEST_CLIENT.get(f'{ep.USERS_EP}/{username}')
@@ -61,7 +62,7 @@ def test_get_user_invalid(mock_user):
     assert resp.status_code == CONFLICT
 
 
-@patch('data.users.get_pantry', return_value=None, autospec=True)
+@patch('data.users.get_pantry', return_value=[food.get_food("Chicken", 1.0, "pound")], autospec=True)
 def test_get_pantry_valid(mock_pantry):
     username = "TEST_USERNAME"
     resp = TEST_CLIENT.get(f'{ep.USERS_EP}/{username}{ep.PANTRY_EP}')
@@ -76,7 +77,9 @@ def test_get_pantry_invalid(mock_pantry):
     assert resp.status_code == CONFLICT
 
 
-@patch('data.users.get_recipes', return_value=None, autospec=True)
+@patch('data.users.get_recipes', 
+       return_value=["TEST RECIPE: RECIPE GOES HERE"],
+       autospec=True)
 def test_get_recipes_valid(mock_recipes):
     username = "TEST_USERNAME"
     resp = TEST_CLIENT.get(f'{ep.USERS_EP}/{username}{ep.RECIPE_EP}')
