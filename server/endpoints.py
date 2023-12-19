@@ -405,3 +405,23 @@ class RecipeById(Resource):
             status = UNAUTHORIZED
 
         return resp, status
+
+    @api.expect(recipe_fields)
+    @api.response(200, "Success")
+    @api.response(409, "Conflict")
+    @api.response(403, "Unauthorized")
+    def delete(self, username):
+        data = request.json
+        print(f'{data=}')
+
+        try:
+            resp = users.delete_recipe(username, data['recipe'])
+            status = OK
+        except ValueError as e:
+            resp = str(e)
+            status = CONFLICT
+        except users.AuthTokenExpired as e:
+            resp = str(e)
+            status = UNAUTHORIZED
+
+        return resp, status

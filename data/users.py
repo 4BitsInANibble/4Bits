@@ -246,7 +246,8 @@ def generate_google_user(google_id_token):
 
 
 def create_user(username: str, name: str,
-                expires: datetime.datetime, password=None, refresh_token=None) -> dict:
+                expires: datetime.datetime, password=None,
+                refresh_token=None) -> dict:
     con.connect_db()
     if len(username) < 5:
         raise ValueError(f'Username {username} is too short')
@@ -461,6 +462,22 @@ def add_to_recipes(username, recipe):
     return f'Successfully added {recipe}'
 
 
+def delete_recipe(username, recipe):
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
+
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {"$pull": {SAVED_RECIPES: recipe}}
+    )
+
+    return f'Successfully deleted {recipe}'
+
+
 def get_streak(username):
     con.connect_db()
     if not user_exists(username):
@@ -491,22 +508,6 @@ def inc_streak(username):
     )
 
     return 'Successfully incremented streak counter'
-
-
-def remove_recipe(username, recipe):
-    con.connect_db()
-    if not user_exists(username):
-        raise ValueError(f'User {username} does not exist')
-    if auth_expired(username):
-        raise AuthTokenExpired("User's authentication token is expired")
-
-    con.update_one(
-        con.USERS_COLLECTION,
-        {USERNAME: username},
-        {"$pull": {SAVED_RECIPES: recipe}}
-    )
-
-    return f'Successfully removed {recipe}'
 
 
 def recognize_receipt(username: str, image_path=None, image=None):

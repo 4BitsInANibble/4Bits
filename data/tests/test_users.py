@@ -186,6 +186,14 @@ def test_add_to_recipes(temp_user):
     assert retrieved_recipes[0] == "stir fry"
 
 
+def test_delete_recipes(temp_user):
+    username = temp_user
+    usrs.add_to_recipes(username, "stir fry")
+    usrs.delete_recipe(username, "stir fry")
+    retrieved_recipes = usrs.get_recipes(username)
+    assert retrieved_recipes == []  
+
+
 def test_inc_streak(temp_user):
     username = temp_user
     usrs.inc_streak(username)

@@ -94,6 +94,17 @@ def test_get_recipes_invalid(mock_recipes):
     assert resp.status_code == CONFLICT
 
 
+@patch('data.users.delete_recipe', return_value=None, autospec=True)
+def test_delete_recipes(mock_recipes):
+    username = "TEST_USERNAME"
+    data = {
+        'recipe': "stir fry"
+    }
+    resp = TEST_CLIENT.delete(f'{ep.USERS_EP}/{username}{ep.RECIPE_EP}', json=data)
+    resp_json = resp.get_json()
+    assert resp.status_code == OK
+
+
 @patch('data.users.remove_user', return_value=None, autospec=True)
 def test_remove_user(mock_remove):
     username = "TEST_USERNAME"
