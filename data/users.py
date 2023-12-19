@@ -170,29 +170,42 @@ def generate_refresh_token(username):
 
 
 def refresh_user_token(refresh_token):
+    con.connect_db()
     try:
+
         payload = jwt.decode(
             refresh_token,
-            os.environ.get("JWT_SECRET_KEY"),
-            algorithm='HS256'
+            key=os.environ.get("JWT_SECRET_KEY"),
+            algorithms='HS256',
+            verify=True
         )
+        print(payload)
         if datetime.datetime.utcnow().timestamp() > payload[AUTH_EXPIRES]:
             raise ValueError("Refresh Token Expired")
+        print("HIIII")
 
         stored_refresh_token = con.fetch_one(
             con.USERS_COLLECTION,
             {USERNAME: payload[USERNAME]},
             {REFRESH_TOKEN: 1, con.MONGO_ID: 0}
         )[REFRESH_TOKEN]
+        print(f'TOKENS: {refresh_token}: {stored_refresh_token}')
 
         if refresh_token != stored_refresh_token:
             raise ValueError("Invalid Refresh Token")
 
-        return generate_jwt(payload[USERNAME])
+        exp = generate_exp().timestamp()
+        con.update_one(
+            con.USERS_COLLECTION,
+            {USERNAME: payload[USERNAME]},
+            {"$set": {AUTH_EXPIRES: exp}}
+        )
+        return generate_jwt(payload[USERNAME], exp)
     except jwt.ExpiredSignatureError:
-        return ValueError("Refresh Token Expired")
-    except jwt.InvalidTokenError:
-        return ValueError("Invalid Refresh Token")
+        raise ValueError("Refresh Token Expired")
+    except jwt.InvalidTokenError as e:
+        print(str(e))
+        raise ValueError("Invalid Refresh Token")
 
 
 def auth_user(token):
@@ -200,6 +213,7 @@ def auth_user(token):
 
 
 def auth_user_google(google_id_token):
+    con.connect_db()
     try:
         id_info = valid_authentication(google_id_token)
         username = id_info['email']
@@ -232,7 +246,7 @@ def generate_google_user(google_id_token):
 
 
 def create_user(username: str, name: str,
-                expires: datetime.datetime, password=None) -> dict:
+                expires: datetime.datetime, password=None, refresh_token=None) -> dict:
     con.connect_db()
     if len(username) < 5:
         raise ValueError(f'Username {username} is too short')
@@ -253,7 +267,8 @@ def create_user(username: str, name: str,
         AUTH_TYPE: auth_type,
         AUTH_EXPIRES: int(expires.timestamp()),
         PASSWORD: password,
-        STREAK: 0
+        STREAK: 0,
+        REFRESH_TOKEN: refresh_token
     }
 
     add_ret = con.insert_one(con.USERS_COLLECTION, new_user)
@@ -326,8 +341,8 @@ def generate_jwt(username, exp):
 
     # Create the JWT payload
     payload = {
-        'username': username,
-        'exp': exp
+        USERNAME: username,
+        AUTH_EXPIRES: exp
     }
 
     # Encode the JWT
@@ -343,10 +358,10 @@ def generate_jwt(username, exp):
 def register_user(username, name, password):
     hashed_password = generate_password_hash(password, method='scrypt')
     exp = generate_exp()
-    create_user(username, name, exp, hashed_password)
-
-    token = generate_jwt(username, exp)
+    token = generate_jwt(username, exp.timestamp())
     refresh_token = generate_refresh_token(username)
+
+    create_user(username, name, exp, hashed_password, refresh_token)
 
     return token, refresh_token
 

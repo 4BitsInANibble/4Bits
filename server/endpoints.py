@@ -215,14 +215,17 @@ class RefreshUser(Resource):
         expiry date of the corresponding user
         """
         resp = None
+        print("ENTERING!!!")
         try:
             data = request.json
             refresh_token = data['refresh_token']
+            print(f"ENDPOINT: {refresh_token}")
             token = users.refresh_user_token(refresh_token)
 
             resp = {
                 "access_token": token,
             }
+            print(f'{resp=}')
             status = OK
         except ValueError as e:
             resp = str(e)
@@ -232,6 +235,7 @@ class RefreshUser(Resource):
             status = UNAUTHORIZED
         except KeyError:
             resp = "Did not include refresh token in request body"
+            status = BAD_REQUEST
 
         return resp, status
 
