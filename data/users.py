@@ -111,6 +111,7 @@ def _create_test_patch_user():
         PASSWORD: password,
         STREAK: 0
     }
+    return new_user
 
 
 def get_users():

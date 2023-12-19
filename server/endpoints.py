@@ -65,6 +65,10 @@ registered_user_fields = api.model('Registered_User', {
     "password": fields.String
 })
 
+refresh_fields = api.model('Refresh_User', {
+    "refresh_token": fields.String
+})
+
 login_fields = api.model('Login', {
     "username": fields.String,
     "password": fields.String
@@ -202,6 +206,7 @@ class UserById(Resource):
 
 @api.route(f'{USERS_EP}{REFRESH_EP}')
 class RefreshUser(Resource):
+    @api.expect(refresh_fields)
     @api.response(204, "No Content")
     @api.response(409, "Conflict")
     def patch(self) -> dict:
