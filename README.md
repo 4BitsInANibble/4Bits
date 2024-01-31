@@ -1,6 +1,5 @@
-# flask-api
-An example flask rest API server.
+# NIBBLE
 
-To build production, type `make prod`.
+## Progress And Goals
 
-To create the env for a new developer, run `make dev_env`.
+To see more information about our progress and goals please refer to [ProgressAndGoals.md](./ProgressAndGoals.md) 
