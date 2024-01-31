@@ -5,17 +5,17 @@ PROJ_DIR=4Bits
 VENV=4bits
 PA_DOMAIN="4bits.pythonanywhere.com"
 PA_USER='4bits'
-DEMO_PA_PWD = 'fourbits'
+DEMO_PA_PWD='fourbits'
 
 echo "Project dir = $PROJ_DIR"
 echo "PA domain = $PA_DOMAIN"
 echo "Virtual env = $VENV"
 
-# if [ -z "$DEMO_PA_PWD" ]
-# then
-#     echo "The PythonAnywhere password var (DEMO_PA_PWD) must be set in the env."
-#     exit 1
-# fi
+if [ -z "$DEMO_PA_PWD" ]
+then
+    echo "The PythonAnywhere password var (DEMO_PA_PWD) must be set in the env."
+    exit 1
+fi
 
 echo "PA user = $PA_USER"
 echo "PA password = $DEMO_PA_PWD"
