@@ -5,6 +5,8 @@ PROJ_DIR=4Bits
 VENV=4bits
 PA_DOMAIN="4bits.pythonanywhere.com"
 PA_USER='4bits'
+DEMO_PA_PWD = 'fourbits'
+
 echo "Project dir = $PROJ_DIR"
 echo "PA domain = $PA_DOMAIN"
 echo "Virtual env = $VENV"
