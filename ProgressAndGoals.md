@@ -6,4 +6,6 @@
 
 ## Goals
 * Make a functional and aesthetically pleasing User Interface for our app
-* 
+* Write proper documentation for code functionality
+* Finish our MVP by the end of this semester
+* Possibly publish the app on App Store and/or Google Play
