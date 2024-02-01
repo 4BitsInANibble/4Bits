@@ -55,6 +55,7 @@ jobs:
       - name: Deploy to PythonAnywhere
         run: 
           chmod +x deploy.sh
+        run:
           ./deploy.sh
         env:
           DEMO_PA_PWD: ${{secrets.DEMO_PA_PWD}}
