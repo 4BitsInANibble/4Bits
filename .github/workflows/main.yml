@@ -51,10 +51,11 @@ jobs:
         env:
           PYTHON-REPO: true
         run: make all_tests
+
+      - name: prep to deploy to PythonAnywhere
+        run: chmod +x deploy.sh
         
       - name: Deploy to PythonAnywhere
-        run: 
-          chmod +x deploy.sh
         run:
           ./deploy.sh
         env:
