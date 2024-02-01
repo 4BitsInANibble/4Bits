@@ -52,7 +52,7 @@ jobs:
           PYTHON-REPO: true
         run: make all_tests
 
-      - name: prep to deploy to PythonAnywhere
+      - name: Prep to deploy to PythonAnywhere
         run: chmod +x deploy.sh
         
       - name: Deploy to PythonAnywhere
