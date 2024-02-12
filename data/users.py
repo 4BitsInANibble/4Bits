@@ -405,6 +405,28 @@ def add_to_pantry(username: str, food) -> str:
     return f'Successfully added {food}'
 
 
+def add_to_grocery_list(username: str, food) -> str:
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
+    print(food)
+
+    new_list_entries = [fd.get_food(
+        ingredient[fd.INGREDIENT],
+        ingredient[fd.QUANTITY],
+        ingredient[fd.UNITS]
+        ) for ingredient in food]
+
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {"$push": {GROCERY_LIST: {"$each": new_list_entries}}}
+    )
+    return f'Successfully added {food}'
+
+
 def get_recipes(username):
     con.connect_db()
     if not user_exists(username):
