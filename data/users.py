@@ -462,9 +462,6 @@ def add_to_recipes(username, recipe):
     return f'Successfully added {recipe}'
 
 
-
-
-
 def add_to_grocery_list(username: str, food) -> str:
     con.connect_db()
     if not user_exists(username):
