@@ -462,6 +462,9 @@ def add_to_recipes(username, recipe):
     return f'Successfully added {recipe}'
 
 
+
+
+
 def add_to_grocery_list(username: str, food) -> str:
     con.connect_db()
     if not user_exists(username):
@@ -482,6 +485,22 @@ def add_to_grocery_list(username: str, food) -> str:
         {"$push": {GROCERY_LIST: {"$each": new_list_entries}}}
     )
     return f'Successfully added {food}'
+
+
+def get_grocery_list(username):
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
+
+    grocery_list_res = con.fetch_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {GROCERY_LIST: 1, con.MONGO_ID: 0}
+    )
+
+    return grocery_list_res[GROCERY_LIST]
 
 
 def delete_recipe(username, recipe):
