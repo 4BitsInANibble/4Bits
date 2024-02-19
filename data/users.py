@@ -452,15 +452,14 @@ def check_recipe_schema(recipe):
     for field in fields:
         if field not in recipe:
             raise ValueError(f"{field} not included in recipe")
-    
+
     num_optional = 0
     for field in optional_fields:
         if field in recipe:
             num_optional += 1
-    
+
     if len(recipe.keys()) != len(fields) + num_optional:
         raise ValueError("Unnecessary fields included in recipe")
-
 
 
 def add_to_recipes(username, recipe):
@@ -469,7 +468,7 @@ def add_to_recipes(username, recipe):
         raise ValueError(f'User {username} does not exist')
     if auth_expired(username):
         raise AuthTokenExpired("User's authentication token is expired")
-    
+
     check_recipe_schema(recipe)
 
     con.update_one(
