@@ -528,7 +528,7 @@ def delete_recipe(username, recipe):
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {"$pull": {SAVED_RECIPES: recipe}}
+        {"$pull": {SAVED_RECIPES: {"name": recipe}}}
     )
 
     return f'Successfully deleted {recipe}'

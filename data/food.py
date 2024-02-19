@@ -18,7 +18,7 @@ def get_food(ingredient: str, quantity: float, units: str) -> str:
         QUANTITY: quantity,
         UNITS: units,
         # CATEGORY: get_food_category(ingredient),
-        CATEGORY: None
+        # CATEGORY: None
     }
 
     return food
