@@ -78,15 +78,16 @@ test_fields = api.model('Test_User', {
     "name": fields.String
 })
 
-recipe_fields = api.model('Recipe', {
-    "recipe": fields.String,
-})
-
-
 ingredient_fields = api.model('Ingredient', {
     food.INGREDIENT: fields.String,
     food.QUANTITY: fields.Float,
     food.UNITS: fields.String
+})
+
+recipe_fields = api.model('Recipe', {
+    "name": fields.String,
+    "ingredients": fields.Nested(ingredient_fields),
+    "link": fields.Url,
 })
 
 pantry_fields = api.model('Pantry', {
@@ -323,7 +324,7 @@ class RegisterUserGoogle(Resource):
         return resp, status
 
 
-@api.route(f'{USERS_EP}/<username>{PANTRY_EP}')
+@api.route(f'{PANTRY_EP}/<username>')
 class PantryById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
@@ -365,7 +366,7 @@ class PantryById(Resource):
         return resp, status
 
 
-@api.route(f'{USERS_EP}/<username>{RECIPE_EP}')
+@api.route(f'{RECIPE_EP}/<username>')
 class RecipeById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
