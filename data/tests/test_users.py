@@ -171,26 +171,94 @@ def test_add_to_pantry(temp_user):
     assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str) and ingredient[food.UNITS] == "EACH"
 
 
+def test_get_grocery_list(temp_user):
+    username = temp_user
+    ingr_list = [{
+        food.INGREDIENT: "egg",
+        food.QUANTITY: 2.0,
+        food.UNITS: "EACH",
+        }]
+    usrs.add_to_grocery_list(username, ingr_list)
+    grocery_list_contents = usrs.get_grocery_list(username)
+    for ingredient in grocery_list_contents:
+        assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],str)
+        assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float)
+        assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str)
+
+
+def test_add_to_grocery_list(temp_user):
+    username = temp_user
+    ingr_list = [{
+        food.INGREDIENT: "egg",
+        food.QUANTITY: 2.0,
+        food.UNITS: "EACH",
+        }]
+    usrs.add_to_grocery_list(username, ingr_list)
+    contents = usrs.get_grocery_list(username)
+    assert len(contents) == 1
+    ingredient = contents[0]
+    assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],str) and ingredient[food.INGREDIENT] == "egg"
+    assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float) and ingredient[food.QUANTITY] == 2.0
+    assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str) and ingredient[food.UNITS] == "EACH"
+
+
 def test_get_recipes(temp_user):
     username = temp_user
-    usrs.add_to_recipes(username, "stir fry")
+    recipe = {
+        "name": "stir fry",
+        "ingredients": [[{
+            food.INGREDIENT: "chicken thigh",
+            food.QUANTITY: 1.0,
+            food.UNITS: "lbs.",
+        }, {
+            food.INGREDIENT: "soy sauce",
+            food.QUANTITY: 3.0,
+            food.UNITS: "oz.",
+        }]]
+    }
+    usrs.add_to_recipes(username, recipe)
     retrieved_recipes = usrs.get_recipes(username)
     for recipe in retrieved_recipes:
-        assert isinstance(recipe, str)
+        assert isinstance(recipe, dict)
 
 
 def test_add_to_recipes(temp_user):
     username = temp_user
-    usrs.add_to_recipes(username, "stir fry")
+    recipe = {
+        "name": "stir fry",
+        "ingredients": [[{
+            food.INGREDIENT: "egg noodle",
+            food.QUANTITY: 1.0,
+            food.UNITS: "lbs.",
+        }, {
+            food.INGREDIENT: "soy sauce",
+            food.QUANTITY: 3.0,
+            food.UNITS: "oz.",
+        }]]
+    }
+    usrs.add_to_recipes(username, recipe)
     retrieved_recipes = usrs.get_recipes(username)
-    assert retrieved_recipes[0] == "stir fry"
+    assert retrieved_recipes[0]["name"] == "stir fry"
 
 
 def test_delete_recipes(temp_user):
     username = temp_user
-    usrs.add_to_recipes(username, "stir fry")
+    recipe = {
+        "name": "stir fry",
+        "ingredients": [[{
+            food.INGREDIENT: "egg noodle",
+            food.QUANTITY: 1.0,
+            food.UNITS: "lbs.",
+        }, {
+            food.INGREDIENT: "soy sauce",
+            food.QUANTITY: 3.0,
+            food.UNITS: "oz.",
+        }]]
+    }
+    usrs.add_to_recipes(username, recipe)
     usrs.delete_recipe(username, "stir fry")
     retrieved_recipes = usrs.get_recipes(username)
+    print(retrieved_recipes)
     assert retrieved_recipes == []  
 
 
