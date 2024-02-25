@@ -613,7 +613,7 @@ def check_low_stock_pantry(username):
 
     for item, details in pantry_items.items():
         if details['quantity'] <= low_stock_threshold:
-            low_stock_items.append({'item': item, 
+            low_stock_items.append({'item': item,
                                     'quantity': details['quantity']})
 
     return low_stock_items
