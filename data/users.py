@@ -439,9 +439,9 @@ def generate_recipe_gpt(username, query):   # generate recipe with AI
     pantry_string = ', '.join(pantry_items)
 
     # Include the pantry items in the prompt
-    prompt = f"Given the following pantry items: 
+    prompt = f"""Given the following pantry items: 
         {pantry_string}, and based on the following requirements, 
-        {query}, please recommend a recipe:\n\nRecipe:"
+        {query}, please recommend a recipe:\n\nRecipe:"""
 
     # Make the API call
     response = openai.Completion.create(
