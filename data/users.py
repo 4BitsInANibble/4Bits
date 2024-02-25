@@ -433,14 +433,21 @@ def generate_recipe(username, query):
 
 def generate_recipe_gpt(username, query):   # generate recipe with AI
     openai.api_key = os.environ.get("OPENAI_KEY")
-    prompt = f"Based on the following requirements,\
-          please recommend a recipe:\n\n{query}\n\nRecipe:"
+    pantry_items = get_pantry(username)  # Retrieve the user's pantry items
+    
+    # Format the pantry items into a string
+    pantry_string = ', '.join(pantry_items)
+    
+    # Include the pantry items in the prompt
+    prompt = f"Given the following pantry items: {pantry_string}, and based on the following requirements, {query}, please recommend a recipe:\n\nRecipe:"
+    
     # Make the API call
     response = openai.Completion.create(
         engine="gpt-3.5-turbo",
         prompt=prompt,
-        max_tokens=200  # You can adjust this value based on your needs
+        max_tokens=200  # Adjust as needed
     )
+    
     # Extract the recommended recipe from the response
     recommended_recipe = response.choices[0].text.strip()
     return recommended_recipe
