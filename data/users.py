@@ -601,3 +601,18 @@ def recognize_receipt(username: str, image_path=None, image=None):
     for food in pantry_items:
         add_to_pantry(username, food)
     return pantry_items
+
+def check_low_stock_pantry(username):
+    # of pantry items with their quantities for a given user
+    pantry_items = get_pantry(username)
+    low_stock_items = []
+
+    # Define a threshold for low stock
+    low_stock_threshold = 2  # Example threshold, adjust as needed
+
+    for item, details in pantry_items.items():
+        if details['quantity'] <= low_stock_threshold:
+            low_stock_items.append({'item': item, 'quantity': details['quantity']})
+
+    return low_stock_items
+
