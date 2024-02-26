@@ -353,6 +353,7 @@ def generate_jwt(username, exp):
         os.environ.get("JWT_SECRET_KEY"),
         algorithm='HS256'
     )
+    
     return token
 
 
@@ -532,6 +533,29 @@ def delete_recipe(username, recipe):
     )
 
     return f'Successfully deleted {recipe}'
+
+
+def validate_access_token(username, token):
+    payload = jwt.decode(
+        token,
+        key=os.environ.get("JWT_SECRET_KEY"),
+        algorithms='HS256',
+        verify=True
+    )
+    exp = con.fetch_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {AUTH_EXPIRES: 1, con.MONGO_ID: 0}
+    )
+    if AUTH_EXPIRES not in exp:
+        raise ValueError("Db schema error")
+    
+    exp = exp[AUTH_EXPIRES]
+    
+    if payload[USERNAME] != username or exp != payload[AUTH_EXPIRES]:
+        raise ValueError("Invalid Auth Token")
+    if datetime.datetime.utcnow().timestamp() > payload[AUTH_EXPIRES]:
+        raise AuthTokenExpired("Authentication Token Expired")
 
 
 def get_streak(username):

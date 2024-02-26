@@ -211,12 +211,7 @@ class RefreshUser(Resource):
     @api.response(200, "OK")
     @api.response(409, "Conflict")
     def patch(self) -> dict:
-        """
-        This method accepts a google id_token and updates the
-        expiry date of the corresponding user
-        """
         resp = None
-        print("ENTERING!!!")
         try:
             data = request.json
             refresh_token = data['refresh_token']
@@ -231,9 +226,6 @@ class RefreshUser(Resource):
         except ValueError as e:
             resp = str(e)
             status = CONFLICT
-        except users.AuthTokenExpired as e:
-            resp = str(e)
-            status = UNAUTHORIZED
         except KeyError:
             resp = "Did not include refresh token in request body"
             status = BAD_REQUEST
@@ -277,7 +269,9 @@ class LogoutUser(Resource):
         This method sets the exp of a user to 0
         """
         resp = None
+        access_token = request.headers.get('Authorization')
         try:
+            users.validate_access_token(username, access_token)
             users.logout_user(username)
             resp = f"Successfully logged out {username}"
             status = OK
@@ -333,7 +327,9 @@ class PantryById(Resource):
         """
         This method returns the pantry of user with name
         """
+        access_token = request.headers.get('Authorization')
         try:
+            users.validate_access_token(username, access_token)
             resp = users.get_pantry(username)
             status = OK
         except ValueError as e:
@@ -352,8 +348,9 @@ class PantryById(Resource):
     def patch(self, username):
         data = request.json
         print(f'{data=}')
-
+        access_token = request.headers.get('Authorization')
         try:
+            users.validate_access_token(username, access_token)
             resp = users.add_to_pantry(username, data['food'])
             status = OK
         except ValueError as e:
@@ -375,7 +372,9 @@ class RecipeById(Resource):
         """
         This method returns the pantry of user with name
         """
+        access_token = request.headers.get('Authorization')
         try:
+            users.validate_access_token(username, access_token)
             resp = users.get_recipes(username)
             status_code = OK
         except ValueError as e:
@@ -394,8 +393,9 @@ class RecipeById(Resource):
     def patch(self, username):
         data = request.json
         print(f'{data=}')
-
+        access_token = request.headers.get('Authorization')
         try:
+            users.validate_access_token(username, access_token)
             resp = users.add_to_recipes(username, data['recipe'])
             status = OK
         except ValueError as e:
@@ -414,8 +414,9 @@ class RecipeById(Resource):
     def delete(self, username):
         data = request.json
         print(f'{data=}')
-
+        access_token = request.headers.get('Authorization')
         try:
+            users.validate_access_token(username, access_token)
             resp = users.delete_recipe(username, data['recipe'])
             status = OK
         except ValueError as e:
