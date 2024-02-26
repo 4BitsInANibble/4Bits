@@ -8,6 +8,7 @@ MIN_USERS = 1
 MIN_USERNAME_LEN = 4
 
 
+# TEST SETUP
 @pytest.fixture(scope='function')
 def temp_google_user():
     print("GOING TO CONNECT")
@@ -31,7 +32,14 @@ def temp_user():
         usrs.remove_user(username)
 
 
+def test_get_test_name():
+    username = usrs._get_test_username()
+    print(f'{username=}')
+    assert isinstance(username, str)
+    assert len(username) == usrs.TEST_USERNAME_LENGTH
 
+
+# USER METHODS
 def test_get_users(temp_user):
     users = usrs.get_users()
     print(f'{users}')
@@ -62,13 +70,6 @@ def test_get_users(temp_user):
             assert isinstance(fooditem[food.UNITS], str)
     print(f'{temp_user=}')
     assert usrs.user_exists(temp_user)
-
-
-def test_get_test_name():
-    username = usrs._get_test_username()
-    print(f'{username=}')
-    assert isinstance(username, str)
-    assert len(username) == usrs.TEST_USERNAME_LENGTH
 
 
 def test_add_user_dup_name(temp_user):
@@ -141,6 +142,7 @@ def test_logout_loggedout_user(temp_user):
         usrs.logout_user(username)
 
 
+# PANTRY METHODS
 def test_get_pantry(temp_user):
     username = temp_user
     ingr_list = [{
@@ -171,37 +173,7 @@ def test_add_to_pantry(temp_user):
     assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str) and ingredient[food.UNITS] == "EACH"
 
 
-def test_get_grocery_list(temp_user):
-    username = temp_user
-    ingr_list = [{
-        food.INGREDIENT: "egg",
-        food.QUANTITY: 2.0,
-        food.UNITS: "EACH",
-        }]
-    usrs.add_to_grocery_list(username, ingr_list)
-    grocery_list_contents = usrs.get_grocery_list(username)
-    for ingredient in grocery_list_contents:
-        assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],str)
-        assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float)
-        assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str)
-
-
-def test_add_to_grocery_list(temp_user):
-    username = temp_user
-    ingr_list = [{
-        food.INGREDIENT: "egg",
-        food.QUANTITY: 2.0,
-        food.UNITS: "EACH",
-        }]
-    usrs.add_to_grocery_list(username, ingr_list)
-    contents = usrs.get_grocery_list(username)
-    assert len(contents) == 1
-    ingredient = contents[0]
-    assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],str) and ingredient[food.INGREDIENT] == "egg"
-    assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float) and ingredient[food.QUANTITY] == 2.0
-    assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str) and ingredient[food.UNITS] == "EACH"
-
-
+# RECIPE METHODS
 def test_get_recipes(temp_user):
     username = temp_user
     recipe = {
@@ -260,3 +232,35 @@ def test_delete_recipes(temp_user):
     retrieved_recipes = usrs.get_recipes(username)
     print(retrieved_recipes)
     assert retrieved_recipes == []  
+
+
+# GROCERY LIST METHODS
+def test_get_grocery_list(temp_user):
+    username = temp_user
+    ingr_list = [{
+        food.INGREDIENT: "egg",
+        food.QUANTITY: 2.0,
+        food.UNITS: "EACH",
+        }]
+    usrs.add_to_grocery_list(username, ingr_list)
+    grocery_list_contents = usrs.get_grocery_list(username)
+    for ingredient in grocery_list_contents:
+        assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],str)
+        assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float)
+        assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str)
+
+
+def test_add_to_grocery_list(temp_user):
+    username = temp_user
+    ingr_list = [{
+        food.INGREDIENT: "egg",
+        food.QUANTITY: 2.0,
+        food.UNITS: "EACH",
+        }]
+    usrs.add_to_grocery_list(username, ingr_list)
+    contents = usrs.get_grocery_list(username)
+    assert len(contents) == 1
+    ingredient = contents[0]
+    assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],str) and ingredient[food.INGREDIENT] == "egg"
+    assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float) and ingredient[food.QUANTITY] == 2.0
+    assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str) and ingredient[food.UNITS] == "EACH"

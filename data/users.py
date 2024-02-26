@@ -37,7 +37,7 @@ class AuthTokenExpired(Exception):
     pass
 
 
-# GET TEST INPUTS
+# TEST SETUP
 def generate_exp():
     return datetime.datetime.utcnow() + datetime.timedelta(hours=1)
 
@@ -449,6 +449,40 @@ def generate_recipe(username, query):
     return x  # return full recipe response body
 
 
+def add_to_recipes(username, recipe):
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
+
+    check_recipe_schema(recipe)
+
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {"$push": {SAVED_RECIPES: recipe}}
+    )
+
+    return f'Successfully added {recipe}'
+
+
+def delete_recipe(username, recipe):
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
+
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {"$pull": {SAVED_RECIPES: {"name": recipe}}}
+    )
+
+    return f'Successfully deleted {recipe}'
+
+
 def generate_recipe_gpt(username, query):   # generate recipe with AI
     openai.api_key = os.environ.get("OPENAI_KEY")
     pantry_items = get_pantry(username)  # Retrieve the user's pantry items
@@ -489,41 +523,23 @@ def check_recipe_schema(recipe):
         raise ValueError("Unnecessary fields included in recipe")
 
 
-def add_to_recipes(username, recipe):
-    con.connect_db()
-    if not user_exists(username):
-        raise ValueError(f'User {username} does not exist')
-    if auth_expired(username):
-        raise AuthTokenExpired("User's authentication token is expired")
-
-    check_recipe_schema(recipe)
-
-    con.update_one(
-        con.USERS_COLLECTION,
-        {USERNAME: username},
-        {"$push": {SAVED_RECIPES: recipe}}
-    )
-
-    return f'Successfully added {recipe}'
-
-
-def delete_recipe(username, recipe):
-    con.connect_db()
-    if not user_exists(username):
-        raise ValueError(f'User {username} does not exist')
-    if auth_expired(username):
-        raise AuthTokenExpired("User's authentication token is expired")
-
-    con.update_one(
-        con.USERS_COLLECTION,
-        {USERNAME: username},
-        {"$pull": {SAVED_RECIPES: {"name": recipe}}}
-    )
-
-    return f'Successfully deleted {recipe}'
-
-
 # GROCERY LIST METHODS
+def get_grocery_list(username):
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
+
+    grocery_list_res = con.fetch_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {GROCERY_LIST: 1, con.MONGO_ID: 0}
+    )
+
+    return grocery_list_res[GROCERY_LIST]
+
+
 def add_to_grocery_list(username: str, food) -> str:
     con.connect_db()
     if not user_exists(username):
@@ -544,22 +560,6 @@ def add_to_grocery_list(username: str, food) -> str:
         {"$push": {GROCERY_LIST: {"$each": new_list_entries}}}
     )
     return f'Successfully added {food}'
-
-
-def get_grocery_list(username):
-    con.connect_db()
-    if not user_exists(username):
-        raise ValueError(f'User {username} does not exist')
-    if auth_expired(username):
-        raise AuthTokenExpired("User's authentication token is expired")
-
-    grocery_list_res = con.fetch_one(
-        con.USERS_COLLECTION,
-        {USERNAME: username},
-        {GROCERY_LIST: 1, con.MONGO_ID: 0}
-    )
-
-    return grocery_list_res[GROCERY_LIST]
 
 
 # RECEIPT RECOGNITION
