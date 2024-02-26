@@ -31,7 +31,6 @@ AUTH_EXPIRES = "Auth_Exp"
 AUTH_TYPE = "Auth_Type"
 PASSWORD = "Password"
 REFRESH_TOKEN = 'Refresh_Token'
-STREAK = "Streak"
 
 
 class AuthTokenExpired(Exception):
@@ -108,8 +107,7 @@ def _create_test_patch_user():
         ALLERGENS: [],
         AUTH_TYPE: auth_type,
         AUTH_EXPIRES: 0,
-        PASSWORD: password,
-        STREAK: 0
+        PASSWORD: password
     }
     return new_user
 
@@ -268,7 +266,6 @@ def create_user(username: str, name: str,
         AUTH_TYPE: auth_type,
         AUTH_EXPIRES: int(expires.timestamp()),
         PASSWORD: password,
-        STREAK: 0,
         REFRESH_TOKEN: refresh_token
     }
 
@@ -541,38 +538,6 @@ def delete_recipe(username, recipe):
     )
 
     return f'Successfully deleted {recipe}'
-
-
-def get_streak(username):
-    con.connect_db()
-    if not user_exists(username):
-        raise ValueError(f'User {username} does not exist')
-    if auth_expired(username):
-        raise AuthTokenExpired("User's authentication token is expired")
-
-    recipes_res = con.fetch_one(
-        con.USERS_COLLECTION,
-        {USERNAME: username},
-        {STREAK: 1, con.MONGO_ID: 0}
-    )
-
-    return recipes_res[STREAK]
-
-
-def inc_streak(username):
-    con.connect_db()
-    if not user_exists(username):
-        raise ValueError(f'User {username} does not exist')
-    if auth_expired(username):
-        raise AuthTokenExpired("User's authentication token is expired")
-
-    con.update_one(
-        con.USERS_COLLECTION,
-        {USERNAME: username},
-        {"$inc": {STREAK: 1}}
-    )
-
-    return 'Successfully incremented streak counter'
 
 
 def recognize_receipt(username: str, image_path=None, image=None):

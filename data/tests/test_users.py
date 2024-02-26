@@ -260,10 +260,3 @@ def test_delete_recipes(temp_user):
     retrieved_recipes = usrs.get_recipes(username)
     print(retrieved_recipes)
     assert retrieved_recipes == []  
-
-
-def test_inc_streak(temp_user):
-    username = temp_user
-    usrs.inc_streak(username)
-    db_streak = usrs.get_streak(username)
-    assert db_streak == 1
