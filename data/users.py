@@ -33,6 +33,7 @@ PASSWORD = "Password"
 REFRESH_TOKEN = 'Refresh_Token'
 STREAK = "Streakz"
 
+
 class AuthTokenExpired(Exception):
     pass
 
@@ -364,7 +365,7 @@ def generate_jwt(username, exp):
         os.environ.get("JWT_SECRET_KEY"),
         algorithm='HS256'
     )
-    
+
     return token
 
 
@@ -563,24 +564,6 @@ def add_to_grocery_list(username: str, food) -> str:
     return f'Successfully added {food}'
 
 
-
-
-def delete_recipe(username, recipe):
-    con.connect_db()
-    if not user_exists(username):
-        raise ValueError(f'User {username} does not exist')
-    if auth_expired(username):
-        raise AuthTokenExpired("User's authentication token is expired")
-
-    con.update_one(
-        con.USERS_COLLECTION,
-        {USERNAME: username},
-        {"$pull": {SAVED_RECIPES: {"name": recipe}}}
-    )
-
-    return f'Successfully deleted {recipe}'
-
-
 def validate_access_token(username, token):
     payload = jwt.decode(
         token,
@@ -595,9 +578,9 @@ def validate_access_token(username, token):
     )
     if AUTH_EXPIRES not in exp:
         raise ValueError("Db schema error")
-    
+
     exp = exp[AUTH_EXPIRES]
-    
+
     if payload[USERNAME] != username or exp != payload[AUTH_EXPIRES]:
         raise ValueError("Invalid Auth Token")
     if datetime.datetime.utcnow().timestamp() > payload[AUTH_EXPIRES]:
