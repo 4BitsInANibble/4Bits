@@ -31,11 +31,25 @@ AUTH_EXPIRES = "Auth_Exp"
 AUTH_TYPE = "Auth_Type"
 PASSWORD = "Password"
 REFRESH_TOKEN = 'Refresh_Token'
-STREAK = "Streak"
-
+STREAK = "Streakz"
 
 class AuthTokenExpired(Exception):
     pass
+
+
+# TEST SETUP
+def generate_exp():
+    return datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+
+
+def user_exists(username):
+    con.connect_db()
+    try:
+        con.fetch_one(con.USERS_COLLECTION, {USERNAME: username})
+        res = True
+    except ValueError:
+        res = False
+    return res
 
 
 def _get_test_username():
@@ -54,26 +68,12 @@ def _get_test_name():
     return name
 
 
-def generate_exp():
-    return datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-
-
 def _get_test_auth_token(username="TESTING"):
     return {
         'email': username,
         'name': username,
         'exp': int(generate_exp().timestamp())
     }
-
-
-def user_exists(username):
-    con.connect_db()
-    try:
-        con.fetch_one(con.USERS_COLLECTION, {USERNAME: username})
-        res = True
-    except ValueError:
-        res = False
-    return res
 
 
 def _create_test_google_user():
@@ -108,12 +108,12 @@ def _create_test_patch_user():
         ALLERGENS: [],
         AUTH_TYPE: auth_type,
         AUTH_EXPIRES: 0,
-        PASSWORD: password,
-        STREAK: 0
+        PASSWORD: password
     }
     return new_user
 
 
+# USER METHODS
 def get_users():
     con.connect_db()
     users = con.fetch_all(con.USERS_COLLECTION)
@@ -135,6 +135,110 @@ def get_user(username: str) -> str:
     return res
 
 
+def create_user(username: str, name: str,
+                expires: datetime.datetime, password=None,
+                refresh_token=None) -> dict:
+    con.connect_db()
+    if len(username) < 5:
+        raise ValueError(f'Username {username} is too short')
+
+    if user_exists(username):
+        raise ValueError(f'User {username} already exists')
+
+    auth_type = "Google" if password is None else "Self"
+
+    new_user = {
+        USERNAME: username,
+        NAME: name,
+        PANTRY: [],
+        SAVED_RECIPES: [],
+        INSTACART_USR: None,
+        GROCERY_LIST: [],
+        ALLERGENS: [],
+        AUTH_TYPE: auth_type,
+        AUTH_EXPIRES: int(expires.timestamp()),
+        PASSWORD: password,
+        REFRESH_TOKEN: refresh_token
+    }
+
+    add_ret = con.insert_one(con.USERS_COLLECTION, new_user)
+    print(f'{add_ret}')
+    return new_user
+
+
+def remove_user(username):
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
+
+    del_res = con.del_one(con.USERS_COLLECTION, {USERNAME: username})
+
+    print(f'{del_res}')
+    return f'Successfully deleted {username}'
+
+
+def login_user(username, password):
+    print(f'{username}')
+    con.connect_db()
+    if not user_exists(username):
+        print('user_Exists')
+        raise ValueError(f'User {username} does not exist')
+
+    user_password_obj = con.fetch_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {PASSWORD: 1, con.MONGO_ID: 0}
+    )
+    user_password = user_password_obj[PASSWORD]
+
+    if not check_password_hash(user_password, password):
+        print("password")
+        raise ValueError('Password does not match')
+
+    exp = int(generate_exp().timestamp())
+    print(exp)
+    access_token = generate_jwt(username, exp)
+    refresh_token = generate_refresh_token(username)
+
+    print(access_token)
+
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {"$set": {AUTH_EXPIRES: exp, REFRESH_TOKEN: refresh_token}}
+    )
+    print("JSDFKLSJD")
+    return access_token, refresh_token
+
+
+def logout_user(username):
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
+
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {"$set": {AUTH_EXPIRES: 0}}
+    )
+
+
+def register_user(username, name, password):
+    hashed_password = generate_password_hash(password, method='scrypt')
+    exp = generate_exp()
+    token = generate_jwt(username, exp.timestamp())
+    refresh_token = generate_refresh_token(username)
+
+    create_user(username, name, exp, hashed_password, refresh_token)
+
+    return token, refresh_token
+
+
+# AUTHENTICATION METHODS
 def auth_expired(username: str) -> bool:
     exp = con.fetch_one(
         con.USERS_COLLECTION,
@@ -245,99 +349,6 @@ def generate_google_user(google_id_token):
     create_user(username, name, exp)
 
 
-def create_user(username: str, name: str,
-                expires: datetime.datetime, password=None,
-                refresh_token=None) -> dict:
-    con.connect_db()
-    if len(username) < 5:
-        raise ValueError(f'Username {username} is too short')
-
-    if user_exists(username):
-        raise ValueError(f'User {username} already exists')
-
-    auth_type = "Google" if password is None else "Self"
-
-    new_user = {
-        USERNAME: username,
-        NAME: name,
-        PANTRY: [],
-        SAVED_RECIPES: [],
-        INSTACART_USR: None,
-        GROCERY_LIST: [],
-        ALLERGENS: [],
-        AUTH_TYPE: auth_type,
-        AUTH_EXPIRES: int(expires.timestamp()),
-        PASSWORD: password,
-        STREAK: 0,
-        REFRESH_TOKEN: refresh_token
-    }
-
-    add_ret = con.insert_one(con.USERS_COLLECTION, new_user)
-    print(f'{add_ret}')
-    return new_user
-
-
-def remove_user(username):
-    con.connect_db()
-    if not user_exists(username):
-        raise ValueError(f'User {username} does not exist')
-    if auth_expired(username):
-        raise AuthTokenExpired("User's authentication token is expired")
-
-    del_res = con.del_one(con.USERS_COLLECTION, {USERNAME: username})
-
-    print(f'{del_res}')
-    return f'Successfully deleted {username}'
-
-
-def login_user(username, password):
-    print(f'{username}')
-    con.connect_db()
-    if not user_exists(username):
-        print('user_Exists')
-        raise ValueError(f'User {username} does not exist')
-
-    user_password_obj = con.fetch_one(
-        con.USERS_COLLECTION,
-        {USERNAME: username},
-        {PASSWORD: 1, con.MONGO_ID: 0}
-    )
-    user_password = user_password_obj[PASSWORD]
-
-    if not check_password_hash(user_password, password):
-        print("password")
-        raise ValueError('Password does not match')
-
-    exp = int(generate_exp().timestamp())
-    print(exp)
-    access_token = generate_jwt(username, exp)
-    refresh_token = generate_refresh_token(username)
-
-    print(access_token)
-
-    con.update_one(
-        con.USERS_COLLECTION,
-        {USERNAME: username},
-        {"$set": {AUTH_EXPIRES: exp, REFRESH_TOKEN: refresh_token}}
-    )
-    print("JSDFKLSJD")
-    return access_token, refresh_token
-
-
-def logout_user(username):
-    con.connect_db()
-    if not user_exists(username):
-        raise ValueError(f'User {username} does not exist')
-    if auth_expired(username):
-        raise AuthTokenExpired("User's authentication token is expired")
-
-    con.update_one(
-        con.USERS_COLLECTION,
-        {USERNAME: username},
-        {"$set": {AUTH_EXPIRES: 0}}
-    )
-
-
 def generate_jwt(username, exp):
 
     # Create the JWT payload
@@ -357,17 +368,7 @@ def generate_jwt(username, exp):
     return token
 
 
-def register_user(username, name, password):
-    hashed_password = generate_password_hash(password, method='scrypt')
-    exp = generate_exp()
-    token = generate_jwt(username, exp.timestamp())
-    refresh_token = generate_refresh_token(username)
-
-    create_user(username, name, exp, hashed_password, refresh_token)
-
-    return token, refresh_token
-
-
+# PANTRY METHODS
 def get_pantry(username):
     con.connect_db()
     if not user_exists(username):
@@ -406,6 +407,23 @@ def add_to_pantry(username: str, food) -> str:
     return f'Successfully added {food}'
 
 
+def check_low_stock_pantry(username):
+    # of pantry items with their quantities for a given user
+    pantry_items = get_pantry(username)
+    low_stock_items = []
+
+    # Define a threshold for low stock
+    low_stock_threshold = 2  # Example threshold, adjust as needed
+
+    for item, details in pantry_items.items():
+        if details['quantity'] <= low_stock_threshold:
+            low_stock_items.append({'item': item,
+                                    'quantity': details['quantity']})
+
+    return low_stock_items
+
+
+# RECIPE METHODS
 def get_recipes(username):
     con.connect_db()
     if not user_exists(username):
@@ -432,16 +450,59 @@ def generate_recipe(username, query):
     return x  # return full recipe response body
 
 
+def add_to_recipes(username, recipe):
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
+
+    check_recipe_schema(recipe)
+
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {"$push": {SAVED_RECIPES: recipe}}
+    )
+
+    return f'Successfully added {recipe}'
+
+
+def delete_recipe(username, recipe):
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
+
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {"$pull": {SAVED_RECIPES: {"name": recipe}}}
+    )
+
+    return f'Successfully deleted {recipe}'
+
+
 def generate_recipe_gpt(username, query):   # generate recipe with AI
     openai.api_key = os.environ.get("OPENAI_KEY")
-    prompt = f"Based on the following requirements,\
-          please recommend a recipe:\n\n{query}\n\nRecipe:"
+    pantry_items = get_pantry(username)  # Retrieve the user's pantry items
+
+    # Format the pantry items into a string
+    pantry_string = ', '.join(pantry_items)
+
+    # Include the pantry items in the prompt
+    prompt = f"""Given the following pantry items:
+        {pantry_string}, and based on the following requirements,
+        {query}, please recommend a recipe:\n\nRecipe:"""
+
     # Make the API call
     response = openai.Completion.create(
         engine="gpt-3.5-turbo",
         prompt=prompt,
-        max_tokens=200  # You can adjust this value based on your needs
+        max_tokens=200  # Adjust as needed
     )
+
     # Extract the recommended recipe from the response
     recommended_recipe = response.choices[0].text.strip()
     return recommended_recipe
@@ -463,22 +524,21 @@ def check_recipe_schema(recipe):
         raise ValueError("Unnecessary fields included in recipe")
 
 
-def add_to_recipes(username, recipe):
+# GROCERY LIST METHODS
+def get_grocery_list(username):
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
     if auth_expired(username):
         raise AuthTokenExpired("User's authentication token is expired")
 
-    check_recipe_schema(recipe)
-
-    con.update_one(
+    grocery_list_res = con.fetch_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {"$push": {SAVED_RECIPES: recipe}}
+        {GROCERY_LIST: 1, con.MONGO_ID: 0}
     )
 
-    return f'Successfully added {recipe}'
+    return grocery_list_res[GROCERY_LIST]
 
 
 def add_to_grocery_list(username: str, food) -> str:
@@ -503,20 +563,6 @@ def add_to_grocery_list(username: str, food) -> str:
     return f'Successfully added {food}'
 
 
-def get_grocery_list(username):
-    con.connect_db()
-    if not user_exists(username):
-        raise ValueError(f'User {username} does not exist')
-    if auth_expired(username):
-        raise AuthTokenExpired("User's authentication token is expired")
-
-    grocery_list_res = con.fetch_one(
-        con.USERS_COLLECTION,
-        {USERNAME: username},
-        {GROCERY_LIST: 1, con.MONGO_ID: 0}
-    )
-
-    return grocery_list_res[GROCERY_LIST]
 
 
 def delete_recipe(username, recipe):
