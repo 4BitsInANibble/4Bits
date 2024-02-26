@@ -208,7 +208,7 @@ class UserById(Resource):
 @api.route(f'{USERS_EP}{REFRESH_EP}')
 class RefreshUser(Resource):
     @api.expect(refresh_fields)
-    @api.response(204, "No Content")
+    @api.response(200, "OK")
     @api.response(409, "Conflict")
     def patch(self) -> dict:
         """
@@ -244,7 +244,7 @@ class RefreshUser(Resource):
 @api.expect(login_fields)
 @api.route(f'{USERS_EP}{LOGIN_EP}')
 class LoginUser(Resource):
-    @api.response(204, "No Content")
+    @api.response(200, "OK")
     @api.response(409, "Conflict")
     def patch(self) -> dict:
         """
@@ -259,7 +259,7 @@ class LoginUser(Resource):
                 "access_token": token,
                 "refresh_token": refresh_token,
             }
-            status = NO_CONTENT
+            status = OK
         except ValueError as e:
             resp = str(e)
             status = CONFLICT
@@ -269,7 +269,7 @@ class LoginUser(Resource):
 
 @api.route(f'{USERS_EP}/<username>{LOGOUT_EP}')
 class LogoutUser(Resource):
-    @api.response(204, "No Content")
+    @api.response(200, "OK")
     @api.response(409, "Conflict")
     @api.response(403, "Unauthorized")
     def patch(self, username) -> dict:

@@ -455,14 +455,23 @@ def generate_recipe(username, query):
 
 def generate_recipe_gpt(username, query):   # generate recipe with AI
     openai.api_key = os.environ.get("OPENAI_KEY")
-    prompt = f"Based on the following requirements,\
-          please recommend a recipe:\n\n{query}\n\nRecipe:"
+    pantry_items = get_pantry(username)  # Retrieve the user's pantry items
+
+    # Format the pantry items into a string
+    pantry_string = ', '.join(pantry_items)
+
+    # Include the pantry items in the prompt
+    prompt = f"""Given the following pantry items:
+        {pantry_string}, and based on the following requirements,
+        {query}, please recommend a recipe:\n\nRecipe:"""
+
     # Make the API call
     response = openai.Completion.create(
         engine="gpt-3.5-turbo",
         prompt=prompt,
-        max_tokens=200  # You can adjust this value based on your needs
+        max_tokens=200  # Adjust as needed
     )
+
     # Extract the recommended recipe from the response
     recommended_recipe = response.choices[0].text.strip()
     return recommended_recipe
@@ -614,3 +623,19 @@ def recognize_receipt(username: str, image_path=None, image=None):
     for food in pantry_items:
         add_to_pantry(username, food)
     return pantry_items
+
+
+def check_low_stock_pantry(username):
+    # of pantry items with their quantities for a given user
+    pantry_items = get_pantry(username)
+    low_stock_items = []
+
+    # Define a threshold for low stock
+    low_stock_threshold = 2  # Example threshold, adjust as needed
+
+    for item, details in pantry_items.items():
+        if details['quantity'] <= low_stock_threshold:
+            low_stock_items.append({'item': item,
+                                    'quantity': details['quantity']})
+
+    return low_stock_items
