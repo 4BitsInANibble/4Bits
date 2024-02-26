@@ -62,40 +62,45 @@ def test_get_user_invalid(mock_user):
     assert resp.status_code == CONFLICT
 
 
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.get_pantry', return_value=[food.get_food("Chicken", 1.0, "pound")], autospec=True)
-def test_get_pantry_valid(mock_pantry):
+def test_get_pantry_valid(mock_token, mock_pantry):
     username = "TEST_USERNAME"
     resp = TEST_CLIENT.get(f'{ep.PANTRY_EP}/{username}')
     assert resp.status_code == OK
 
 
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.get_pantry', side_effect=ValueError(), autospec=True)
-def test_get_pantry_invalid(mock_pantry):
+def test_get_pantry_invalid(mock_token, mock_pantry):
     username = "TEST_USERNAME"
     resp = TEST_CLIENT.get(f'{ep.PANTRY_EP}/{username}')
     print(f'{ep.USERS_EP}/{username}{ep.PANTRY_EP}')
     assert resp.status_code == CONFLICT
 
 
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.get_recipes', 
        return_value=["TEST RECIPE: RECIPE GOES HERE"],
        autospec=True)
-def test_get_recipes_valid(mock_recipes):
+def test_get_recipes_valid(mock_token, mock_recipes):
     username = "TEST_USERNAME"
     resp = TEST_CLIENT.get(f'{ep.RECIPE_EP}/{username}')
     assert resp.status_code == OK
 
 
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.get_recipes', side_effect=ValueError(), autospec=True)
-def test_get_recipes_invalid(mock_recipes):
+def test_get_recipes_invalid(mock_token, mock_recipes):
     username = "TEST_USERNAME"
     resp = TEST_CLIENT.get(f'{ep.RECIPE_EP}/{username}')
     resp_json = resp.get_json()
     assert resp.status_code == CONFLICT
 
 
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.delete_recipe', return_value=None, autospec=True)
-def test_delete_recipes(mock_recipes):
+def test_delete_recipes(mock_token, mock_recipes):
     username = "TEST_USERNAME"
     data = {
         'recipe': "stir fry"
@@ -105,15 +110,17 @@ def test_delete_recipes(mock_recipes):
     assert resp.status_code == OK
 
 
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.remove_user', return_value=None, autospec=True)
-def test_remove_user(mock_remove):
+def test_remove_user(mock_token, mock_remove):
     username = "TEST_USERNAME"
     resp = TEST_CLIENT.delete(f'{ep.USERS_EP}/{username}')
     assert resp.status_code == NO_CONTENT
 
 
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.remove_user', return_value=None, autospec=True)
-def test_remove_nonexist_user(mock_remove):
+def test_remove_nonexist_user(mock_token, mock_remove):
     username = usrs._get_test_username()
     resp = TEST_CLIENT.delete(f'{ep.USERS_EP}/{username}')
     assert resp.status_code == NO_CONTENT
@@ -178,8 +185,9 @@ def test_refresh_user_token(mock_add):
     assert resp.status_code == OK
 
 
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.logout_user', return_value=None, autospec=True)
-def test_logout_user(mock_add):
+def test_logout_user(mock_token, mock_add):
     test_username = "TEST_USERNAME"
     resp = TEST_CLIENT.patch(f'{ep.USERS_EP}/{test_username}{ep.LOGOUT_EP}')
     print(f'{resp=}')
