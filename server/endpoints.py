@@ -7,6 +7,7 @@ from flask import Flask, request
 from flask_restx import Resource, Api, fields
 import data.users as users
 import data.food as food
+from flask_cors import CORS
 from http.client import (
     OK,
     CONFLICT,
@@ -16,6 +17,7 @@ from http.client import (
 )
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 
 DEFAULT = 'Default'
@@ -172,7 +174,9 @@ class UserById(Resource):
         """
         This method returns a user of username 'username'
         """
+        access_token = request.headers.get('Authorization')
         try:
+            users.validate_access_token(username, access_token)
             resp = users.get_user(username)
             status = OK
         except ValueError as e:
@@ -192,7 +196,9 @@ class UserById(Resource):
         This method removes a user of username 'username'
         """
         resp = None
+        access_token = request.headers.get('Authorization')
         try:
+            users.validate_access_token(username, access_token)
             users.remove_user(username)
             status = NO_CONTENT
         except ValueError as e:

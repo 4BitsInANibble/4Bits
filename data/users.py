@@ -565,6 +565,11 @@ def add_to_grocery_list(username: str, food) -> str:
 
 
 def validate_access_token(username, token):
+    token_list = token.split(' ')
+    if "Bearer" == token_list[0]:
+        token = token_list[1]
+    print(token)
+    print(token_list)
     payload = jwt.decode(
         token,
         key=os.environ.get("JWT_SECRET_KEY"),
