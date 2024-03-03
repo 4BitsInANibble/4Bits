@@ -172,6 +172,30 @@ def test_add_to_pantry(temp_user):
     assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float) and ingredient[food.QUANTITY] == 2.0
     assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str) and ingredient[food.UNITS] == "EACH"
 
+def test_check_low_stock_pantry(temp_user):
+    username = temp_user
+    ingr_list = [{
+        food.INGREDIENT: "egg",
+        food.QUANTITY: 3.0,
+        food.UNITS: "EACH",
+        },
+        {
+        food.INGREDIENT: "milk",
+        food.QUANTITY: 1.0,
+        food.UNITS: "EACH",
+        },
+        {
+        food.INGREDIENT: "bread",
+        food.QUANTITY: 0.5,
+        food.UNITS: "EACH",
+        }, ]
+    usrs.add_to_pantry(username, ingr_list)
+    low_quantity = usrs.check_low_stock_pantry(username)
+    # print("in test_users.py:")
+    # print(low_quantity)
+    for item in low_quantity:
+        assert item['ingredient'] != "egg"
+        assert item['quantity'] <= 2
 
 # RECIPE METHODS
 def test_get_recipes(temp_user):
