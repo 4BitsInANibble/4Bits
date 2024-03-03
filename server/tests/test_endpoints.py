@@ -45,17 +45,17 @@ def test_get_users(connect_db):
     print(f'{resp_json=}')
     assert resp.status_code == OK
 
-
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.get_user', return_value=usrs._create_test_patch_user(), autospec=True)
-def test_get_user_valid(mock_user):
+def test_get_user_valid(mock_token, mock_user):
     username = "TEST_USERNAME"
     resp = TEST_CLIENT.get(f'{ep.USERS_EP}/{username}')
     print(f'{resp.get_json()}')
     assert resp.status_code == OK
 
-
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.get_user', side_effect=ValueError(), autospec=True)
-def test_get_user_invalid(mock_user):    
+def test_get_user_invalid(mock_token, mock_user):    
     username = "TEST_USERNAME"
     resp = TEST_CLIENT.get(f'{ep.USERS_EP}/{username}')
     print(f'{resp=}')
