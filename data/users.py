@@ -416,10 +416,10 @@ def check_low_stock_pantry(username):
     # Define a threshold for low stock
     low_stock_threshold = 2  # Example threshold, adjust as needed
 
-    for item, details in pantry_items.items():
-        if details['quantity'] <= low_stock_threshold:
+    for item in pantry_items:
+        if (item['quantity'] <= low_stock_threshold):
             low_stock_items.append({'item': item,
-                                    'quantity': details['quantity']})
+                                    'quantity': item['quantity']})
 
     return low_stock_items
 
