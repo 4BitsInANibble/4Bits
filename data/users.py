@@ -423,6 +423,32 @@ def check_low_stock_pantry(username):
     return low_stock_items
 
 
+def modify_pantry_ingredient_amount(username, ingredient_name, new_amount):
+    # Assume a function connect_db() that connects to the database
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+
+    # Find the user's pantry
+    pantry = con.find_one(con.PANTRY_COLLECTION, {USERNAME: username})
+
+    # Check if ingredient exists in the pantry, then update its amount
+    if ingredient_name in pantry['ingredients']:
+        # Update the amount for the ingredient
+        pantry['ingredients'][ingredient_name]['amount'] = new_amount
+
+        # Save the updated pantry
+        con.update_one(
+            con.PANTRY_COLLECTION,
+            {USERNAME: username},
+            {"$set": {"ingredients": pantry['ingredients']}}
+        )
+        return f'Updated {ingredient_name} \
+            to {new_amount} in {username}\'s pantry'
+    else:
+        raise ValueError(f'Ingredient {ingredient_name} not found in pantry')
+
+
 # RECIPE METHODS
 def get_recipes(username):
     con.connect_db()
