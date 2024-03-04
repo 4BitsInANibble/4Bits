@@ -471,7 +471,7 @@ def add_to_recipes(username, recipe):
             ingredient[fd.INGREDIENT],
             ingredient[fd.QUANTITY],
             ingredient[fd.UNITS]
-        ) for ingredient in recipe['ingredients']]
+        ) for ingredient in recipe['ingredients'][0]]
 
     con.update_one(
         con.USERS_COLLECTION,
