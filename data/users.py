@@ -465,7 +465,14 @@ def add_to_recipes(username, recipe):
         {"$push": {SAVED_RECIPES: recipe}}
     )
 
-    return f'Successfully added {recipe}'
+    # Update grocery list with ingredients from the recipe
+    if 'ingredients' in recipe:
+        for ingredient in recipe['ingredients']:
+            # Assume ingredient is structured as required by add_to_grocery_list
+            # Adjust this as necessary based on your data structure
+            add_to_grocery_list(username, [ingredient])
+
+    return f'Successfully added {recipe} and updated grocery list'
 
 
 def delete_recipe(username, recipe):
