@@ -467,8 +467,17 @@ def add_to_recipes(username, recipe):
 
     # Update grocery list with ingredients from the recipe
     if 'ingredients' in recipe:
-        for ingredient in recipe['ingredients']:
-            add_to_grocery_list(username, [ingredient])
+        new_list_entries = [fd.get_food(
+        ingredient[fd.INGREDIENT],
+        ingredient[fd.QUANTITY],
+        ingredient[fd.UNITS]
+        ) for ingredient in recipe['ingredients']]
+
+    con.update_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {"$push": {GROCERY_LIST: {"$each": new_list_entries}}}
+    )    
 
     return f'Successfully added {recipe} and updated grocery list'
 
