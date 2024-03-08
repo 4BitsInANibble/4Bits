@@ -625,7 +625,7 @@ def validate_access_token(username, token):
 
     exp = exp[AUTH_EXPIRES]
 
-    if payload[USERNAME] != username or exp != payload[AUTH_EXPIRES]:
+    if payload[USERNAME] != username:
         raise ValueError("Invalid Auth Token")
     if datetime.datetime.utcnow().timestamp() > payload[AUTH_EXPIRES]:
         raise AuthTokenExpired("Authentication Token Expired")
