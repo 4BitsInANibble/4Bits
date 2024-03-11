@@ -200,9 +200,26 @@ def test_check_low_stock_pantry(temp_user):
     low_quantity = usrs.check_low_stock_pantry(username)
     # print("in test_users.py:")
     # print(low_quantity)
+    
+
+def test_mod_pantry_ingredient_amount(temp_user):
+    username = temp_user
+    ingredient_name = "carrot"
+    old_amt = 1.0
+    new_amount = 3.0
+    ingr_list = [{
+        food.INGREDIENT: ingredient_name,
+        food.QUANTITY: old_amt,
+        food.UNITS: "EACH",
+        }]
+    usrs.add_to_pantry(username, ingr_list)
+    usrs.modify_pantry_ingredient_amount(username, ingredient_name, new_amount)
+    pantry_contents = usrs.get_pantry(username)
     for item in low_quantity:
-        assert item['ingredient'] != "egg"
-        assert item['quantity'] <= 2
+        # print("INGREDIENT:", item['ingredient'])
+        assert item['ingredient'] == "carrot"
+        assert item['quantity'] == 3.0
+
 
 # RECIPE METHODS
 def test_get_recipes(temp_user):
