@@ -141,11 +141,15 @@ def create_user(username: str, name: str,
                 refresh_token=None) -> dict:
     con.connect_db()
     if len(username) < 5:
-        raise ValueError(f'Username {username} is too short')
+        raise ValueError(f'Username {username} is too short. Username should\
+         be at least 5 characters.')
 
     if user_exists(username):
         raise ValueError(f'User {username} already exists')
 
+    if len(username) > 25:
+        raise ValueError(f'Username {username} is too long. Username should\
+         be at most 25 characters.')
     auth_type = "Google" if password is None else "Self"
 
     new_user = {
