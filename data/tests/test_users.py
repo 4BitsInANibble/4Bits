@@ -92,6 +92,13 @@ def test_add_user_blank_name():
         exp = usrs.generate_exp()
         usrs.create_user('', 'Jane', exp)
 
+def test_add_user_long_name():
+    """
+    Make sure a blank game name raises a ValueError.
+    """
+    with pytest.raises(ValueError):
+        exp = usrs.generate_exp()
+        usrs.create_user('abcdefghijklmnopqrstuvwxyz', 'Jane', exp)
 
 def test_del_user(temp_user):
     name = temp_user
