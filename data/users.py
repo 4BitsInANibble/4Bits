@@ -437,15 +437,15 @@ def modify_pantry_ingredient_amount(username, ingredient_name, new_amount):
     pantry = get_pantry(username)
 
     # Check if ingredient exists in the pantry, then update its amount
-    if ingredient_name in pantry['ingredients']:
+    if ingredient_name in pantry:
         # Update the amount for the ingredient
-        pantry['ingredients'][ingredient_name]['amount'] = new_amount
+        pantry[ingredient_name]['amount'] = new_amount
 
         # Save the updated pantry
         con.update_one(
             con.PANTRY_COLLECTION,
             {USERNAME: username},
-            {"$set": {"ingredients": pantry['ingredients']}}
+            {"$set": {"ingredients": pantry}}
         )
 
         return f'Updated {ingredient_name} \
