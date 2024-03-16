@@ -60,6 +60,7 @@ def fetch_one(collection, filt, fields=None, db=RECIPE_DB):
     """
 
     res = client[db][collection].find(filt, fields)
+    print("IN DB FETCH ONE CALL")
     print(f'{res=}')
     if res is not None:
         for doc in res:
@@ -99,3 +100,26 @@ def fetch_all_as_dict(key, collection, db=RECIPE_DB):
 
 def update_one(collection, filter, query, db=RECIPE_DB):
     return client[db][collection].update_one(filter, query)
+
+
+def find_one(collection, filt, fields=None, db=USERS_COLLECTION):
+    """
+    Find with a filter and return on the first doc found.
+    """
+
+    res = client[db][collection].find(filt, fields)
+    print("IN DB FIND ONE CALL")
+    print(f'{res=}')
+    if res is not None:
+        for doc in res:
+            print("ENTERED FOR LOOP IN FIND ONE CALL")
+            if MONGO_ID in doc:
+                # Convert mongo ID to a string so it works as JSON
+                doc[MONGO_ID] = str(doc[MONGO_ID])
+                print(f'{doc=}')
+            return doc
+        print("AFTER FOR LOOP IN FIND ONE CALL")
+    else:
+        raise ValueError("res == None")
+
+    raise ValueError("Object to fetch does not exist")

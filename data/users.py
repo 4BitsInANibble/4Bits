@@ -434,7 +434,7 @@ def modify_pantry_ingredient_amount(username, ingredient_name, new_amount):
         raise ValueError(f'User {username} does not exist')
 
     # Find the user's pantry
-    pantry = con.find_one(con.PANTRY_COLLECTION, {USERNAME: username})
+    pantry = con.find_one(con.USERS_COLLECTION, {USERNAME: username})
 
     # Check if ingredient exists in the pantry, then update its amount
     if ingredient_name in pantry['ingredients']:
