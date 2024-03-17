@@ -736,8 +736,9 @@ def recognize_receipt(username: str, image_path=None, image=None):
     generated_text = response.choices[0].text.strip()
     # Split the generated text into individual pantry items
     pantry_items = generated_text.split('\n')
-    # Remove any empty or whitespace-only items
-    pantry_items = [item.strip() for item in pantry_items if item.strip()]
-    for food in pantry_items:
-        add_to_pantry(username, food)
     return pantry_items
+    # # Remove any empty or whitespace-only items
+    # pantry_items = [item.strip() for item in pantry_items if item.strip()]
+    # for food in pantry_items:
+    #     add_to_pantry(username, food)
+    # return pantry_items
