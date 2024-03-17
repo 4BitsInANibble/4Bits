@@ -434,24 +434,34 @@ def modify_pantry_ingredient_amount(username, ingredient_name, new_amount):
         raise ValueError(f'User {username} does not exist')
 
     # Find the user's pantry
-    pantry = get_pantry(username)
+    pantry = con.fetch_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {PANTRY: 1}
+    )
+    print(pantry)
 
     # Check if ingredient exists in the pantry, then update its amount
-    if ingredient_name in pantry:
-        # Update the amount for the ingredient
-        pantry[ingredient_name]['amount'] = new_amount
+    for ingredient in pantry[PANTRY]:
+        print(f'{ingredient=}')
+        if ingredient['ingredient'] == ingredient_name:
+            # # Update the amount for the ingredient
+            # ingredient['quantity'] = new_amount
 
-        # Save the updated pantry
-        con.update_one(
-            con.PANTRY_COLLECTION,
-            {USERNAME: username},
-            {"$set": {"ingredients": pantry}}
-        )
+            # Save the updated pantry
+            con.update_one(
+                con.USERS_COLLECTION,
+                {
+                    # USERNAME: username,
+                    f'{PANTRY}.{con.MONGO_ID}': ingredient[con.MONGO_ID]
+                },
+                {"$set": {f"{PANTRY}.$.quantity": new_amount}}
+            )
 
-        return f'Updated {ingredient_name} \
-            to {new_amount} in {username}\'s pantry'
-    else:
-        raise ValueError(f'Ingredient {ingredient_name} not found in pantry')
+            return f'Updated {ingredient_name} \
+                to {new_amount} in {username}\'s pantry'
+
+    raise ValueError(f'Ingredient {ingredient_name} not found in pantry')
 
 
 # RECIPE METHODS
@@ -606,6 +616,14 @@ def add_to_grocery_list(username: str, food) -> str:
         {"$push": {GROCERY_LIST: {"$each": new_list_entries}}}
     )
     return f'Successfully added {food}'
+
+
+def recommend_recipes(username):
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
 
 
 def validate_access_token(username, token):

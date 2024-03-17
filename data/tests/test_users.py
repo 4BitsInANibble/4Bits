@@ -215,7 +215,8 @@ def test_mod_pantry_ingredient_amount(temp_user):
     usrs.add_to_pantry(username, ingr_list)
     usrs.modify_pantry_ingredient_amount(username, ingredient_name, new_amount)
     pantry_contents = usrs.get_pantry(username)
-    for item in low_quantity:
+    print(f"{pantry_contents=}")
+    for item in pantry_contents:
         # print("INGREDIENT:", item['ingredient'])
         assert item['ingredient'] == "carrot"
         assert item['quantity'] == 3.0

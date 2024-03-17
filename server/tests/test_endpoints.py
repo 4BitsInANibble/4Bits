@@ -63,7 +63,8 @@ def test_get_user_invalid(mock_token, mock_user):
 
 
 @patch('data.users.validate_access_token', return_value=None, autospec=True)
-@patch('data.users.get_pantry', return_value=[food.get_food("Chicken", 1.0, "pound")], autospec=True)
+@patch('data.users.get_pantry', return_value=[food.get_food("Chicken", 1.0, "pound", False)],
+       autospec=True)
 def test_get_pantry_valid(mock_token, mock_pantry):
     username = "TEST_USERNAME"
     resp = TEST_CLIENT.get(f'{ep.PANTRY_EP}/{username}')
@@ -85,7 +86,7 @@ def test_get_pantry_invalid(mock_token, mock_pantry):
        autospec=True)
 def test_get_recipes_valid(mock_token, mock_recipes):
     username = "TEST_USERNAME"
-    resp = TEST_CLIENT.get(f'{ep.RECIPE_EP}/{username}')
+    resp = TEST_CLIENT.get(f'{ep.RECIPE_EP}{ep.FAVORITE_EP}/{username}')
     assert resp.status_code == OK
 
 
@@ -93,7 +94,7 @@ def test_get_recipes_valid(mock_token, mock_recipes):
 @patch('data.users.get_recipes', side_effect=ValueError(), autospec=True)
 def test_get_recipes_invalid(mock_token, mock_recipes):
     username = "TEST_USERNAME"
-    resp = TEST_CLIENT.get(f'{ep.RECIPE_EP}/{username}')
+    resp = TEST_CLIENT.get(f'{ep.RECIPE_EP}{ep.FAVORITE_EP}/{username}')
     resp_json = resp.get_json()
     assert resp.status_code == CONFLICT
 
@@ -105,7 +106,7 @@ def test_delete_recipes(mock_token, mock_recipes):
     data = {
         'recipe': "stir fry"
     }
-    resp = TEST_CLIENT.delete(f'{ep.RECIPE_EP}/{username}', json=data)
+    resp = TEST_CLIENT.delete(f'{ep.RECIPE_EP}{ep.FAVORITE_EP}/{username}', json=data)
     resp_json = resp.get_json()
     assert resp.status_code == OK
 

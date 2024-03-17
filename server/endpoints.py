@@ -52,6 +52,8 @@ LOGOUT_EP = '/logout'
 GOOGLE_EP = '/google'
 REGISTER_EP = '/register'
 REGISTER_TITLE = "Registered User Data"
+FAVORITE_EP = '/favorite'
+RECOMMENDED_EP = '/rec'
 
 user_fields = api.model('User', {
     "Authorization": fields.String
@@ -369,8 +371,8 @@ class PantryById(Resource):
         return resp, status
 
 
-@api.route(f'{RECIPE_EP}/<username>')
-class RecipeById(Resource):
+@api.route(f'{RECIPE_EP}{FAVORITE_EP}/<username>')
+class FavoriteRecipeById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
     @api.response(403, "Unauthorized")
@@ -433,3 +435,27 @@ class RecipeById(Resource):
             status = UNAUTHORIZED
 
         return resp, status
+
+
+@api.route(f'{RECIPE_EP}{RECOMMENDED_EP}/<username>')
+class RecommendedRecipeById(Resource):
+    @api.response(200, "Success")
+    @api.response(409, "Conflict")
+    @api.response(403, "Unauthorized")
+    def get(self, username):
+        """
+        This method returns the pantry of user with name
+        """
+        access_token = request.headers.get('Authorization')
+        try:
+            users.validate_access_token(username, access_token)
+            resp = users.recommend_recipes(username)
+            status_code = OK
+        except ValueError as e:
+            resp = str(e)
+            status_code = CONFLICT
+        except users.AuthTokenExpired as e:
+            resp = str(e)
+            status_code = UNAUTHORIZED
+
+        return resp, status_code

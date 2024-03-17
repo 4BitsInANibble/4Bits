@@ -100,3 +100,7 @@ def fetch_all_as_dict(key, collection, db=RECIPE_DB):
 
 def update_one(collection, filter, query, db=RECIPE_DB):
     return client[db][collection].update_one(filter, query)
+
+
+def update_many(collection, filter, query, db=RECIPE_DB):
+    return client[db][collection].update_many(filter, query)

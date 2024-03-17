@@ -2,6 +2,7 @@
 This module interfaces with user data.
 """
 from typing import Optional
+from bson.objectid import ObjectId
 
 INGREDIENT = 'ingredient'
 QUANTITY = 'quantity'
@@ -12,14 +13,18 @@ FOOD_CATEGORIES = {'produce', 'carbs', 'dairy', 'meat', 'oil',
                    'starch', 'vegetables', 'fruits'}
 
 
-def get_food(ingredient: str, quantity: float, units: str) -> str:
+def get_food(ingredient: str, quantity: float, units: str, add_id=True) -> str:
     food = {
         INGREDIENT: ingredient,
         QUANTITY: quantity,
         UNITS: units,
+        "_id": ObjectId()
         # CATEGORY: get_food_category(ingredient),
         # CATEGORY: None
     }
+
+    if not add_id:
+        del food['_id']
 
     return food
 
