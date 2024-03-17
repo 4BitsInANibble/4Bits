@@ -7,6 +7,7 @@ CLOUD = "1"
 
 RECIPE_DB = 'recipeDB'
 USERS_COLLECTION = 'Users'
+RECIPE_COLLECTION = 'Recipes'
 
 client = None
 
@@ -104,3 +105,7 @@ def update_one(collection, filter, query, db=RECIPE_DB):
 
 def update_many(collection, filter, query, db=RECIPE_DB):
     return client[db][collection].update_many(filter, query)
+
+
+def aggregate(collection, pipeline, db=RECIPE_DB):
+    return client[db][collection].aggregate(pipeline)

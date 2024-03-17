@@ -381,13 +381,13 @@ def get_pantry(username):
     if auth_expired(username):
         raise AuthTokenExpired("User's authentication token is expired")
 
-    pantry_res = con.fetch_one(
+    pantry = con.fetch_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {PANTRY: 1, con.MONGO_ID: 0}
+        {PANTRY: 1}
     )
 
-    return pantry_res[PANTRY]
+    return pantry[PANTRY]
 
 
 def add_to_pantry(username: str, food) -> str:
@@ -512,7 +512,7 @@ def add_to_recipes(username, recipe):
             ingredient[fd.INGREDIENT],
             ingredient[fd.QUANTITY],
             ingredient[fd.UNITS]
-        ) for ingredient in recipe['ingredients'][0]]
+        ) for ingredient in recipe['ingredients']]
 
     con.update_one(
         con.USERS_COLLECTION,
@@ -624,6 +624,35 @@ def recommend_recipes(username):
         raise ValueError(f'User {username} does not exist')
     if auth_expired(username):
         raise AuthTokenExpired("User's authentication token is expired")
+
+    pantry = get_pantry(username)
+    pantry_ids = [ingr["ingredient"] for ingr in pantry]
+    print(f'{pantry_ids=}')
+
+    pipeline = [
+        {"$unwind": "$ingredients"},
+        {"$match": {"ingredients": {"$in": pantry_ids}}},
+        {"$group": {
+            "_id": '_id',
+            "count": {"$sum": 1}
+        }},
+        {"$project": {
+            "_id": 1,
+            "count": 1,
+            "score": {"$divide": [
+                "$count", len(pantry_ids)
+            ]}
+        }},
+        {"$sort": {
+            "score": -1
+        }}
+    ]
+
+    res = con.aggregate(
+        con.RECIPE_COLLECTION,
+        pipeline
+    )
+    print(res)
 
 
 def validate_access_token(username, token):

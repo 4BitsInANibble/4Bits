@@ -227,7 +227,7 @@ def test_get_recipes(temp_user):
     username = temp_user
     recipe = {
         "name": "stir fry",
-        "ingredients": [[{
+        "ingredients": [{
             food.INGREDIENT: "chicken thigh",
             food.QUANTITY: 1.0,
             food.UNITS: "lbs.",
@@ -235,7 +235,7 @@ def test_get_recipes(temp_user):
             food.INGREDIENT: "soy sauce",
             food.QUANTITY: 3.0,
             food.UNITS: "oz.",
-        }]]
+        }]
     }
     usrs.add_to_recipes(username, recipe)
     retrieved_recipes = usrs.get_recipes(username)
@@ -243,11 +243,51 @@ def test_get_recipes(temp_user):
         assert isinstance(recipe, dict)
 
 
+# RECIPE METHODS
+# def test_rec_recipes(temp_user):
+#     username = temp_user
+#     ingr_list = [{
+#         food.INGREDIENT: "egg",
+#         food.QUANTITY: 3.0,
+#         food.UNITS: "EACH",
+#         },
+#         {
+#         food.INGREDIENT: "milk",
+#         food.QUANTITY: 1.0,
+#         food.UNITS: "EACH",
+#         },
+#         {
+#         food.INGREDIENT: "bread",
+#         food.QUANTITY: 0.5,
+#         food.UNITS: "EACH",
+#         }
+#     ]
+#     recipe = {
+#         "name": "test",
+#         "ingredients": [
+#             {
+#                 food.INGREDIENT: "egg",
+#                 food.QUANTITY: 3.0,
+#                 food.UNITS: "EACH",
+#             },
+#             {
+#                 food.INGREDIENT: "broccoli",
+#                 food.QUANTITY: 3.0,
+#                 food.UNITS: "EACH",
+#             },
+#         ]
+#     }
+#     usrs.add_to_recipes(username, recipe)
+#     usrs.add_to_pantry(username, ingr_list)
+#     usrs.recommend_recipes(username)
+#     assert False
+
+
 def test_add_to_recipes(temp_user):
     username = temp_user
     recipe = {
         "name": "stir fry",
-        "ingredients": [[{
+        "ingredients": [{
             food.INGREDIENT: "egg noodle",
             food.QUANTITY: 1.0,
             food.UNITS: "lbs.",
@@ -255,7 +295,7 @@ def test_add_to_recipes(temp_user):
             food.INGREDIENT: "soy sauce",
             food.QUANTITY: 3.0,
             food.UNITS: "oz.",
-        }]]
+        }]
     }
     usrs.add_to_recipes(username, recipe)
     retrieved_recipes = usrs.get_recipes(username)
@@ -266,7 +306,7 @@ def test_delete_recipes(temp_user):
     username = temp_user
     recipe = {
         "name": "stir fry",
-        "ingredients": [[{
+        "ingredients": [{
             food.INGREDIENT: "egg noodle",
             food.QUANTITY: 1.0,
             food.UNITS: "lbs.",
@@ -274,7 +314,7 @@ def test_delete_recipes(temp_user):
             food.INGREDIENT: "soy sauce",
             food.QUANTITY: 3.0,
             food.UNITS: "oz.",
-        }]]
+        }]
     }
     usrs.add_to_recipes(username, recipe)
     usrs.delete_recipe(username, "stir fry")
