@@ -52,10 +52,11 @@ jobs:
           PYTHON-REPO: true
         run: make all_tests
 
-      - name: Prep to deploy to PythonAnywhere
-        run: |
-          chmod +x deploy.sh
-        # chmod +x rebuild.sh
+      - name: Granting permission for deploy
+        run: chmod +x deploy.sh
+      
+      - name: Granting permission for rebuild
+        run: chmod +x rebuild.sh
         
       - name: Deploy to PythonAnywhere
         run:
