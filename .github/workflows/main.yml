@@ -55,7 +55,7 @@ jobs:
       - name: Prep to deploy to PythonAnywhere
         run: |
           chmod +x deploy.sh
-          chmod +x rebuild.sh
+        # chmod +x rebuild.sh
         
       - name: Deploy to PythonAnywhere
         run:
