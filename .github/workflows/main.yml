@@ -53,7 +53,7 @@ jobs:
         run: make all_tests
 
       - name: Granting permission for deploy
-        run: chmod +x deploy.sh
+        run: chmod 777 deploy.sh
       
       - name: Granting permission for rebuild
         run: chmod +x rebuild.sh
