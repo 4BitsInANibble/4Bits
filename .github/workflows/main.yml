@@ -53,10 +53,10 @@ jobs:
         run: make all_tests
 
       - name: Granting permission for deploy
-        run: chmod 777 deploy.sh
+        run: chmod +x deploy.sh
       
       - name: Granting permission for rebuild
-        run: chmod +x rebuild.sh
+        run: chmod 777 rebuild.sh
       
       - name: Running ls -las
         run: ls -las
