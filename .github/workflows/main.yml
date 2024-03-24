@@ -57,6 +57,9 @@ jobs:
       
       - name: Granting permission for rebuild
         run: chmod +x rebuild.sh
+      
+      - name: Running ls -las
+        run: ls -las
         
       - name: Deploy to PythonAnywhere
         run:
