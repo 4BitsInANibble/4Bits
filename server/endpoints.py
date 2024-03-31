@@ -459,3 +459,27 @@ class RecommendedRecipeById(Resource):
             status_code = UNAUTHORIZED
 
         return resp, status_code
+
+
+@api.route(f'{RECIPE_EP}{RECOMMENDED_EP}')
+class RandomRecipeById(Resource):
+    @api.response(200, "Success")
+    @api.response(409, "Conflict")
+    @api.response(403, "Unauthorized")
+    def get(self, username):
+        """
+        This method returns the pantry of user with name
+        """
+        access_token = request.headers.get('Authorization')
+        try:
+            users.validate_access_token(username, access_token)
+            resp = users.random_recipes()
+            status_code = OK
+        except ValueError as e:
+            resp = str(e)
+            status_code = CONFLICT
+        except users.AuthTokenExpired as e:
+            resp = str(e)
+            status_code = UNAUTHORIZED
+
+        return resp, status_code

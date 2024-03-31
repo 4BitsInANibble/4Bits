@@ -645,6 +645,24 @@ def recommend_recipes(username):
         }},
         {"$sort": {
             "score": -1
+        }},
+        {"$limit": 20}
+    ]
+
+    res = con.aggregate(
+        con.RECIPE_COLLECTION,
+        pipeline
+    )
+    print(res)
+    return res
+
+
+def random_recipes():
+    con.connect_db()
+
+    pipeline = [
+        {"$sample": {
+            "size": 20
         }}
     ]
 
@@ -653,6 +671,7 @@ def recommend_recipes(username):
         pipeline
     )
     print(res)
+    return res
 
 
 def validate_access_token(username, token):
