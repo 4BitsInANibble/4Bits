@@ -38,6 +38,27 @@ def test_endpoints():
     assert ep.AVAIL_ENDPOINTS in resp_json
 
 
+def recipe_return():
+    return [{
+        "name": "Egg Fried Rice",
+        "ingredients":  [{
+            food.INGREDIENT: "egg",
+            food.QUANTITY: "2",
+            food.UNITS: "each"
+        },
+        {
+            food.INGREDIENT: "rice",
+            food.QUANTITY: "2",
+            food.UNITS: "c."
+        },
+        {
+            food.INGREDIENT: "oil",
+            food.QUANTITY: "1",
+            food.UNITS: "tbsp."
+        }]
+    }]
+
+
 @patch('data.users.get_users', return_value=[usrs._create_test_patch_user()], autospec=True)
 def test_get_users(connect_db):
     resp = TEST_CLIENT.get(ep.USERS_EP)
@@ -82,11 +103,30 @@ def test_get_pantry_invalid(mock_token, mock_pantry):
 
 @patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.get_recipes', 
-       return_value=["TEST RECIPE: RECIPE GOES HERE"],
+       return_value=recipe_return(),
        autospec=True)
 def test_get_recipes_valid(mock_token, mock_recipes):
     username = "TEST_USERNAME"
     resp = TEST_CLIENT.get(f'{ep.RECIPE_EP}{ep.FAVORITE_EP}/{username}')
+    assert resp.status_code == OK
+
+
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
+@patch('data.users.recommend_recipes', 
+       return_value=recipe_return(),
+       autospec=True)
+def test_get_rec_recipes_valid(mock_token, mock_recipes):
+    username = "TEST_USERNAME"
+    resp = TEST_CLIENT.get(f'{ep.RECIPE_EP}{ep.RECOMMENDED_EP}/{username}')
+    assert resp.status_code == OK
+
+
+@patch('data.users.random_recipes', 
+       return_value=recipe_return(),
+       autospec=True)
+def test_get_random_recipes_valid(mock_recipes):
+    username = "TEST_USERNAME"
+    resp = TEST_CLIENT.get(f'{ep.RECIPE_EP}{ep.RANDOM_EP}')
     assert resp.status_code == OK
 
 

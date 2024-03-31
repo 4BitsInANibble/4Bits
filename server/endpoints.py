@@ -54,6 +54,7 @@ REGISTER_EP = '/register'
 REGISTER_TITLE = "Registered User Data"
 FAVORITE_EP = '/favorite'
 RECOMMENDED_EP = '/rec'
+RANDOM_EP = '/random'
 
 user_fields = api.model('User', {
     "Authorization": fields.String
@@ -461,18 +462,16 @@ class RecommendedRecipeById(Resource):
         return resp, status_code
 
 
-@api.route(f'{RECIPE_EP}{RECOMMENDED_EP}')
+@api.route(f'{RECIPE_EP}{RANDOM_EP}')
 class RandomRecipeById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
     @api.response(403, "Unauthorized")
-    def get(self, username):
+    def get(self):
         """
         This method returns the pantry of user with name
         """
-        access_token = request.headers.get('Authorization')
         try:
-            users.validate_access_token(username, access_token)
             resp = users.random_recipes()
             status_code = OK
         except ValueError as e:
