@@ -8,6 +8,7 @@ CLOUD = "1"
 RECIPE_DB = 'recipeDB'
 USERS_COLLECTION = 'Users'
 RECIPE_COLLECTION = 'Recipes'
+FOOD_COLLECTION = 'FOOD'
 
 client = None
 

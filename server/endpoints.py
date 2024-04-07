@@ -384,7 +384,7 @@ class FavoriteRecipeById(Resource):
         access_token = request.headers.get('Authorization')
         try:
             users.validate_access_token(username, access_token)
-            resp = users.get_recipes(username)
+            resp = users.get_saved_recipes(username)
             status_code = OK
         except ValueError as e:
             resp = str(e)
@@ -405,7 +405,7 @@ class FavoriteRecipeById(Resource):
         access_token = request.headers.get('Authorization')
         try:
             users.validate_access_token(username, access_token)
-            resp = users.add_to_recipes(username, data['recipe'])
+            resp = users.add_to_saved_recipes(username, data['recipe'])
             status = OK
         except ValueError as e:
             resp = str(e)
@@ -426,7 +426,7 @@ class FavoriteRecipeById(Resource):
         access_token = request.headers.get('Authorization')
         try:
             users.validate_access_token(username, access_token)
-            resp = users.delete_recipe(username, data['recipe'])
+            resp = users.remove_from_saved_recipes(username, data['recipe'])
             status = OK
         except ValueError as e:
             resp = str(e)

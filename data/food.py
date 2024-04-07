@@ -15,7 +15,7 @@ FOOD_CATEGORIES = {'produce', 'carbs', 'dairy', 'meat', 'oil',
 
 def get_food(ingredient: str, quantity: float, units: str, add_id=True) -> str:
     food = {
-        INGREDIENT: ingredient,
+        INGREDIENT: ingredient.lower(),
         QUANTITY: quantity,
         UNITS: units,
         "_id": ObjectId()

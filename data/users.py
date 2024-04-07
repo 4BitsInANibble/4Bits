@@ -16,6 +16,7 @@ from google.auth.transport import requests
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import data.food as fd
+from bson import ObjectId
 
 TEST_USERNAME_LENGTH = 6
 TEST_NAME_LENGTH = 6
@@ -390,7 +391,7 @@ def get_pantry(username):
     return pantry[PANTRY]
 
 
-def add_to_pantry(username: str, food) -> str:
+def add_to_pantry(username: str, food):
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
@@ -398,18 +399,40 @@ def add_to_pantry(username: str, food) -> str:
         raise AuthTokenExpired("User's authentication token is expired")
     print(food)
 
-    new_pantry_entries = [fd.get_food(
+    new_pantry_entries = [create_ingredient(fd.get_food(
         ingredient[fd.INGREDIENT],
         ingredient[fd.QUANTITY],
         ingredient[fd.UNITS]
-        ) for ingredient in food]
+        )) for ingredient in food]
 
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
         {"$push": {PANTRY: {"$each": new_pantry_entries}}}
     )
-    return f'Successfully added {food}'
+    return new_pantry_entries
+
+
+def create_ingredient(ingredient):
+    ingredient[fd.INGREDIENT] = add_to_foods(ingredient[fd.INGREDIENT])
+    return ingredient
+
+
+def add_to_foods(food):
+    ingr_id = None
+    try:
+        ingr_obj = con.fetch_one(
+            con.FOOD_COLLECTION,
+            {"name": food}
+        )
+        ingr_id = ObjectId(ingr_obj['_id'])
+    except ValueError:
+        ingr_obj = con.insert_one(
+            con.FOOD_COLLECTION,
+            {"name": food}
+        )
+        ingr_id = ingr_obj.inserted_id
+    return ingr_id
 
 
 def check_low_stock_pantry(username):
@@ -443,42 +466,61 @@ def modify_pantry_ingredient_amount(username, ingredient_name, new_amount):
 
     # Check if ingredient exists in the pantry, then update its amount
     for ingredient in pantry[PANTRY]:
-        print(f'{ingredient=}')
-        if ingredient['ingredient'] == ingredient_name:
+        try:
+            food = con.fetch_one(
+                con.FOOD_COLLECTION,
+                {
+                    con.MONGO_ID: ingredient[fd.INGREDIENT]
+                }
+            )
+            print(f'{ingredient=}')
             # # Update the amount for the ingredient
             # ingredient['quantity'] = new_amount
 
             # Save the updated pantry
-            con.update_one(
-                con.USERS_COLLECTION,
-                {
-                    # USERNAME: username,
-                    f'{PANTRY}.{con.MONGO_ID}': ingredient[con.MONGO_ID]
-                },
-                {"$set": {f"{PANTRY}.$.quantity": new_amount}}
-            )
-
-            return f'Updated {ingredient_name} \
-                to {new_amount} in {username}\'s pantry'
-
+            if food['name'] == ingredient_name:
+                con.update_one(
+                    con.USERS_COLLECTION,
+                    {
+                        # USERNAME: username,
+                        # f'{PANTRY}.{fd.INGREDIENT}': food_id,
+                        f'{PANTRY}.{con.MONGO_ID}': ingredient[con.MONGO_ID]
+                    },
+                    {"$set": {f"{PANTRY}.$.{fd.QUANTITY}": new_amount}}
+                )
+                return f'Updated {ingredient_name} \
+                    to {new_amount} in {username}\'s pantry'
+        except ValueError:
+            pass
     raise ValueError(f'Ingredient {ingredient_name} not found in pantry')
 
 
 # RECIPE METHODS
-def get_recipes(username):
+def get_saved_recipes(username):
+
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
     if auth_expired(username):
         raise AuthTokenExpired("User's authentication token is expired")
 
-    recipes_res = con.fetch_one(
+    recipes = con.fetch_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
         {SAVED_RECIPES: 1, con.MONGO_ID: 0}
     )
+    recipe_ids = [ObjectId(rec) for rec in recipes[SAVED_RECIPES]]
 
-    return recipes_res[SAVED_RECIPES]
+    recipe_objs = []
+    for recipe_id in recipe_ids:
+        recipe_objs.append(
+            con.fetch_one(
+                con.RECIPE_COLLECTION,
+                {con.MONGO_ID: recipe_id}
+            )
+        )
+        recipe_objs[-1][con.MONGO_ID] = ObjectId(recipe_objs[-1][con.MONGO_ID])
+    return recipe_objs
 
 
 def generate_recipe(username, query):
@@ -491,7 +533,7 @@ def generate_recipe(username, query):
     return x  # return full recipe response body
 
 
-def add_to_recipes(username, recipe):
+def add_to_saved_recipes(username, recipe):
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
@@ -500,40 +542,89 @@ def add_to_recipes(username, recipe):
 
     check_recipe_schema(recipe)
 
+    recipe_id = None
+    existing_recipe = None
+    try:
+        existing_recipe = con.fetch_one(
+            con.RECIPE_COLLECTION,
+            {"name": recipe['name']}
+        )
+        recipe_id = existing_recipe["_id"]
+    except ValueError:
+        recipe_id = add_to_recipes(recipe)
+        print(recipe['ingredients'])
+
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {"$push": {SAVED_RECIPES: recipe}}
+        {"$push": {SAVED_RECIPES: recipe_id}}
     )
 
-    # Update grocery list with ingredients from the recipe
-    if 'ingredients' in recipe:
-        new_list_entries = [fd.get_food(
-            ingredient[fd.INGREDIENT],
-            ingredient[fd.QUANTITY],
-            ingredient[fd.UNITS]
-        ) for ingredient in recipe['ingredients']]
+    if existing_recipe is None:
+        existing_recipe = con.fetch_one(
+            con.RECIPE_COLLECTION,
+            {"name": recipe['name']}
+        )
 
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {"$push": {GROCERY_LIST: {"$each": new_list_entries}}}
+        {"$push": {GROCERY_LIST: {"$each": existing_recipe['ingredients']}}}
     )
 
     return f'Successfully added {recipe} and updated grocery list'
 
 
-def delete_recipe(username, recipe):
+def add_to_recipes(recipe):
+    con.connect_db()
+
+    check_recipe_schema(recipe)
+
+    if 'ingredients' in recipe:
+        ingredients = [create_ingredient(fd.get_food(
+            ingredient[fd.INGREDIENT],
+            ingredient[fd.QUANTITY],
+            ingredient[fd.UNITS])
+        ) for ingredient in recipe['ingredients']]
+
+        ingredient_ids = []
+        for ingr in ingredients:
+            ingredient_ids.append(ingr[con.MONGO_ID])
+
+    recipe["ingredients"] = ingredient_ids
+    print(f"{recipe=}")
+
+    add_ret = con.insert_one(
+        con.RECIPE_COLLECTION,
+        recipe
+    )
+
+    if add_ret is not None:
+        recipe_id = add_ret.inserted_id
+        # Update grocery list with ingredients from the recipe
+    else:
+        recipe_id = None
+
+    return recipe_id
+
+
+def remove_from_saved_recipes(username, recipe):
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
     if auth_expired(username):
         raise AuthTokenExpired("User's authentication token is expired")
 
+    recipe_obj = con.fetch_one(
+        con.RECIPE_COLLECTION,
+        {
+            "name": recipe
+        }
+    )
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {"$pull": {SAVED_RECIPES: {"name": recipe}}}
+        {"$pull": {SAVED_RECIPES: recipe_obj[con.MONGO_ID]}}
     )
 
     return f'Successfully deleted {recipe}'
@@ -604,11 +695,11 @@ def add_to_grocery_list(username: str, food) -> str:
         raise AuthTokenExpired("User's authentication token is expired")
     print(food)
 
-    new_list_entries = [fd.get_food(
+    new_list_entries = [create_ingredient(fd.get_food(
         ingredient[fd.INGREDIENT],
         ingredient[fd.QUANTITY],
         ingredient[fd.UNITS]
-        ) for ingredient in food]
+        )) for ingredient in food]
 
     con.update_one(
         con.USERS_COLLECTION,

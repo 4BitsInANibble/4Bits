@@ -102,7 +102,7 @@ def test_get_pantry_invalid(mock_token, mock_pantry):
 
 
 @patch('data.users.validate_access_token', return_value=None, autospec=True)
-@patch('data.users.get_recipes', 
+@patch('data.users.get_saved_recipes', 
        return_value=recipe_return(),
        autospec=True)
 def test_get_recipes_valid(mock_token, mock_recipes):
@@ -131,7 +131,7 @@ def test_get_random_recipes_valid(mock_recipes):
 
 
 @patch('data.users.validate_access_token', return_value=None, autospec=True)
-@patch('data.users.get_recipes', side_effect=ValueError(), autospec=True)
+@patch('data.users.get_saved_recipes', side_effect=ValueError(), autospec=True)
 def test_get_recipes_invalid(mock_token, mock_recipes):
     username = "TEST_USERNAME"
     resp = TEST_CLIENT.get(f'{ep.RECIPE_EP}{ep.FAVORITE_EP}/{username}')
@@ -140,8 +140,8 @@ def test_get_recipes_invalid(mock_token, mock_recipes):
 
 
 @patch('data.users.validate_access_token', return_value=None, autospec=True)
-@patch('data.users.delete_recipe', return_value=None, autospec=True)
-def test_delete_recipes(mock_token, mock_recipes):
+@patch('data.users.remove_from_saved_recipes', return_value=None, autospec=True)
+def test_remove_from_saved_recipes(mock_token, mock_recipes):
     username = "TEST_USERNAME"
     data = {
         'recipe': "stir fry"

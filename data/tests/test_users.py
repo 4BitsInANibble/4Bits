@@ -3,6 +3,7 @@ import data.food as food
 import data.db_connect as con
 import pytest
 import datetime
+from bson.objectid import ObjectId
 
 MIN_USERS = 1
 MIN_USERNAME_LEN = 4
@@ -159,10 +160,18 @@ def test_get_pantry(temp_user):
         }]
     usrs.add_to_pantry(username, ingr_list)
     pantry_contents = usrs.get_pantry(username)
-    for ingredient in pantry_contents:
-        assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],str)
-        assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float)
-        assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str)
+    for ingr in pantry_contents:
+        print("INGREDIENT FROM PANTRY: ")
+        print(ingr)
+        food_obj = con.fetch_one(
+            con.FOOD_COLLECTION,
+            {con.MONGO_ID: ingr[food.INGREDIENT]}
+        )
+        print("INGREDIENT ")
+        print(ingr)
+        assert food.INGREDIENT in ingr and isinstance(ingr[food.INGREDIENT],ObjectId)
+        assert food.QUANTITY in ingr and isinstance(ingr[food.QUANTITY],float)
+        assert food.UNITS in ingr and isinstance(ingr[food.UNITS],str)
 
 def test_add_to_pantry(temp_user):
     username = temp_user
@@ -174,11 +183,17 @@ def test_add_to_pantry(temp_user):
     usrs.add_to_pantry(username, ingr_list)
     pantry_contents = usrs.get_pantry(username)
     assert len(pantry_contents) == 1
-    ingredient = pantry_contents[0]
-    assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],str) and ingredient[food.INGREDIENT] == "egg"
-    assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float) and ingredient[food.QUANTITY] == 2.0
-    assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str) and ingredient[food.UNITS] == "EACH"
+    ingredient = con.fetch_one(
+            con.FOOD_COLLECTION,
+            {con.MONGO_ID: pantry_contents[0][food.INGREDIENT]}
+        )
+    
+    assert food.INGREDIENT in pantry_contents[0] and isinstance(pantry_contents[0][food.INGREDIENT],ObjectId) and ingredient["name"] == "egg"
+    assert food.QUANTITY in pantry_contents[0] and isinstance(pantry_contents[0][food.QUANTITY],float) and pantry_contents[0][food.QUANTITY] == 2.0
+    assert food.UNITS in pantry_contents[0] and isinstance(pantry_contents[0][food.UNITS],str) and pantry_contents[0][food.UNITS] == "EACH"
 
+
+# BAD TEST PLEASE FIX OR REMOVE
 def test_check_low_stock_pantry(temp_user):
     username = temp_user
     ingr_list = [{
@@ -216,10 +231,14 @@ def test_mod_pantry_ingredient_amount(temp_user):
     usrs.modify_pantry_ingredient_amount(username, ingredient_name, new_amount)
     pantry_contents = usrs.get_pantry(username)
     print(f"{pantry_contents=}")
-    for item in pantry_contents:
+    for ingr in pantry_contents:
         # print("INGREDIENT:", item['ingredient'])
-        assert item['ingredient'] == "carrot"
-        assert item['quantity'] == 3.0
+        item = con.fetch_one(
+            con.FOOD_COLLECTION,
+            {con.MONGO_ID: ingr[food.INGREDIENT]}
+        )
+        assert item['name'] == "carrot"
+        assert ingr[food.QUANTITY] == 3.0
 
 
 # RECIPE METHODS
@@ -237,10 +256,13 @@ def test_get_recipes(temp_user):
             food.UNITS: "oz.",
         }]
     }
-    usrs.add_to_recipes(username, recipe)
-    retrieved_recipes = usrs.get_recipes(username)
+    usrs.add_to_saved_recipes(username, recipe)
+    retrieved_recipes = usrs.get_saved_recipes(username)
     for recipe in retrieved_recipes:
         assert isinstance(recipe, dict)
+        assert isinstance(recipe[con.MONGO_ID], ObjectId)
+        assert "name" in recipe
+
 
 
 # RECIPE METHODS
@@ -283,7 +305,7 @@ def test_get_recipes(temp_user):
 #     assert False
 
 
-def test_add_to_recipes(temp_user):
+def test_add_to_saved_recipes(temp_user):
     username = temp_user
     recipe = {
         "name": "stir fry",
@@ -297,8 +319,8 @@ def test_add_to_recipes(temp_user):
             food.UNITS: "oz.",
         }]
     }
-    usrs.add_to_recipes(username, recipe)
-    retrieved_recipes = usrs.get_recipes(username)
+    usrs.add_to_saved_recipes(username, recipe)
+    retrieved_recipes = usrs.get_saved_recipes(username)
     assert retrieved_recipes[0]["name"] == "stir fry"
 
 
@@ -316,9 +338,9 @@ def test_delete_recipes(temp_user):
             food.UNITS: "oz.",
         }]
     }
-    usrs.add_to_recipes(username, recipe)
-    usrs.delete_recipe(username, "stir fry")
-    retrieved_recipes = usrs.get_recipes(username)
+    usrs.add_to_saved_recipes(username, recipe)
+    usrs.remove_from_saved_recipes(username, "stir fry")
+    retrieved_recipes = usrs.get_saved_recipes(username)
     print(retrieved_recipes)
     assert retrieved_recipes == []  
 
@@ -334,22 +356,58 @@ def test_get_grocery_list(temp_user):
     usrs.add_to_grocery_list(username, ingr_list)
     grocery_list_contents = usrs.get_grocery_list(username)
     for ingredient in grocery_list_contents:
-        assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],str)
+        assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],ObjectId)
         assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float)
         assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str)
 
 
-def test_add_to_grocery_list(temp_user):
+def test_recommend_recipes(temp_user):
     username = temp_user
-    ingr_list = [{
+    ingr_list = [
+    {
         food.INGREDIENT: "egg",
         food.QUANTITY: 2.0,
         food.UNITS: "EACH",
-        }]
-    usrs.add_to_grocery_list(username, ingr_list)
-    contents = usrs.get_grocery_list(username)
-    assert len(contents) == 1
-    ingredient = contents[0]
-    assert food.INGREDIENT in ingredient and isinstance(ingredient[food.INGREDIENT],str) and ingredient[food.INGREDIENT] == "egg"
-    assert food.QUANTITY in ingredient and isinstance(ingredient[food.QUANTITY],float) and ingredient[food.QUANTITY] == 2.0
-    assert food.UNITS in ingredient and isinstance(ingredient[food.UNITS],str) and ingredient[food.UNITS] == "EACH"
+    },
+    {
+        food.INGREDIENT: "rice",
+        food.QUANTITY: 10.0,
+        food.UNITS: "c.",
+    },
+    {
+        food.INGREDIENT: "soy sauce",
+        food.QUANTITY: 16.0,
+        food.UNITS: "oz.",
+    },
+    ]
+    
+    usrs.add_to_pantry(username, ingr_list)
+    
+    recipes = [
+    {
+        "name": "chicken",
+        "ingredients": [{
+            food.INGREDIENT: "chicken",
+            food.QUANTITY: 1.0,
+            food.UNITS: "lb.",
+        }],
+        "url": "google.com"
+    },
+    {
+        "name": "egg fried rice",
+        "ingredients": [*ingr_list, {
+            food.INGREDIENT: "sesame oil",
+            food.QUANTITY: 1.0,
+            food.UNITS: "tsp.",
+        }],
+        "url": "google.com"
+    },
+    ]
+    for recipe in recipes:
+        usrs.add_to_recipes(recipe)
+    res = usrs.recommend_recipes(username)
+    print(res)
+    i = 0
+    for entry in res:
+        assert entry['name'] == recipes[i]['name']
+        i += 1
