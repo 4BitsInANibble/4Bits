@@ -405,7 +405,7 @@ class RecipeLinks(Resource):
         ]
         status_code = OK
         return resp, status_code
-        
+
 
 @recipes.route(f'{FAVORITE_EP}/<username>')
 class FavoriteRecipeById(Resource):
