@@ -223,6 +223,7 @@ def test_refresh_user_token(mock_add):
 
     resp = TEST_CLIENT.patch(f'{ep.USERS_EP}{ep.REFRESH_EP}', json=data)
     print(f'{resp=}')
+    print(f'{ep.USERS_EP}{ep.REFRESH_EP}')
     assert resp.status_code == OK
 
 

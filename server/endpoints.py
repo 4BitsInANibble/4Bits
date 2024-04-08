@@ -59,9 +59,8 @@ USERS_NS = 'users'
 RECIPES_NS = 'recipe'
 PANTRY_NS = 'pantry'
 
-
-users = Namespace(USERS_NS, 'Users')
-api.add_namespace(users)
+users_ns = Namespace(USERS_NS, 'Users')
+api.add_namespace(users_ns)
 
 recipes = Namespace(RECIPES_NS, 'Recipes')
 api.add_namespace(recipes)
@@ -142,7 +141,7 @@ class Endpoints(Resource):
         return {AVAIL_ENDPOINTS: endpoints}
 
 
-@users.route('')
+@users_ns.route('')
 class Users(Resource):
     """
     This class supports fetching a list of all users.
@@ -182,7 +181,7 @@ class Users(Resource):
         return resp, status
 
 
-@users.route(f'/<username>')
+@users_ns.route('/<username>')
 class UserById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
@@ -228,7 +227,7 @@ class UserById(Resource):
         return resp, status
 
 
-@users.route(f' {REFRESH_EP}')
+@users_ns.route(f'{REFRESH_EP}')
 class RefreshUser(Resource):
     @api.expect(refresh_fields)
     @api.response(200, "OK")
@@ -257,7 +256,7 @@ class RefreshUser(Resource):
 
 
 @api.expect(login_fields)
-@users.route(f' {LOGIN_EP}')
+@users_ns.route(f'{LOGIN_EP}')
 class LoginUser(Resource):
     @api.response(200, "OK")
     @api.response(409, "Conflict")
@@ -282,7 +281,7 @@ class LoginUser(Resource):
         return resp, status
 
 
-@users.route(f' /<username>{LOGOUT_EP}')
+@users_ns.route(f'/<username>{LOGOUT_EP}')
 class LogoutUser(Resource):
     @api.response(200, "OK")
     @api.response(409, "Conflict")
@@ -308,7 +307,7 @@ class LogoutUser(Resource):
         return resp, status
 
 
-@users.route(f' {REGISTER_EP}{GOOGLE_EP}')
+@users_ns.route(f'{REGISTER_EP}{GOOGLE_EP}')
 class RegisterUserGoogle(Resource):
     @api.expect(user_fields)
     @api.response(200, "Success")
@@ -341,7 +340,7 @@ class RegisterUserGoogle(Resource):
         return resp, status
 
 
-@pantry.route(f'/<username>')
+@pantry.route('/<username>')
 class PantryById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
