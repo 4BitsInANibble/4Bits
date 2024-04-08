@@ -480,7 +480,7 @@ class RecommendedRecipeById(Resource):
     @api.response(403, "Unauthorized")
     def get(self, username):
         """
-        This method returns the pantry of user with name
+        This method returns the pantry of user with name 'name'
         """
         access_token = request.headers.get('Authorization')
         try:
