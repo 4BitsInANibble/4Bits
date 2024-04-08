@@ -4,7 +4,7 @@ The endpoint called `endpoints` will return all available endpoints.
 """
 
 from flask import Flask, request
-from flask_restx import Resource, Api, fields
+from flask_restx import Resource, Api, fields, Namespace
 import data.users as users
 import data.food as food
 from flask_cors import CORS
@@ -55,6 +55,20 @@ REGISTER_TITLE = "Registered User Data"
 FAVORITE_EP = '/favorite'
 RECOMMENDED_EP = '/rec'
 RANDOM_EP = '/random'
+USERS_NS = 'users'
+RECIPES_NS = 'recipe'
+PANTRY_NS = 'pantry'
+
+
+users = Namespace(USERS_NS, 'Users')
+api.add_namespace(users)
+
+recipes = Namespace(RECIPES_NS, 'Recipes')
+api.add_namespace(recipes)
+
+pantry = Namespace(PANTRY_NS, 'Pantry')
+api.add_namespace(pantry)
+
 
 user_fields = api.model('User', {
     "Authorization": fields.String
@@ -128,7 +142,7 @@ class Endpoints(Resource):
         return {AVAIL_ENDPOINTS: endpoints}
 
 
-@api.route(f'{USERS_EP}')
+@users.route('')
 class Users(Resource):
     """
     This class supports fetching a list of all users.
@@ -168,7 +182,7 @@ class Users(Resource):
         return resp, status
 
 
-@api.route(f'{USERS_EP}/<username>')
+@users.route(f'/<username>')
 class UserById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
@@ -214,7 +228,7 @@ class UserById(Resource):
         return resp, status
 
 
-@api.route(f'{USERS_EP}{REFRESH_EP}')
+@users.route(f' {REFRESH_EP}')
 class RefreshUser(Resource):
     @api.expect(refresh_fields)
     @api.response(200, "OK")
@@ -243,7 +257,7 @@ class RefreshUser(Resource):
 
 
 @api.expect(login_fields)
-@api.route(f'{USERS_EP}{LOGIN_EP}')
+@users.route(f' {LOGIN_EP}')
 class LoginUser(Resource):
     @api.response(200, "OK")
     @api.response(409, "Conflict")
@@ -268,7 +282,7 @@ class LoginUser(Resource):
         return resp, status
 
 
-@api.route(f'{USERS_EP}/<username>{LOGOUT_EP}')
+@users.route(f' /<username>{LOGOUT_EP}')
 class LogoutUser(Resource):
     @api.response(200, "OK")
     @api.response(409, "Conflict")
@@ -294,7 +308,7 @@ class LogoutUser(Resource):
         return resp, status
 
 
-@api.route(f'{USERS_EP}{REGISTER_EP}{GOOGLE_EP}')
+@users.route(f' {REGISTER_EP}{GOOGLE_EP}')
 class RegisterUserGoogle(Resource):
     @api.expect(user_fields)
     @api.response(200, "Success")
@@ -327,7 +341,7 @@ class RegisterUserGoogle(Resource):
         return resp, status
 
 
-@api.route(f'{PANTRY_EP}/<username>')
+@pantry.route(f'/<username>')
 class PantryById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
@@ -372,7 +386,7 @@ class PantryById(Resource):
         return resp, status
 
 
-@api.route(f'{RECIPE_EP}{FAVORITE_EP}/<username>')
+@recipes.route(f'{FAVORITE_EP}/<username>')
 class FavoriteRecipeById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
@@ -438,7 +452,7 @@ class FavoriteRecipeById(Resource):
         return resp, status
 
 
-@api.route(f'{RECIPE_EP}{RECOMMENDED_EP}/<username>')
+@recipes.route(f'{RECOMMENDED_EP}/<username>')
 class RecommendedRecipeById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
@@ -462,7 +476,7 @@ class RecommendedRecipeById(Resource):
         return resp, status_code
 
 
-@api.route(f'{RECIPE_EP}{RANDOM_EP}')
+@recipes.route(f'{RANDOM_EP}')
 class RandomRecipeById(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
