@@ -420,7 +420,8 @@ class FavoriteRecipeById(Resource):
         access_token = request.headers.get('Authorization')
         try:
             users.validate_access_token(username, access_token)
-            resp = users.get_saved_recipes(username)
+            resp = users.get_saved_recipes(username, returnObjectId=False)
+            resp = users.convertObjectIds(resp)
             status_code = OK
         except ValueError as e:
             resp = str(e)
@@ -487,6 +488,7 @@ class RecommendedRecipeById(Resource):
         try:
             users.validate_access_token(username, access_token)
             resp = users.recommend_recipes(username)
+            resp = users.convertObjectIds(resp)
             status_code = OK
         except ValueError as e:
             resp = str(e)
@@ -509,6 +511,7 @@ class RandomRecipeById(Resource):
         """
         try:
             resp = users.random_recipes()
+            resp = users.convertObjectIds(resp)
             status_code = OK
         except ValueError as e:
             resp = str(e)

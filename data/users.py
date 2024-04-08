@@ -115,12 +115,44 @@ def _create_test_patch_user():
     return new_user
 
 
+def convertObjectIds(obj):
+    print(f"{obj=}")
+    if isinstance(obj, dict):
+        return convertObjectIdsDict(obj)
+    elif isinstance(obj, list):
+        return convertObjectIdsList(obj)
+    else:
+        return None
+
+
+def convertObjectIdsDict(obj: dict):
+    for key in obj:
+        if isinstance(obj[key], dict):
+            obj[key] = convertObjectIdsDict(obj[key])
+        elif isinstance(obj[key], list):
+            obj[key] = convertObjectIdsList(obj[key])
+        elif isinstance(obj[key], ObjectId):
+            obj[key] = str(obj[key])
+    return obj
+
+
+def convertObjectIdsList(obj: list):
+    for i in range(len(obj)):
+        if isinstance(obj[i], dict):
+            obj[i] = convertObjectIdsDict(obj[i])
+        elif isinstance(obj[i], list):
+            obj[i] = convertObjectIdsList(obj[i])
+        elif isinstance(obj[i], ObjectId):
+            obj[i] = str(obj[i])
+    return obj
+
+
 # USER METHODS
 def get_users():
     con.connect_db()
     users = con.fetch_all(con.USERS_COLLECTION)
     for user in users:
-        user[con.MONGO_ID] = str(user[con.MONGO_ID])
+        convertObjectIds(user)
     return users
 
 
@@ -419,6 +451,7 @@ def create_ingredient(ingredient):
 
 
 def add_to_foods(food):
+    con.connect_db()
     ingr_id = None
     try:
         ingr_obj = con.fetch_one(
@@ -496,7 +529,7 @@ def modify_pantry_ingredient_amount(username, ingredient_name, new_amount):
 
 
 # RECIPE METHODS
-def get_saved_recipes(username):
+def get_saved_recipes(username, returnObjectId=True):
 
     con.connect_db()
     if not user_exists(username):
@@ -510,16 +543,37 @@ def get_saved_recipes(username):
         {SAVED_RECIPES: 1, con.MONGO_ID: 0}
     )
     recipe_ids = [ObjectId(rec) for rec in recipes[SAVED_RECIPES]]
+    print(f'{recipe_ids=}')
 
     recipe_objs = []
     for recipe_id in recipe_ids:
-        recipe_objs.append(
-            con.fetch_one(
+        print(f'{type(recipe_id)}')
+        try:
+            print("JFSDKLF")
+            recipe_obj = con.fetch_one(
                 con.RECIPE_COLLECTION,
                 {con.MONGO_ID: recipe_id}
             )
+            print("JFSDKLF")
+        except Exception as e:
+            print("COULDNT FIND SHIT")
+            print(e)
+        recipe_objs.append(
+            recipe_obj
         )
-        recipe_objs[-1][con.MONGO_ID] = ObjectId(recipe_objs[-1][con.MONGO_ID])
+        if returnObjectId:
+            recipe_objs[-1][con.MONGO_ID] = \
+                ObjectId(recipe_objs[-1][con.MONGO_ID])
+        for i in range(len(recipe_objs[-1]["ingredients"])):
+            ingr = recipe_objs[-1]["ingredients"][i]
+            print(f'{ingr=}')
+            recipe_objs[-1]["ingredients"][i][fd.INGREDIENT] = con.fetch_one(
+                con.FOOD_COLLECTION,
+                {con.MONGO_ID: ingr[fd.INGREDIENT]},
+                {con.MONGO_ID: returnObjectId}
+            )
+
+    print(f'{recipe_objs=}')
     return recipe_objs
 
 
@@ -549,10 +603,14 @@ def add_to_saved_recipes(username, recipe):
             con.RECIPE_COLLECTION,
             {"name": recipe['name']}
         )
+        print(f"EXISTING RECIPE: {existing_recipe=}")
         recipe_id = existing_recipe["_id"]
     except ValueError:
+        print("NEW RECIPE")
         recipe_id = add_to_recipes(recipe)
-        print(recipe['ingredients'])
+        print(f"{recipe=}")
+        print(f"{recipe['ingredients']=}")
+    print(f"{recipe_id=}")
 
     con.update_one(
         con.USERS_COLLECTION,
@@ -587,17 +645,18 @@ def add_to_recipes(recipe):
             ingredient[fd.UNITS])
         ) for ingredient in recipe['ingredients']]
 
-        ingredient_ids = []
-        for ingr in ingredients:
-            ingredient_ids.append(ingr[con.MONGO_ID])
+        # ingredient_ids = []
+        # for ingr in ingredients:
+        #     ingredient_ids.append(ingr)
+        # print(f"{ingredient_ids=}")
 
-    recipe["ingredients"] = ingredient_ids
-    print(f"{recipe=}")
+        recipe["ingredients"] = ingredients
+        print(f"{recipe=}")
 
-    add_ret = con.insert_one(
-        con.RECIPE_COLLECTION,
-        recipe
-    )
+        add_ret = con.insert_one(
+            con.RECIPE_COLLECTION,
+            recipe
+        )
 
     if add_ret is not None:
         recipe_id = add_ret.inserted_id
@@ -766,6 +825,7 @@ def random_recipes():
 
 
 def validate_access_token(username, token):
+    con.connect_db()
     token_list = token.split(' ')
     if "Bearer" == token_list[0]:
         token = token_list[1]

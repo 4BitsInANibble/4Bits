@@ -60,10 +60,7 @@ def fetch_one(collection, filt, fields=None, db=RECIPE_DB):
     """
     Find with a filter and return on the first doc found.
     """
-
     res = client[db][collection].find(filt, fields)
-    print("IN DB FETCH ONE CALL")
-    print(f'{res=}')
     if res is not None:
         for doc in res:
             if MONGO_ID in doc:
