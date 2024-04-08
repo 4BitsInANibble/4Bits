@@ -392,15 +392,15 @@ class RecipeLinks(Resource):
         resp = [
             {
                 "name": "favorites",
-                "href": f'{FAVORITE_EP}/{username}',
+                "href": f'{RECIPE_EP}{FAVORITE_EP}/{username}',
             },
             {
                 "name": "recommended",
-                "href": f'{RECOMMENDED_EP}/{username}',
+                "href": f'{RECIPE_EP}{RECOMMENDED_EP}/{username}',
             },
             {
                 "name": "random",
-                "href": f'{RANDOM_EP}',
+                "href": f'{RECIPE_EP}{RANDOM_EP}',
             },
         ]
         status_code = OK
