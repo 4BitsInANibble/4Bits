@@ -58,6 +58,7 @@ RANDOM_EP = '/random'
 USERS_NS = 'users'
 RECIPES_NS = 'recipe'
 PANTRY_NS = 'pantry'
+RECIPE_LINKS_EP = '/links'
 
 users_ns = Namespace(USERS_NS, 'Users')
 api.add_namespace(users_ns)
@@ -385,7 +386,7 @@ class PantryById(Resource):
         return resp, status
 
 
-@recipes.route('/links')
+@recipes.route(f'{RECIPE_LINKS_EP}/<username>')
 class RecipeLinks(Resource):
     @api.response(200, "Success")
     def get(self, username):
