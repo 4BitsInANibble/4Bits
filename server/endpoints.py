@@ -385,6 +385,28 @@ class PantryById(Resource):
         return resp, status
 
 
+@recipes.route(f'links')
+class RecipeLinks(Resource):
+    @api.response(200, "Success")
+    def get(self, username):
+        resp = [
+            {
+                "name": "favorites",
+                "href": f'{FAVORITE_EP}/{username}',
+            },
+            {
+                "name": "recommended",
+                "href": f'{RECOMMENDED_EP}/{username}',
+            },
+            {
+                "name": "random",
+                "href": f'{RANDOM_EP}',
+            },
+        ]
+        status_code = OK
+        return resp, status_code
+        
+
 @recipes.route(f'{FAVORITE_EP}/<username>')
 class FavoriteRecipeById(Resource):
     @api.response(200, "Success")
@@ -392,7 +414,7 @@ class FavoriteRecipeById(Resource):
     @api.response(403, "Unauthorized")
     def get(self, username):
         """
-        This method returns the pantry of user with name
+        This method returns the saved recipes of user with name
         """
         access_token = request.headers.get('Authorization')
         try:
