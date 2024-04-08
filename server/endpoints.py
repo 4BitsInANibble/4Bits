@@ -385,7 +385,7 @@ class PantryById(Resource):
         return resp, status
 
 
-@recipes.route(f'links')
+@recipes.route(f'/links')
 class RecipeLinks(Resource):
     @api.response(200, "Success")
     def get(self, username):
