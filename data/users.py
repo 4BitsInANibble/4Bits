@@ -151,8 +151,6 @@ def convertObjectIdsList(obj: list):
 def get_users():
     con.connect_db()
     users = con.fetch_all(con.USERS_COLLECTION)
-    for user in users:
-        convertObjectIds(user)
     return users
 
 
@@ -612,6 +610,16 @@ def add_to_saved_recipes(username, recipe):
         print(f"{recipe['ingredients']=}")
     print(f"{recipe_id=}")
 
+    current_saved_recipes = con.fetch_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {SAVED_RECIPES: 1, con.MONGO_ID: 0}
+    )
+    for rec in current_saved_recipes[SAVED_RECIPES]:
+        print(f"{rec=}")
+        if rec == recipe_id:
+            raise ValueError("User already has recipe saved")
+    
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},

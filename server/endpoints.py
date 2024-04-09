@@ -153,6 +153,7 @@ class Users(Resource):
         This method returns all users.
         """
         resp = users.get_users()
+        resp = users.convertObjectIds(resp)
         print(f'{resp=}')
 
         return resp
@@ -195,6 +196,7 @@ class UserById(Resource):
         try:
             users.validate_access_token(username, access_token)
             resp = users.get_user(username)
+            resp = users.convertObjectIds(resp)
             status = OK
         except ValueError as e:
             resp = str(e)
@@ -354,6 +356,7 @@ class PantryById(Resource):
         try:
             users.validate_access_token(username, access_token)
             resp = users.get_pantry(username)
+            resp = users.convertObjectIds(resp)
             status = OK
         except ValueError as e:
             resp = str(e)
@@ -375,6 +378,7 @@ class PantryById(Resource):
         try:
             users.validate_access_token(username, access_token)
             resp = users.add_to_pantry(username, data['food'])
+            resp = users.convertObjectIds(resp)
             status = OK
         except ValueError as e:
             resp = str(e)
@@ -443,6 +447,7 @@ class FavoriteRecipeById(Resource):
         try:
             users.validate_access_token(username, access_token)
             resp = users.add_to_saved_recipes(username, data['recipe'])
+            resp = users.convertObjectIds(resp)
             status = OK
         except ValueError as e:
             resp = str(e)
