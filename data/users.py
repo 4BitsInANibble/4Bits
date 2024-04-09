@@ -619,7 +619,7 @@ def add_to_saved_recipes(username, recipe):
         print(f"{rec=}")
         if rec == recipe_id:
             raise ValueError("User already has recipe saved")
-    
+
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
