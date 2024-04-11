@@ -562,11 +562,12 @@ def get_saved_recipes(username, returnObjectId=True):
             for i in range(len(recipe_objs[-1]["ingredients"])):
                 ingr = recipe_objs[-1]["ingredients"][i]
                 print(f'{ingr=}')
-                recipe_objs[-1]["ingredients"][i][fd.INGREDIENT] = con.fetch_one(
-                    con.FOOD_COLLECTION,
-                    {con.MONGO_ID: ingr[fd.INGREDIENT]},
-                    {con.MONGO_ID: returnObjectId}
-                )
+                recipe_objs[-1]["ingredients"][i][fd.INGREDIENT] = \
+                    con.fetch_one(
+                        con.FOOD_COLLECTION,
+                        {con.MONGO_ID: ingr[fd.INGREDIENT]},
+                        {con.MONGO_ID: returnObjectId}
+                    )
         except Exception as e:
             print("COULDNT FIND SHIT")
             print(e)
@@ -835,7 +836,7 @@ def recommend_recipes(username):
         except ValueError as e:
             print("couldn't find the obtained recipe")
             print(e)
-        
+
     print(f'{res_list=}')
     return res_list
 
