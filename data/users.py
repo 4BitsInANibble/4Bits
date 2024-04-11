@@ -553,23 +553,23 @@ def get_saved_recipes(username, returnObjectId=True):
                 {con.MONGO_ID: recipe_id}
             )
             print("JFSDKLF")
+            recipe_objs.append(
+                recipe_obj
+            )
+            if returnObjectId:
+                recipe_objs[-1][con.MONGO_ID] = \
+                    ObjectId(recipe_objs[-1][con.MONGO_ID])
+            for i in range(len(recipe_objs[-1]["ingredients"])):
+                ingr = recipe_objs[-1]["ingredients"][i]
+                print(f'{ingr=}')
+                recipe_objs[-1]["ingredients"][i][fd.INGREDIENT] = con.fetch_one(
+                    con.FOOD_COLLECTION,
+                    {con.MONGO_ID: ingr[fd.INGREDIENT]},
+                    {con.MONGO_ID: returnObjectId}
+                )
         except Exception as e:
             print("COULDNT FIND SHIT")
             print(e)
-        recipe_objs.append(
-            recipe_obj
-        )
-        if returnObjectId:
-            recipe_objs[-1][con.MONGO_ID] = \
-                ObjectId(recipe_objs[-1][con.MONGO_ID])
-        for i in range(len(recipe_objs[-1]["ingredients"])):
-            ingr = recipe_objs[-1]["ingredients"][i]
-            print(f'{ingr=}')
-            recipe_objs[-1]["ingredients"][i][fd.INGREDIENT] = con.fetch_one(
-                con.FOOD_COLLECTION,
-                {con.MONGO_ID: ingr[fd.INGREDIENT]},
-                {con.MONGO_ID: returnObjectId}
-            )
 
     print(f'{recipe_objs=}')
     return recipe_objs
@@ -789,9 +789,13 @@ def recommend_recipes(username):
 
     pipeline = [
         {"$unwind": "$ingredients"},
-        {"$match": {"ingredients": {"$in": pantry_ids}}},
+        {"$project": {
+            "_id": 1,
+            "ingredient": "$ingredients.ingredient"
+        }},
+        {"$match": {"ingredient": {"$in": pantry_ids}}},
         {"$group": {
-            "_id": '_id',
+            "_id": '$_id',
             "count": {"$sum": 1}
         }},
         {"$project": {
@@ -814,9 +818,26 @@ def recommend_recipes(username):
     print(f'{res=}')
     res_list = []
     for e in res:
-        res_list.append(e)
+        try:
+            recipe_obj = con.fetch_one(
+                con.RECIPE_COLLECTION,
+                {con.MONGO_ID: e['_id']}
+            )
+            res_list.append(recipe_obj)
+            for i in range(len(res_list[-1]["ingredients"])):
+                ingr = res_list[-1]["ingredients"][i]
+                print(f'{ingr=}')
+                res_list[-1]["ingredients"][i][fd.INGREDIENT] = con.fetch_one(
+                    con.FOOD_COLLECTION,
+                    {con.MONGO_ID: ingr[fd.INGREDIENT]},
+                    {con.MONGO_ID: 0}
+                )
+        except ValueError as e:
+            print("couldn't find the obtained recipe")
+            print(e)
+        
     print(f'{res_list=}')
-    return res
+    return res_list
 
 
 def random_recipes():
