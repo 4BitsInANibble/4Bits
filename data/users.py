@@ -122,7 +122,7 @@ def convertObjectIds(obj):
     elif isinstance(obj, list):
         return convertObjectIdsList(obj)
     else:
-        return None
+        return obj
 
 
 def convertObjectIdsDict(obj: dict):
@@ -811,7 +811,11 @@ def recommend_recipes(username):
         con.RECIPE_COLLECTION,
         pipeline
     )
-    print(res)
+    print(f'{res=}')
+    res_list = []
+    for e in res:
+        res_list.append(e)
+    print(f'{res_list=}')
     return res
 
 
