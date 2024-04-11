@@ -889,9 +889,13 @@ def random_recipes():
 
 def validate_access_token(username, token):
     con.connect_db()
-    token_list = token.split(' ')
-    if "Bearer" == token_list[0]:
-        token = token_list[1]
+    try:
+        token_list = token.split(' ')
+        if "Bearer" == token_list[0]:
+            token = token_list[1]
+    except Exception:
+        raise ValueError("Invalid Format for Authentication Token")
+
     print(token)
     print(token_list)
     payload = jwt.decode(
