@@ -864,7 +864,27 @@ def random_recipes():
         pipeline
     )
     print(res)
-    return res
+    res_list = []
+    for e in res:
+        try:
+            recipe_obj = con.fetch_one(
+                con.RECIPE_COLLECTION,
+                {con.MONGO_ID: e['_id']}
+            )
+            res_list.append(recipe_obj)
+            for i in range(len(res_list[-1]["ingredients"])):
+                ingr = res_list[-1]["ingredients"][i]
+                print(f'{ingr=}')
+                res_list[-1]["ingredients"][i][fd.INGREDIENT] = con.fetch_one(
+                    con.FOOD_COLLECTION,
+                    {con.MONGO_ID: ingr[fd.INGREDIENT]},
+                    {con.MONGO_ID: 0}
+                )
+        except ValueError as e:
+            print("couldn't find the obtained recipe")
+            print(e)
+
+    return res_list
 
 
 def validate_access_token(username, token):
