@@ -62,7 +62,7 @@ def test_get_users(temp_user):
             assert isinstance(fooditem, dict)
 
             assert food.INGREDIENT in fooditem
-            assert isinstance(fooditem[food.INGREDIENT], str)
+            assert isinstance(fooditem[food.INGREDIENT], ObjectId)
 
             assert food.QUANTITY in fooditem
             assert isinstance(fooditem[food.QUANTITY], float) or isinstance(fooditem[food.QUANTITY], int)
@@ -365,17 +365,17 @@ def test_recommend_recipes(temp_user):
     username = temp_user
     ingr_list = [
     {
-        food.INGREDIENT: "egg",
+        food.INGREDIENT: "test egg",
         food.QUANTITY: 2.0,
         food.UNITS: "EACH",
     },
     {
-        food.INGREDIENT: "rice",
+        food.INGREDIENT: "test rice",
         food.QUANTITY: 10.0,
         food.UNITS: "c.",
     },
     {
-        food.INGREDIENT: "soy sauce",
+        food.INGREDIENT: "test soy sauce",
         food.QUANTITY: 16.0,
         food.UNITS: "oz.",
     },
@@ -385,20 +385,20 @@ def test_recommend_recipes(temp_user):
     
     recipes = [
     {
-        "name": "chicken",
-        "ingredients": [{
-            food.INGREDIENT: "chicken",
+        "name": "test egg fried rice",
+        "ingredients": [*ingr_list, {
+            food.INGREDIENT: "test sesame oil",
             food.QUANTITY: 1.0,
-            food.UNITS: "lb.",
+            food.UNITS: "tsp.",
         }],
         "url": "google.com"
     },
     {
-        "name": "egg fried rice",
-        "ingredients": [*ingr_list, {
-            food.INGREDIENT: "sesame oil",
+        "name": "test chicken",
+        "ingredients": [{
+            food.INGREDIENT: "test chicken",
             food.QUANTITY: 1.0,
-            food.UNITS: "tsp.",
+            food.UNITS: "lb.",
         }],
         "url": "google.com"
     },

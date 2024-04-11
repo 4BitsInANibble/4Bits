@@ -646,8 +646,15 @@ def add_to_recipes(recipe):
     con.connect_db()
 
     check_recipe_schema(recipe)
+    add_ret = None
+    existing_recipe = None
+    try:
+        existing_recipe = con.fetch_one(
+            con.RECIPE_COLLECTION,
+            {'name': recipe['name']}
+        )
 
-    if 'ingredients' in recipe:
+    except ValueError:
         ingredients = [create_ingredient(fd.get_food(
             ingredient[fd.INGREDIENT],
             ingredient[fd.QUANTITY],
@@ -670,6 +677,8 @@ def add_to_recipes(recipe):
     if add_ret is not None:
         recipe_id = add_ret.inserted_id
         # Update grocery list with ingredients from the recipe
+    elif existing_recipe is not None:
+        recipe_id = existing_recipe[con.MONGO_ID]
     else:
         recipe_id = None
 
