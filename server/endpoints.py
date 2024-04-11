@@ -398,14 +398,20 @@ class RecipeLinks(Resource):
             {
                 "name": "favorites",
                 "href": f'{RECIPE_EP}{FAVORITE_EP}/{username}',
+                "buttonLabel": "Favorites",
+                "order": 0
             },
             {
                 "name": "recommended",
                 "href": f'{RECIPE_EP}{RECOMMENDED_EP}/{username}',
+                "buttonLabel": "Best Matched",
+                "order": 1
             },
             {
                 "name": "random",
                 "href": f'{RECIPE_EP}{RANDOM_EP}',
+                "buttonLabel": "Random",
+                "order": 2
             },
         ]
         status_code = OK
