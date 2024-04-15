@@ -9,9 +9,17 @@ import ast
 
 AI_PROMPT = \
     """
-    I will give you a list of ingredient descriptions, can you isolate the name of the ingredient, quantity, units, and description and return it in a json object.  The description field is an exact copy of the input.  The quantity can only be numbers (i.e. 2, 10, 1.5, 0.75) and the units describe what the numbers mean (i.e. oz., cups).  If the description gives it as a fraction or mixed number, convert it to a decimal number.  If there are two descriptors and one says something similar to x amount of packages/containers while the other describes the actual quantity, I want you to return the other times the amount of containers as the quantity and units with the actual descriptors and ignore the part that says one package.  Please answer correctly or I will be very sad.  
+    I will give you a list of ingredient descriptions. 
+    Isolate the name of the ingredient, quantity, units, and description and return it as a JSON object.  
+    The description field is an exact copy of the input message.  
+    The quantity can only be numbers (i.e. 2, 10, 1.5, 0.75) 
+    The units describe what the numbers mean (i.e. oz., cups).  
+    If the description gives quantity as a fraction or mixed number, convert it to a decimal number.  
+    If there are two descriptors and one says something similar to x amount of packages/containers while the other describes the actual quantity, I want you to return the other times the amount of containers as the quantity and units with the actual descriptors and ignore the part that says one package.  
+    
+    Please answer correctly or I will be very sad.  
 
-If i provide an ingredient, can you return a json object.  Below are examples that show how I want you to respond to my queries.  I don't want code, only to configure your response for the future.
+Below are examples that show how I want you to respond to my queries.  I don't want code, only to configure your response for the future.
 
 put a reasonable amount if they don't provide a quantity, but it must be a specific quantity.
 
@@ -102,19 +110,24 @@ def isolate_json_str(message):
     return message
 
 
-def openai_query(new_query, messages, client):
-    new_messages = messages[:]
-    new_messages.append(
-        {
-            "role": "user",
-            "content": new_query,
-        }
-    )
+def openai_query(messages, client):
+    # new_messages = messages[:]
+    # new_messages.append(
+    #     {
+    #         "role": "user",
+    #         "content": new_query,
+    #     }
+    # )
     chat_completion = client.chat.completions.create(
         model = "gpt-3.5-turbo-0125",
         response_format = { "type": "json_object" },
         seed = 1,
-        messages=new_messages,
+        messages = [
+            {
+                "role": "user",
+                "content": messages
+            }
+        ]
     )
 
     response = chat_completion.choices[0].message.content
@@ -147,8 +160,9 @@ def main():
             # This is the default and can be omitted
             api_key=os.environ.get("OPENAI_API_KEY"),
         )
+        
 
-        initial_convo = openai_query(AI_PROMPT, [], client)
+        # initial_convo = openai_query(AI_PROMPT, [], client)
 
         ingredients = []
         all_ingredients = {}
@@ -161,8 +175,7 @@ def main():
             if len(ingredients) >= 5:
                 print(ingredients)
                 new_messages = openai_query(
-                    str(ingredients),
-                    initial_convo,
+                    AI_PROMPT,
                     client
                 )
                 new_content = new_messages[-1]['content']
