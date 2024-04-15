@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+
 from openai import OpenAI
 import csv
 import os
@@ -108,19 +111,21 @@ def openai_query(new_query, messages, client):
         }
     )
     chat_completion = client.chat.completions.create(
+        model = "gpt-3.5-turbo-0125",
+        response_format = { "type": "json_object" },
+        seed = 1,
         messages=new_messages,
-        model="gpt-3.5-turbo",
     )
 
     response = chat_completion.choices[0].message.content
 
-    new_messages.append(
-        {
-            "role": "assistant",
-            "content": response,
-        }
-    )
-    return new_messages
+    # new_messages.append(
+    #     {
+    #         "role": "assistant",
+    #         "content": response,
+    #     }
+    # )
+    return response
 
 
 def isValidIngredient(ingredient_dict):
