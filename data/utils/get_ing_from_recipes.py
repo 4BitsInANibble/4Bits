@@ -19,68 +19,37 @@ AI_PROMPT = \
     
     Please answer correctly or I will be very sad.  
 
-Below are examples that show how I want you to respond to my queries.  I don't want code, only to configure your response for the future.
+    Here is an example of how the input should be evaluted and how the output should be structured:
+        Input: 
+            2 (10 1/2 oz.) cans chicken gravy
+            1 (6 oz.) box Stove Top stuffing
+        Output:
+        {
+            "ingredients": [
+                {
+                    "ingredient": "chicken gravy",
+                    "quantity": 21,
+                    "units": "oz.",
+                    "description": "2 (10 1/2 oz.) cans chicken gravy"
+                }, 
+                {
+                    "ingredient": "stuffing",
+                    "quantity": 6,
+                    "units": "oz.",
+                    "description": "1 (6 oz.) box Stove Top stuffing"
+                }
+            ]
+        }
+            
 
-put a reasonable amount if they don't provide a quantity, but it must be a specific quantity.
+    Please take my input and return an output JSON object with the ingredient name, quantity, units, and description.
+    Here is my input:
 
-Examples:
-Input: ["2 (10 1/2 oz.) cans chicken gravy", "1 (6 oz.) box Stove Top stuffing"]
-Output: 
-[{
-"ingredient": "chicken gravy",
-"quantity": 21,
-"units": "oz.",
-"description": "2 (10 1/2 oz.) cans chicken gravy"
-}, 
-{
-"ingredient": "stuffing",
-"quantity": 6,
-"units": "oz.",
-"description": "1 (6 oz.) box Stove Top stuffing"
-}
-]
-
-Input: ["4 oz. shredded cheese"]
-Output: 
-[{
-"ingredient": "cheese",
-"quantity": 4,
-"units": "oz.",
-"description": "4 oz. shredded cheese"
-}]
-
-Input: ["12 sliced bacon, cooked, crumbled and divided"]
-Output: 
-[{
-"ingredient": "bacon",
-"quantity": 12,
-"units": "slice",
-"description": "12 sliced bacon, cooked, crumbled and divided"
-}]
-
-Input: ["1 1/2 lb. round steak (1-inch thick), cut into strips"]
-Output: 
-[{
-"ingredient": "steak",
-"quantity": 1.5,
-"units": "lb.",
-"description": "1 1/2 lb. round steak (1-inch thick), cut into strips"
-}]
-
-Input: ["chicken wings (as many as you need for dinner)"]
-Output: 
-[{
-"ingredient": "chicken wing",
-"quantity": 8,
-"units": "count",
-"description": "chicken wings (as many as you need for dinner)"
-}]
-
-    """
+ """
 
 
 def parse_obj_response(gpt_response):
-    print(f'{gpt_response=}')
+    # print(f'{gpt_response=}')
     json_str = gpt_response
     # json_str = isolate_json_str(gpt_response)
     if json_str is None:
@@ -90,7 +59,7 @@ def parse_obj_response(gpt_response):
     with open("temp.txt", "w") as outfile:
         json.dump(json_str, outfile, ensure_ascii=False)
     json_object = ast.literal_eval(json_str)
-    print(json_object)
+    # print(json_object, "\n")
     return json_object
 
 
@@ -141,7 +110,7 @@ def openai_query(messages, client):
     return response
 
 
-def isValidIngredient(ingredient_dict):
+def isValidIngredient(ingredient_dict): #pick up debugging from here
     fields = ["ingredient", "quantity", "units", "description"]
     for field in fields:
         if field not in ingredient_dict:
@@ -169,23 +138,34 @@ def main():
         count = 0
         for recipe in json_object:
             ingredient_list = json.loads(json_object[recipe][2])
-            
+            # print("loaded ingredient list:", ingredient_list)
+
+            ingredient_list_str = ""
             for ingredient in ingredient_list:
-                ingredients.append(ingredient)
-            if len(ingredients) >= 5:
-                print(ingredients)
-                new_messages = openai_query(
-                    AI_PROMPT,
+                # print("ingredient: ", ingredient)
+                # ingredients.append(ingredient)
+                ingredient_list_str = ingredient_list_str + ingredient + "\n"
+            
+            print("ingredient list: \n", ingredient_list_str)
+
+            if len(ingredient_list_str) >= 5:
+                message_string = AI_PROMPT + ingredient_list_str
+                json_resp_obj = openai_query(
+                    message_string,
                     client
                 )
-                new_content = new_messages[-1]['content']
-                print(new_content)
-                new_ingredient_dict = parse_obj_response(new_content)
+                print("query response: \n", json_resp_obj)
+                
+                new_ingredient_dict = parse_obj_response(json_resp_obj)
+                print("ingredient dictionary: \n", new_ingredient_dict)
 
-                for fooditem in new_ingredient_dict:
+                for fooditem in new_ingredient_dict['ingredients']:
+                    print("fooditem: ", fooditem)
                     valid = isValidIngredient(fooditem)
                     if valid and fooditem['ingredient'] not in all_ingredients:
                         all_ingredients[fooditem['ingredient']] = len(all_ingredients)
+
+                print("after for loop")
                 
                 ingredients = []
                 count += 1
@@ -196,6 +176,5 @@ def main():
                 if count % 20 == 0:
                     with open("ingredients.json", "w") as outfile:
                         json.dump(all_ingredients, outfile, ensure_ascii=False)
-
 
 main()
