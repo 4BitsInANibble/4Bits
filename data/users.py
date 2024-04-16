@@ -603,7 +603,7 @@ def add_to_saved_recipes(username, recipe):
             {"name": recipe['name']}
         )
         print(f"EXISTING RECIPE: {existing_recipe=}")
-        recipe_id = existing_recipe["_id"]
+        recipe_id = ObjectId(existing_recipe["_id"])
     except ValueError:
         print("NEW RECIPE")
         recipe_id = add_to_recipes(recipe)
@@ -678,7 +678,7 @@ def add_to_recipes(recipe):
         recipe_id = add_ret.inserted_id
         # Update grocery list with ingredients from the recipe
     elif existing_recipe is not None:
-        recipe_id = existing_recipe[con.MONGO_ID]
+        recipe_id = ObjectId(existing_recipe[con.MONGO_ID])
     else:
         recipe_id = None
 
@@ -698,10 +698,11 @@ def remove_from_saved_recipes(username, recipe):
             "name": recipe
         }
     )
+
     con.update_one(
         con.USERS_COLLECTION,
         {USERNAME: username},
-        {"$pull": {SAVED_RECIPES: recipe_obj[con.MONGO_ID]}}
+        {"$pull": {SAVED_RECIPES: ObjectId(recipe_obj[con.MONGO_ID])}}
     )
 
     return f'Successfully deleted {recipe}'
