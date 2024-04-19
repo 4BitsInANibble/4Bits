@@ -413,6 +413,12 @@ class RecipeLinks(Resource):
                 "buttonLabel": "Random",
                 "order": 2
             },
+            {
+                "name": "TEST",
+                "href": f'{USERS_EP}',
+                "buttonLabel": "TEST",
+                "order": 3
+            }
         ]
         status_code = OK
         return resp, status_code
