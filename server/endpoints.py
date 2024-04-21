@@ -186,7 +186,7 @@ class Users(Resource):
             resp = str(e)
             status = CONFLICT
         return resp, status
-    
+
 
 @users_ns.route('/<username>')
 class UserById(Resource):
@@ -537,5 +537,4 @@ class RandomRecipeById(Resource):
             status_code = UNAUTHORIZED
 
         return resp, status_code
-
 
