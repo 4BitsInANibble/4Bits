@@ -539,7 +539,7 @@ class RandomRecipeById(Resource):
 
 
 @dev.route('')
-class Users(Resource):
+class FetchUsers(Resource):
     """
     This class supports fetching a list of all users.
     """
