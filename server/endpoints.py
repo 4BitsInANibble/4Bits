@@ -146,46 +146,6 @@ class Endpoints(Resource):
         return {AVAIL_ENDPOINTS: endpoints}
 
 
-@users_ns.route('')
-class Users(Resource):
-    """
-    This class supports fetching a list of all users.
-    """
-    @api.response(200, "Success")
-    def get(self) -> dict:
-        """
-        This method returns all users.
-        """
-        resp = users.get_users()
-        resp = users.convertObjectIds(resp)
-        print(f'{resp=}')
-
-        return resp
-
-    @api.response(200, "Success")
-    @api.response(409, "Conflict")
-    @api.expect(registered_user_fields)
-    def post(self):
-        resp = None
-        try:
-            data = request.json
-            username = data['username']
-            name = data['name']
-            password = data['password']
-
-            token, refresh_token = users.register_user(
-                username, name, password)
-
-            resp = {
-                "access_token": token,
-                "refresh_token": refresh_token,
-            }
-            status = OK
-        except ValueError as e:
-            resp = str(e)
-            status = CONFLICT
-        return resp, status
-
 
 @users_ns.route('/<username>')
 class UserById(Resource):
@@ -536,3 +496,45 @@ class RandomRecipeById(Resource):
             status_code = UNAUTHORIZED
 
         return resp, status_code
+
+
+'''Dev endpoint'''
+@dev.route('')
+class Users(Resource):
+    """
+    This class supports fetching a list of all users.
+    """
+    @api.response(200, "Success")
+    def get(self) -> dict:
+        """
+        This method returns all users.
+        """
+        resp = users.get_users()
+        resp = users.convertObjectIds(resp)
+        print(f'{resp=}')
+
+        return resp
+
+    @api.response(200, "Success")
+    @api.response(409, "Conflict")
+    @api.expect(registered_user_fields)
+    def post(self):
+        resp = None
+        try:
+            data = request.json
+            username = data['username']
+            name = data['name']
+            password = data['password']
+
+            token, refresh_token = users.register_user(
+                username, name, password)
+
+            resp = {
+                "access_token": token,
+                "refresh_token": refresh_token,
+            }
+            status = OK
+        except ValueError as e:
+            resp = str(e)
+            status = CONFLICT
+        return resp, status
