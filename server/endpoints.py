@@ -58,6 +58,7 @@ RANDOM_EP = '/random'
 USERS_NS = 'users'
 RECIPES_NS = 'recipe'
 PANTRY_NS = 'pantry'
+DEV_NS = 'developers'
 RECIPE_LINKS_EP = '/links'
 
 users_ns = Namespace(USERS_NS, 'Users')
@@ -68,6 +69,9 @@ api.add_namespace(recipes)
 
 pantry = Namespace(PANTRY_NS, 'Pantry')
 api.add_namespace(pantry)
+
+dev = Namespace(DEV_NS, 'Dev')
+api.add_namespace(dev)
 
 
 user_fields = api.model('User', {
@@ -142,7 +146,7 @@ class Endpoints(Resource):
         return {AVAIL_ENDPOINTS: endpoints}
 
 
-@users_ns.route('')
+@dev.route('')
 class Users(Resource):
     """
     This class supports fetching a list of all users.
