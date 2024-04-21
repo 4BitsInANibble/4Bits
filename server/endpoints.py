@@ -536,4 +536,4 @@ class RandomRecipeById(Resource):
             resp = str(e)
             status_code = UNAUTHORIZED
 
-        return resp, status_codes
+        return resp, status_code
