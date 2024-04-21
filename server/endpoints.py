@@ -538,7 +538,7 @@ class RandomRecipeById(Resource):
         return resp, status_code
 
 
-@dev.route('')
+@dev.route('/FetchAllUsers')
 class FetchUsers(Resource):
     """
     This class supports fetching a list of all users.
