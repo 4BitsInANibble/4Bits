@@ -146,7 +146,6 @@ class Endpoints(Resource):
         return {AVAIL_ENDPOINTS: endpoints}
 
 
-
 @users_ns.route('/<username>')
 class UserById(Resource):
     @api.response(200, "Success")
@@ -498,7 +497,6 @@ class RandomRecipeById(Resource):
         return resp, status_code
 
 
-'''Dev endpoint'''
 @dev.route('')
 class Users(Resource):
     """
