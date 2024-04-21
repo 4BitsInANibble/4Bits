@@ -497,7 +497,7 @@ class RandomRecipeById(Resource):
         return resp, status_code
 
 
-@dev.route('')
+@users_ns.route('')
 class Users(Resource):
     """
     This class supports fetching a list of all users.
