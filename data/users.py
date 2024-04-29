@@ -991,7 +991,42 @@ def recognize_receipt(username: str, image_path=None, image=None):
     ocr_text = pytesseract.image_to_string(image)
     # Print or save the extracted text
     print(ocr_text)
-    prompt = f"Extract pantry items from the following text: {ocr_text}"
+    # prompt = f"Extract pantry items from the following text: {ocr_text}"
+    prompt = '''I will give you a list of ingredient descriptions. 
+    Isolate the name of the ingredient, quantity, units, and description and return it as a JSON object.  
+    The description field is an exact copy of the input message.  
+    The quantity can only be numbers (i.e. 2, 10, 1.5, 0.75) 
+    The units describe what the numbers mean (i.e. oz., cups).  
+    If the description gives quantity as a fraction or mixed number, convert it to a decimal number.  
+    If there are two descriptors and one says something similar to x amount of packages/containers while the other describes the actual quantity, I want you to return the other times the amount of containers as the quantity and units with the actual descriptors and ignore the part that says one package.  
+    
+    Please answer correctly or I will be very sad.  
+
+    Here is an example of how the input should be evaluted and how the output should be structured:
+        Input: 
+            2 (10 1/2 oz.) cans chicken gravy
+            1 (6 oz.) box Stove Top stuffing
+        Output:
+        {
+            "ingredients": [
+                {
+                    "ingredient": "chicken gravy",
+                    "quantity": 21,
+                    "units": "oz.",
+                    "description": "2 (10 1/2 oz.) cans chicken gravy"
+                }, 
+                {
+                    "ingredient": "stuffing",
+                    "quantity": 6,
+                    "units": "oz.",
+                    "description": "1 (6 oz.) box Stove Top stuffing"
+                }
+            ]
+        }
+            
+
+    Please take my input and return an output JSON object with the ingredient name, quantity, units, and description.
+    Here is my input:''' + ocr_text
     response = openai.Completion.create(
         engine="gpt-3.5-turbo",
         prompt=prompt,
@@ -1001,9 +1036,9 @@ def recognize_receipt(username: str, image_path=None, image=None):
     generated_text = response.choices[0].text.strip()
     # Split the generated text into individual pantry items
     pantry_items = generated_text.split('\n')
-    return pantry_items
-    # # Remove any empty or whitespace-only items
-    # pantry_items = [item.strip() for item in pantry_items if item.strip()]
-    # for food in pantry_items:
-    #     add_to_pantry(username, food)
     # return pantry_items
+    # Remove any empty or whitespace-only items
+    pantry_items = [item.strip() for item in pantry_items if item.strip()]
+    for food in pantry_items:
+        add_to_pantry(username, food)
+    return pantry_items
