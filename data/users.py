@@ -966,7 +966,7 @@ def empty_list(username):
         {PANTRY: 1, GROCERY_LIST: 1, con.MONGO_ID: 0}
     )
 
-    pantry_dict = { ingr[ingr]:ingr for ingr in user_obj[PANTRY] }
+    pantry_dict = {ingr[ingr]: ingr for ingr in user_obj[PANTRY]}
 
     for ingr in user_obj[GROCERY_LIST]:
         if ingr["ingredient"] in pantry_dict:
@@ -978,8 +978,6 @@ def empty_list(username):
             pass
         else:
             add_to_pantry(username, ingr)
-    
-        
 
 
 def recognize_receipt(username: str, image_path=None, image=None):
