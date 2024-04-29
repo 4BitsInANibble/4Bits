@@ -393,6 +393,13 @@ class PantryById(Resource):
 
         return resp, status
 
+    @api.response(200, "Success")
+    @api.response(409, "Conflict")
+    @api.response(403, "Unauthorized")
+    def recognize_receipt(self, pic) -> dict:
+        resp = users.recognize_receipt(pic)
+        return resp
+
 
 @recipes.route(f'{RECIPE_LINKS_EP}/<username>')
 class RecipeLinks(Resource):
