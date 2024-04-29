@@ -993,15 +993,23 @@ def recognize_receipt(username: str, image_path=None, image=None):
     print(ocr_text)
     # prompt = f"Extract pantry items from the following text: {ocr_text}"
     prompt = '''I will give you a list of ingredient descriptions.
-    Isolate the name of the ingredient, quantity, units, and description and return it as a JSON object.
+    Isolate the name of the ingredient, quantity, units,
+    and description and return it as a JSON object.
     The description field is an exact copy of the input message.
     The quantity can only be numbers (i.e. 2, 10, 1.5, 0.75)
     The units describe what the numbers mean (i.e. oz., cups).
-    If the description gives quantity as a fraction or mixed number, convert it to a decimal number.
-    If there are two descriptors and one says something similar to x amount of packages/containers while the other describes the actual quantity,
-    I want you to return the other times the amount of containers as the quantity and units with the actual descriptors and ignore the part that says one package.
+    If the description gives quantity as a fraction or mixed number,
+    convert it to a decimal number.
+    If there are two descriptors,
+    and one says something similar to x amount of packages/containers,
+    while the other describes the actual quantity,
+    I want you to:
+    return the other times the amount of containers as the quantity,
+    and units with the actual descriptors,
+    and ignore the part that says one package.
     Please answer correctly or I will be very sad.
-    Here is an example of how the input should be evaluted and how the output should be structured:
+    Here is an example of how the input should be evaluted,
+    and how the output should be structured:
         Input:
             2 (10 1/2 oz.) cans chicken gravy
             1 (6 oz.) box Stove Top stuffing
@@ -1022,7 +1030,8 @@ def recognize_receipt(username: str, image_path=None, image=None):
                 }
             ]
         }
-    Please take my input and return an output JSON object with the ingredient name, quantity, units, and description.
+    Please take my input and return an output JSON object with:
+    the ingredient name, quantity, units, and description.
     Here is my input:''' + ocr_text
     response = openai.Completion.create(
         engine="gpt-3.5-turbo",
