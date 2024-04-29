@@ -953,6 +953,35 @@ def inc_streak(username):
     return 'Successfully incremented streak counter'
 
 
+def empty_list(username):
+    con.connect_db()
+    if not user_exists(username):
+        raise ValueError(f'User {username} does not exist')
+    if auth_expired(username):
+        raise AuthTokenExpired("User's authentication token is expired")
+
+    user_obj = con.fetch_one(
+        con.USERS_COLLECTION,
+        {USERNAME: username},
+        {PANTRY: 1, GROCERY_LIST: 1, con.MONGO_ID: 0}
+    )
+
+    pantry_dict = { ingr[ingr]:ingr for ingr in user_obj[PANTRY] }
+
+    for ingr in user_obj[GROCERY_LIST]:
+        if ingr["ingredient"] in pantry_dict:
+            # ???? IDK HOW TO ADD
+            # AHHHHHH
+            # will look like for ingredient mongoid, increase by x
+            # will have to convert new value into initial units to add
+            # modify_pantry_ingredient_amount(username, amt)
+            pass
+        else:
+            add_to_pantry(username, ingr)
+    
+        
+
+
 def recognize_receipt(username: str, image_path=None, image=None):
     openai.api_key = os.environ.get("OPENAI_KEY")
     if (image_path and not image):
