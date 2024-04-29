@@ -7,6 +7,8 @@ import os
 import json
 import ast
 
+SEED_CONSTANT = 1 #this can be any value, the constant allows the model to be more deterministic
+
 AI_PROMPT = \
     """
     I will give you a list of ingredient descriptions. 
@@ -90,7 +92,7 @@ def openai_query(messages, client):
     chat_completion = client.chat.completions.create(
         model = "gpt-3.5-turbo-0125",
         response_format = { "type": "json_object" },
-        seed = 1,
+        seed = SEED_CONSTANT,
         messages = [
             {
                 "role": "user",
