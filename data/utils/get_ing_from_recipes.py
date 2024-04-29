@@ -57,10 +57,11 @@ def parse_obj_response(gpt_response):
     if json_str is None:
         print("Couldn't find a json object in the string")
         return None
-    # json_str.replace('\n', '')
-    # with open("temp.json", "w") as outfile:
-    #     json.dump(json_str, outfile, ensure_ascii=False)
-    json_object = ast.literal_eval(json_str)
+    try:
+        json_object = ast.literal_eval(json_str)
+    except ValueError:
+        print("literal_eval error, continue...\n")
+        json_object = ast.literal_eval("{'ingredients': []}")
     # print(json_object, "\n")
     return json_object
 
@@ -82,13 +83,6 @@ def isolate_json_str(message):
 
 
 def openai_query(messages, client):
-    # new_messages = messages[:]
-    # new_messages.append(
-    #     {
-    #         "role": "user",
-    #         "content": new_query,
-    #     }
-    # )
     chat_completion = client.chat.completions.create(
         model = "gpt-3.5-turbo-0125",
         response_format = { "type": "json_object" },
@@ -102,13 +96,6 @@ def openai_query(messages, client):
     )
 
     response = chat_completion.choices[0].message.content
-
-    # new_messages.append(
-    #     {
-    #         "role": "assistant",
-    #         "content": response,
-    #     }
-    # )
     return response
 
 
@@ -132,23 +119,18 @@ def main():
             api_key=os.environ.get("OPENAI_API_KEY"),
         )
         
-
-        # initial_convo = openai_query(AI_PROMPT, [], client)
-
         ingredients = []
         all_ingredients = {}
+        all_query_responses = ""
         count = 0
         for recipe in json_object:
             ingredient_list = json.loads(json_object[recipe][2])
-            # print("loaded ingredient list:", ingredient_list)
 
             ingredient_list_str = ""
             for ingredient in ingredient_list:
-                # print("ingredient: ", ingredient)
-                # ingredients.append(ingredient)
                 ingredient_list_str = ingredient_list_str + ingredient + "\n"
             
-            print("ingredient list: \n", ingredient_list_str)
+            # print("ingredient list: \n", ingredient_list_str)
 
             if len(ingredient_list_str) >= 5:
                 message_string = AI_PROMPT + ingredient_list_str
@@ -156,32 +138,29 @@ def main():
                     message_string,
                     client
                 )
+
+                all_query_responses = all_query_responses + json_resp_obj + ", \n"
                 
-                print("query response: \n", json_resp_obj)
-                # json_resp_obj = json_resp_obj + ","
-                with open("query_response.json", "a") as outfile:
-                    # json.dump(json_resp_obj, outfile, ensure_ascii=True)
-                    outfile.write(json_resp_obj)
+                # print("query response: \n", json_resp_obj)
+                # with open("query_response.json", "a") as outfile:
+                #     outfile.write(json_resp_obj)
                 
                 new_ingredient_dict = parse_obj_response(json_resp_obj)
-                print("ingredient dictionary: \n", new_ingredient_dict)
+                # print("ingredient dictionary: \n", new_ingredient_dict)
 
                 for fooditem in new_ingredient_dict['ingredients']:
-                    print("fooditem: ", fooditem)
+                    # print("fooditem: ", fooditem)
                     valid = isValidIngredient(fooditem)
                     if valid and fooditem['ingredient'] not in all_ingredients:
                         all_ingredients[fooditem['ingredient']] = len(all_ingredients)
-
-                # print("after for loop")
                 
                 ingredients = []
                 count += 1
-                # print(recipes.keys())
-                # print(f'{(all_ingredients)}')
-                # print(f'{len(all_ingredients)}')
-                # return
                 if count % 20 == 0:
                     with open("ingredients.json", "w") as outfile:
                         json.dump(all_ingredients, outfile, ensure_ascii=False)
+        all_query_responses = "[" + all_query_responses + "]"
+        with open("query_response.json", "a") as outfile:
+            outfile.write(all_query_responses)
 
 main()
