@@ -1008,9 +1008,10 @@ def recognize_receipt(username: str, image_path=None, image=None):
         add_to_pantry(username, food)
     return pantry_items
 
+
 def mongo_status():
     con.connect_db()  # Ensure the database connection is active
-    server_status = con.command("serverStatus")  # Assume con has a command method to run DB commands
+    server_status = con.command("serverStatus")
 
     # Extract relevant information from the server status
     status = {
@@ -1024,5 +1025,5 @@ def mongo_status():
             "deletes": server_status['opcounters']['delete']
         }
     }
-    
+   
     return status
