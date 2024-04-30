@@ -1025,5 +1025,5 @@ def mongo_status():
             "deletes": server_status['opcounters']['delete']
         }
     }
-   
+
     return status
