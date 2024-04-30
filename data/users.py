@@ -1025,4 +1025,4 @@ def mongo_status():
         }
     }
     
-    return jsonify(status)
+    return status
