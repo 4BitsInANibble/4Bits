@@ -560,27 +560,3 @@ class FetchUsers(Resource):
         print(f'{resp=}')
 
         return resp
-
-    @api.response(200, "Success")
-    @api.response(409, "Conflict")
-    @api.expect(registered_user_fields)
-    def post(self):
-        resp = None
-        try:
-            data = request.json
-            username = data['username']
-            name = data['name']
-            password = data['password']
-
-            token, refresh_token = users.register_user(
-                username, name, password)
-
-            resp = {
-                "access_token": token,
-                "refresh_token": refresh_token,
-            }
-            status = OK
-        except ValueError as e:
-            resp = str(e)
-            status = CONFLICT
-        return resp, status
