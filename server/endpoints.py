@@ -560,3 +560,12 @@ class FetchUsers(Resource):
         print(f'{resp=}')
 
         return resp
+
+@dev.route('/MongoStatus')
+class MongoStatus(Resource):
+    @api.response(200, "Success")
+    def get(self):
+        resp = users.mongo_status()
+        print(f'{resp=}')
+
+        return resp
