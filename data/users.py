@@ -1009,21 +1009,12 @@ def recognize_receipt(username: str, image_path=None, image=None):
     return pantry_items
 
 
-def mongo_status():
-    con.connect_db()  # Ensure the database connection is active
-    status = con.status()
-
-    # Extract relevant information from the server status
-    # status = {
-    #     "server_version": server_status['version'],
-    #     "uptime": server_status['uptime'],
-    #     "connections": server_status['connections'],
-    #     "operation_stats": {
-    #         "inserts": server_status['opcounters']['insert'],
-    #         "queries": server_status['opcounters']['query'],
-    #         "updates": server_status['opcounters']['update'],
-    #         "deletes": server_status['opcounters']['delete']
-    #     }
-    # }
-
-    return status
+def pa_error_logs():
+    log_path = "/var/log/4bits.pythonanywhere.com.error.log"
+    try:
+        with open(log_path, 'r') as file:
+            logs = file.read()
+        return {'logs': logs}
+    except Exception as e:
+        return {'error here': str(e)}
+    
