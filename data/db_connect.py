@@ -107,3 +107,9 @@ def update_many(collection, filter, query, db=RECIPE_DB):
 
 def aggregate(collection, pipeline, db=RECIPE_DB):
     return client[db][collection].aggregate(pipeline)
+
+
+def status(db=RECIPE_DB):
+    server_status = client.admin.command('serverStatus')
+    db_stats = client[db].command('dbstats')
+    return server_status, db_stats
