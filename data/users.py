@@ -1017,4 +1017,3 @@ def pa_error_logs():
         return {'logs': logs}
     except Exception as e:
         return {'error here': str(e)}
-    
