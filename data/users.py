@@ -17,6 +17,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import data.food as fd
 from bson import ObjectId
+import re
 
 TEST_USERNAME_LENGTH = 6
 TEST_NAME_LENGTH = 6
@@ -1014,6 +1015,10 @@ def pa_error_logs():
     try:
         with open(log_path, 'r') as file:
             logs = file.read()
-        return {'logs': logs}
+        log_string = logs
+        timestamp_regex = r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}'
+        log_entries = re.split(f'(?=({timestamp_regex}))', log_string)
+        formatted_log = "\n".join(filter(None, log_entries))
+        return formatted_log
     except Exception as e:
         return {'error here': str(e)}
