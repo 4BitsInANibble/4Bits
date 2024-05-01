@@ -3,7 +3,7 @@ This is the file containing all of the endpoints for our flask app.
 The endpoint called `endpoints` will return all available endpoints.
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_restx import Resource, Api, fields, Namespace
 import data.users as users
 import data.food as food
@@ -563,9 +563,9 @@ class FetchUsers(Resource):
 
 
 @dev.route('/PA_ERROR_LOG', methods=['GET'])
-class MongoLog(Resource):
+class PALog(Resource):
     @api.response(200, "Success")
     def get(self):
         resp = users.pa_error_logs()
         print(f'{resp=}')
-        return jsonify(resp)
+        return resp
