@@ -1016,9 +1016,14 @@ def pa_error_logs():
         with open(log_path, 'r') as file:
             logs = file.read()
         log_string = logs
-        timestamp_regex = r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}'
-        log_entries = re.split(f'(?=({timestamp_regex}))', log_string)
-        formatted_log = "\n".join(filter(None, log_entries))
-        return formatted_log
+        # Regular expression to find each log entry
+        timestamp_regex = r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})'
+        entries = re.split(timestamp_regex, log_string)
+        log_dict = {}
+        for i in range(1, len(entries), 2):
+            timestamp = entries[i].strip()  # Remove any extra whitespace
+            message = entries[i + 1].strip()
+            log_dict[timestamp] = message
+        return log_dict
     except Exception as e:
         return {'error here': str(e)}
