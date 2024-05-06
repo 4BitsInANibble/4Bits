@@ -314,39 +314,6 @@ class LogoutUser(Resource):
         return resp, status
 
 
-@users_ns.route(f'{REGISTER_EP}{GOOGLE_EP}')
-class RegisterUserGoogle(Resource):
-    @api.expect(user_fields)
-    @api.response(200, "Success")
-    @api.response(403, "Unauthorized")
-    @api.response(400, "Bad Request")
-    def post(self):
-        """
-        This method creates a new user with an id_token
-        in request body
-        """
-        # data = request.json
-        # print(f'{data=}')
-        resp = None
-        try:
-            token = request.headers.get('Authorization')
-            print(f'{token=}')
-            users.generate_google_user(token)
-
-            status = NO_CONTENT
-        except ValueError as e:
-            resp = str(e)
-            status = CONFLICT
-        except users.AuthTokenExpired as e:
-            resp = str(e)
-            status = UNAUTHORIZED
-        except KeyError as e:
-            resp = str(e)
-            status = BAD_REQUEST
-
-        return resp, status
-
-
 @pantry.route('/<username>')
 class PantryById(Resource):
     @api.response(200, "Success")

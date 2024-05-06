@@ -102,6 +102,38 @@ def test_get_pantry_invalid(mock_token, mock_pantry):
 
 
 @patch('data.users.validate_access_token', return_value=None, autospec=True)
+@patch('data.users.add_to_pantry', return_value=[food.get_food("Chicken", 1.0, "pound", False)],
+       autospec=True)
+def test_add_to_pantry_valid(mock_token, mock_pantry):
+    username = "TEST_USERNAME"
+    data = {
+        'food': [{
+            food.INGREDIENT: "test chicken thigh",
+            food.QUANTITY: 1.0,
+            food.UNITS: "lbs.",
+        }]
+    }
+    resp = TEST_CLIENT.patch(f'{ep.PANTRY_EP}/{username}', json=data)
+    assert resp.status_code == OK
+
+
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
+@patch('data.users.add_to_pantry', side_effect=ValueError(), autospec=True)
+def test_add_to_pantry_invalid(mock_token, mock_pantry):
+    username = "TEST_USERNAME"
+    data = {
+        'food': [{
+            food.INGREDIENT: "test chicken thigh",
+            food.QUANTITY: 1.0,
+            food.UNITS: "lbs.",
+        }]
+    }
+    resp = TEST_CLIENT.patch(f'{ep.PANTRY_EP}/{username}', json=data)
+    print(f'{ep.USERS_EP}/{username}{ep.PANTRY_EP}')
+    assert resp.status_code == CONFLICT
+
+
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.get_saved_recipes', 
        return_value=recipe_return(),
        autospec=True)
@@ -165,54 +197,6 @@ def test_remove_nonexist_user(mock_token, mock_remove):
     username = usrs._get_test_username()
     resp = TEST_CLIENT.delete(f'{ep.USERS_EP}/{username}')
     assert resp.status_code == NO_CONTENT
-
-
-@patch('data.users.generate_google_user', return_value=None, autospec=True)
-def test_add_google_user(mock_add):
-    headers = {
-        "Authorization": "TESTING",
-    }
-
-    resp = TEST_CLIENT.post(f'{ep.USERS_EP}{ep.REGISTER_EP}{ep.GOOGLE_EP}', headers=headers)
-    print(f'{resp=}')
-    assert resp.status_code == NO_CONTENT
-
-
-@patch('data.users.generate_google_user', side_effect=ValueError(), autospec=True)
-def test_add_google_user_dup(mock_add):
-    headers = {
-        "Authorization": "TESTING"
-    }
-
-    resp = TEST_CLIENT.post(f'{ep.USERS_EP}{ep.REGISTER_EP}{ep.GOOGLE_EP}', headers=headers)
-    print(f'{resp=}')
-    assert resp.status_code == CONFLICT
-
-
-@patch('data.users.register_user', return_value=("test", "test"), autospec=True)
-def test_add_google_user(mock_add):
-    data = {
-        "username": "TEST_USERNAME",
-        "name": "TEST_NAME",
-        "password": "TEST_PASSWORD",
-    }
-
-    resp = TEST_CLIENT.post(f'{ep.USERS_EP}', json=data)
-    print(f'{resp=}')
-    assert resp.status_code == OK
-
-
-@patch('data.users.register_user', side_effect=ValueError(), autospec=True)
-def test_add_google_user_dup(mock_add):
-    data = {
-        "username": "TEST_USERNAME",
-        "name": "TEST_NAME",
-        "password": "TEST_PASSWORD",
-    }
-
-    resp = TEST_CLIENT.post(f'{ep.USERS_EP}', json=data)
-    print(f'{resp=}')
-    assert resp.status_code == CONFLICT
 
 
 @patch('data.users.refresh_user_token', return_value=("test", "test"), autospec=True)
