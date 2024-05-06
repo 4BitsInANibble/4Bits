@@ -286,21 +286,6 @@ def auth_expired(username: str) -> bool:
     return exp[AUTH_EXPIRES] <= datetime.datetime.utcnow().timestamp()
 
 
-def valid_authentication(google_id_token):
-    # Add check for CLIENT ID for app that accesses authentication
-    # Maybe save valid CLIENT ID to check against in os.environ()
-    idinfo = id_token.verify_oauth2_token(google_id_token, requests.Request())
-
-    # aud = idinfo['aud']
-    # if os.environ.get("GOOGLE_CLIENT_ID") != aud:
-    #     raise ValueError("Invalid Token")
-
-    exp = idinfo['exp']
-    if exp < datetime.datetime.utcnow().timestamp():
-        raise AuthTokenExpired("Expired token")
-    return idinfo
-
-
 def generate_refresh_token(username):
     # Set the expiration time, e.g., 30 days from now
     expiration_time = datetime.datetime.utcnow() + datetime.timedelta(days=30)
@@ -347,43 +332,6 @@ def refresh_user_token(refresh_token):
     except jwt.InvalidTokenError as e:
         print(str(e))
         raise ValueError("Invalid Refresh Token")
-
-
-def auth_user(token):
-    auth_user_google(token)
-
-
-def auth_user_google(google_id_token):
-    con.connect_db()
-    try:
-        id_info = valid_authentication(google_id_token)
-        username = id_info['email']
-        if not user_exists(username):
-            raise ValueError("User associated with token does not exist")
-
-        exp = int(id_info['exp'])
-
-        con.update_one(
-            con.USERS_COLLECTION,
-            {USERNAME: username},
-            {"$set": {AUTH_EXPIRES: exp}}
-        )
-
-    except ValueError as ex:
-        # Invalid token
-        raise ex
-    except AuthTokenExpired as ex:
-        raise ex
-
-
-def generate_google_user(google_id_token):
-    id_info = valid_authentication(google_id_token)
-
-    username = id_info['email']
-    name = id_info['name']
-    exp = int(id_info['exp'])
-    print(username, name, exp)
-    create_user(username, name, exp)
 
 
 def generate_jwt(username, exp):

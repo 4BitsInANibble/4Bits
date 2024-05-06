@@ -264,47 +264,6 @@ def test_get_recipes(temp_user):
         assert "name" in recipe
 
 
-
-# RECIPE METHODS
-# def test_rec_recipes(temp_user):
-#     username = temp_user
-#     ingr_list = [{
-#         food.INGREDIENT: "egg",
-#         food.QUANTITY: 3.0,
-#         food.UNITS: "EACH",
-#         },
-#         {
-#         food.INGREDIENT: "milk",
-#         food.QUANTITY: 1.0,
-#         food.UNITS: "EACH",
-#         },
-#         {
-#         food.INGREDIENT: "bread",
-#         food.QUANTITY: 0.5,
-#         food.UNITS: "EACH",
-#         }
-#     ]
-#     recipe = {
-#         "name": "test",
-#         "ingredients": [
-#             {
-#                 food.INGREDIENT: "egg",
-#                 food.QUANTITY: 3.0,
-#                 food.UNITS: "EACH",
-#             },
-#             {
-#                 food.INGREDIENT: "broccoli",
-#                 food.QUANTITY: 3.0,
-#                 food.UNITS: "EACH",
-#             },
-#         ]
-#     }
-#     usrs.add_to_recipes(username, recipe)
-#     usrs.add_to_pantry(username, ingr_list)
-#     usrs.recommend_recipes(username)
-#     assert False
-
-
 def test_add_to_saved_recipes(temp_user):
     username = temp_user
     recipe = {
@@ -411,3 +370,5 @@ def test_recommend_recipes(temp_user):
     for entry in res:
         assert entry['name'] == recipes[i]['name']
         i += 1
+
+
