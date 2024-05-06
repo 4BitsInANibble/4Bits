@@ -379,7 +379,7 @@ def add_to_pantry(username: str, food):
     new_pantry_entries = [create_ingredient(fd.get_food(
         ingredient[fd.INGREDIENT],
         ingredient[fd.QUANTITY],
-        ingredient[fd.UNITS]
+        ingredient[fd.UNITS],
         )) for ingredient in food]
 
     con.update_one(
@@ -428,7 +428,12 @@ def check_low_stock_pantry(username):
     return low_stock_items
 
 
-def modify_pantry_ingredient_amount(username, ingredient_name, new_amount):
+def modify_pantry_ingredient_amount(
+        username,
+        ingredient_id,
+        new_amount,
+        add=False
+        ):
     # Assume a function connect_db() that connects to the database
     con.connect_db()
     if not user_exists(username):
@@ -454,9 +459,10 @@ def modify_pantry_ingredient_amount(username, ingredient_name, new_amount):
             print(f'{ingredient=}')
             # # Update the amount for the ingredient
             # ingredient['quantity'] = new_amount
-
+            print(food)
+            print(ingredient_id)
             # Save the updated pantry
-            if food['name'] == ingredient_name:
+            if food[con.MONGO_ID] == str(ingredient_id):
                 con.update_one(
                     con.USERS_COLLECTION,
                     {
@@ -464,13 +470,18 @@ def modify_pantry_ingredient_amount(username, ingredient_name, new_amount):
                         # f'{PANTRY}.{fd.INGREDIENT}': food_id,
                         f'{PANTRY}.{con.MONGO_ID}': ingredient[con.MONGO_ID]
                     },
-                    {"$set": {f"{PANTRY}.$.{fd.QUANTITY}": new_amount}}
+                    {
+                        "$set":
+                        {
+                            f"{PANTRY}.$.{fd.QUANTITY}":
+                            new_amount + (int(add) * ingredient['quantity'])
+                        }
+                    }
                 )
-                return f'Updated {ingredient_name} \
-                    to {new_amount} in {username}\'s pantry'
+                return
         except ValueError:
             pass
-    raise ValueError(f'Ingredient {ingredient_name} not found in pantry')
+    raise ValueError('Ingredient not found in pantry')
 
 
 # RECIPE METHODS
@@ -732,16 +743,16 @@ def recommend_recipes(username):
         raise AuthTokenExpired("User's authentication token is expired")
 
     pantry = get_pantry(username)
-    pantry_ids = [ingr["ingredient"] for ingr in pantry]
+    pantry_ids = [ingr[fd.INGREDIENT] for ingr in pantry]
     print(f'{pantry_ids=}')
 
     pipeline = [
         {"$unwind": "$ingredients"},
         {"$project": {
             "_id": 1,
-            "ingredient": "$ingredients.ingredient"
+            fd.INGREDIENT: "$ingredients.ingredient"
         }},
-        {"$match": {"ingredient": {"$in": pantry_ids}}},
+        {"$match": {fd.INGREDIENT: {"$in": pantry_ids}}},
         {"$group": {
             "_id": '$_id',
             "count": {"$sum": 1}
@@ -895,7 +906,7 @@ def inc_streak(username):
     return 'Successfully incremented streak counter'
 
 
-def empty_list(username):
+def empty_grocery_list(username):
     con.connect_db()
     if not user_exists(username):
         raise ValueError(f'User {username} does not exist')
@@ -911,13 +922,17 @@ def empty_list(username):
     pantry_dict = {ingr[ingr]: ingr for ingr in user_obj[PANTRY]}
 
     for ingr in user_obj[GROCERY_LIST]:
-        if ingr["ingredient"] in pantry_dict:
+        if ingr[fd.INGREDIENT] in pantry_dict:
             # ???? IDK HOW TO ADD
             # AHHHHHH
             # will look like for ingredient mongoid, increase by x
             # will have to convert new value into initial units to add
-            # modify_pantry_ingredient_amount(username, amt)
-            pass
+            modify_pantry_ingredient_amount(
+                username,
+                ingr[fd.INGREDIENT],
+                ingr[fd.QUANTITY],
+                True
+            )
         else:
             add_to_pantry(username, ingr)
 

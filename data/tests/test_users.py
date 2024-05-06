@@ -259,16 +259,26 @@ def test_check_low_stock_pantry(temp_user):
 
 def test_mod_pantry_ingredient_amount(temp_user):
     username = temp_user
-    ingredient_name = "carrot"
+    ingredient_name = "test_carrot"
     old_amt = 1.0
     new_amount = 3.0
-    ingr_list = [{
-        food.INGREDIENT: ingredient_name,
-        food.QUANTITY: old_amt,
-        food.UNITS: "EACH",
-        }]
-    usrs.add_to_pantry(username, ingr_list)
-    usrs.modify_pantry_ingredient_amount(username, ingredient_name, new_amount)
+    units = 'c'
+    ingr_list = [
+        food.get_food(
+            ingredient_name,
+            old_amt,
+            units,
+            False
+        )
+    ]
+    print(f'{ingr_list=}')
+    ingr_list = usrs.add_to_pantry(username, ingr_list)
+    print("HERE")
+    usrs.modify_pantry_ingredient_amount(
+        username, 
+        ingr_list[0][food.INGREDIENT], 
+        new_amount
+    )
     pantry_contents = usrs.get_pantry(username)
     print(f"{pantry_contents=}")
     for ingr in pantry_contents:
@@ -277,8 +287,43 @@ def test_mod_pantry_ingredient_amount(temp_user):
             con.FOOD_COLLECTION,
             {con.MONGO_ID: ingr[food.INGREDIENT]}
         )
-        assert item['name'] == "carrot"
-        assert ingr[food.QUANTITY] == 3.0
+        assert item['name'] == ingredient_name
+        assert ingr[food.QUANTITY] == new_amount
+
+
+def test_add_pantry_ingredient_amount(temp_user):
+    username = temp_user
+    ingredient_name = "test_carrot"
+    old_amt = 1.0
+    new_amt = 3.0
+    units = 'c'
+    ingr_list = [
+        food.get_food(
+            ingredient_name,
+            old_amt,
+            units,
+            False
+        )
+    ]
+    print(f'{ingr_list=}')
+    ingr_list = usrs.add_to_pantry(username, ingr_list)
+    print("HERE")
+    usrs.modify_pantry_ingredient_amount(
+        username, 
+        ingr_list[0][food.INGREDIENT], 
+        new_amt,
+        True
+    )
+    pantry_contents = usrs.get_pantry(username)
+    print(f"{pantry_contents=}")
+    for ingr in pantry_contents:
+        # print("INGREDIENT:", item['ingredient'])
+        item = con.fetch_one(
+            con.FOOD_COLLECTION,
+            {con.MONGO_ID: ingr[food.INGREDIENT]}
+        )
+        assert item['name'] == ingredient_name
+        assert ingr[food.QUANTITY] == old_amt + new_amt
 
 
 # RECIPE METHODS
@@ -323,7 +368,7 @@ def test_add_to_saved_recipes(temp_user):
     assert retrieved_recipes[0]["name"] == "stir fry"
 
 
-def test_delete_recipes(temp_user):
+def test_remove_saved_recipes(temp_user):
     username = temp_user
     recipe = {
         "name": "stir fry",
