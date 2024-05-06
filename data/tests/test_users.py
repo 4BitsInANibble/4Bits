@@ -72,6 +72,24 @@ def test_get_users(temp_user):
     print(f'{temp_user=}')
     assert usrs.user_exists(temp_user)
 
+def test_get_user(temp_user):
+    #test for get_user
+    exp = usrs.generate_exp()
+    username = temp_user
+    if usrs.user_exists(username): #remove user if created
+        usrs.remove_user(username)
+    usrs.create_user(temp_user, username, exp) #create user to make sure it can be gotten
+    user_found = usrs.get_user(username) #get user, and compare found user with created user
+    assert (user_found["Username"] == username)
+
+def test_get_user_not_there(temp_user):
+    #test for get_user: if username is not present, should error
+    exp = usrs.generate_exp()
+    username = temp_user
+    if usrs.user_exists(username): #remove user if it exists
+        usrs.remove_user(username)
+    with pytest.raises(ValueError):
+        user_found = usrs.get_user(username) #get user
 
 def test_add_user_dup_name(temp_user):
     """
