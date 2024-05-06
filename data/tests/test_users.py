@@ -466,3 +466,29 @@ def test_validate_access_token():
     assert usrs.AUTH_EXPIRES in user_dict
     assert user_dict[usrs.USERNAME] == test_username
     assert user_dict[usrs.AUTH_EXPIRES] == test_exp
+
+
+def test_empty_grocery_list(temp_user):
+    username = temp_user
+    ingr_list = [{
+        food.INGREDIENT: "egg",
+        food.QUANTITY: 2.0,
+        food.UNITS: "EACH",
+        }]
+    usrs.add_to_grocery_list(username, ingr_list)
+    usrs.empty_grocery_list(username)
+    pantry_contents = usrs.get_pantry(username)
+    assert len(pantry_contents) == 1
+        
+    print("INGREDIENT FROM PANTRY: ")
+    print(pantry_contents[0])
+    food_obj = con.fetch_one(
+        con.FOOD_COLLECTION,
+        {con.MONGO_ID: pantry_contents[0][food.INGREDIENT]}
+    )
+    assert food_obj['name'] == 'egg'
+    print("INGREDIENT ")
+    print(pantry_contents[0])
+    assert food.INGREDIENT in pantry_contents[0] and isinstance(pantry_contents[0][food.INGREDIENT],ObjectId)
+    assert food.QUANTITY in pantry_contents[0] and isinstance(pantry_contents[0][food.QUANTITY],float)
+    assert food.UNITS in pantry_contents[0] and isinstance(pantry_contents[0][food.UNITS],str)

@@ -368,6 +368,11 @@ def get_pantry(username):
     return pantry[PANTRY]
 
 
+def x(s):
+    print(s)
+    return isinstance(s, str)
+
+
 def add_to_pantry(username: str, food):
     con.connect_db()
     if not user_exists(username):
@@ -380,7 +385,8 @@ def add_to_pantry(username: str, food):
         ingredient[fd.INGREDIENT],
         ingredient[fd.QUANTITY],
         ingredient[fd.UNITS],
-        )) for ingredient in food]
+        )) if x(ingredient[fd.INGREDIENT])
+            else ingredient for ingredient in food]
 
     con.update_one(
         con.USERS_COLLECTION,
@@ -934,7 +940,9 @@ def empty_grocery_list(username):
                 True
             )
         else:
-            add_to_pantry(username, ingr)
+            print("MODIFY INGR")
+            print(ingr)
+            add_to_pantry(username, [ingr])
 
 
 def recognize_receipt(username: str, image_path=None, image=None):
