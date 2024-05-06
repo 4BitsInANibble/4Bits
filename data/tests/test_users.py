@@ -211,8 +211,6 @@ def test_add_to_pantry(temp_user):
     assert food.QUANTITY in pantry_contents[0] and isinstance(pantry_contents[0][food.QUANTITY],float) and pantry_contents[0][food.QUANTITY] == 2.0
     assert food.UNITS in pantry_contents[0] and isinstance(pantry_contents[0][food.UNITS],str) and pantry_contents[0][food.UNITS] == "EACH"
 
-
-# BAD TEST PLEASE FIX OR REMOVE
 def test_check_low_stock_pantry(temp_user):
     username = temp_user
     ingr_list = [{
@@ -232,9 +230,32 @@ def test_check_low_stock_pantry(temp_user):
         }, ]
     usrs.add_to_pantry(username, ingr_list)
     low_quantity = usrs.check_low_stock_pantry(username)
-    # print("in test_users.py:")
-    # print(low_quantity)
-    
+    print("low quantity: ")
+    print(low_quantity)
+    for ingr in low_quantity:
+        assert (ingr['quantity'] <= 2) #2 is the low_stock_threshold defined in users.pydef test_check_low_stock_pantry(temp_user):
+    username = temp_user
+    ingr_list = [{
+        food.INGREDIENT: "egg",
+        food.QUANTITY: 3.0,
+        food.UNITS: "EACH",
+        },
+        {
+        food.INGREDIENT: "milk",
+        food.QUANTITY: 1.0,
+        food.UNITS: "EACH",
+        },
+        {
+        food.INGREDIENT: "bread",
+        food.QUANTITY: 0.5,
+        food.UNITS: "EACH",
+        }, ]
+    usrs.add_to_pantry(username, ingr_list)
+    low_quantity = usrs.check_low_stock_pantry(username)
+    print("low quantity: ")
+    print(low_quantity)
+    for ingr in low_quantity:
+        assert (ingr['quantity'] <= 2) #2 is the low_stock_threshold defined in users.py
 
 def test_mod_pantry_ingredient_amount(temp_user):
     username = temp_user
