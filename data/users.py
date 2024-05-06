@@ -825,6 +825,16 @@ def random_recipes():
     return res_list
 
 
+def decode_access_token(token):
+    payload = jwt.decode(
+        token,
+        key=os.environ.get("JWT_SECRET_KEY"),
+        algorithms='HS256',
+        verify=True
+    )
+    return payload
+
+
 def validate_access_token(username, token):
     con.connect_db()
     try:
@@ -836,12 +846,7 @@ def validate_access_token(username, token):
 
     print(token)
     print(token_list)
-    payload = jwt.decode(
-        token,
-        key=os.environ.get("JWT_SECRET_KEY"),
-        algorithms='HS256',
-        verify=True
-    )
+    payload = decode_access_token(token)
     exp = con.fetch_one(
         con.USERS_COLLECTION,
         {USERNAME: username},

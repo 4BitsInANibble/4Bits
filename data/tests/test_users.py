@@ -173,6 +173,7 @@ def test_get_pantry(temp_user):
         assert food.QUANTITY in ingr and isinstance(ingr[food.QUANTITY],float)
         assert food.UNITS in ingr and isinstance(ingr[food.UNITS],str)
 
+
 def test_add_to_pantry(temp_user):
     username = temp_user
     ingr_list = [{
@@ -372,3 +373,12 @@ def test_recommend_recipes(temp_user):
         i += 1
 
 
+def test_validate_access_token():
+    test_username = "TEST_USERNAME"
+    test_exp = 0
+    token = usrs.generate_jwt(test_username, test_exp)
+    user_dict = usrs.decode_access_token(token) #will raise by itself
+    assert usrs.USERNAME in user_dict
+    assert usrs.AUTH_EXPIRES in user_dict
+    assert user_dict[usrs.USERNAME] == test_username
+    assert user_dict[usrs.AUTH_EXPIRES] == test_exp
