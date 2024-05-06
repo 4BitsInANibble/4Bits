@@ -144,6 +144,30 @@ def test_get_recipes_valid(mock_token, mock_recipes):
 
 
 @patch('data.users.validate_access_token', return_value=None, autospec=True)
+@patch('data.users.add_to_saved_recipes', 
+       return_value=recipe_return(),
+       autospec=True)
+def test_add_to_saved_recipes_valid(mock_token, mock_recipes):
+    username = "TEST_USERNAME"
+    data = {
+        'recipe': "stir fry"
+    }
+    resp = TEST_CLIENT.patch(f'{ep.RECIPE_EP}{ep.FAVORITE_EP}/{username}', json=data)
+    assert resp.status_code==OK
+
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
+@patch('data.users.add_to_saved_recipes', side_effect=ValueError(), autospec=True)
+def test_add_to_saved_recipes_invalid(mock_token, mock_recipes): #unsure... gayatri
+    username = "TEST_USERNAME"
+    data = {
+        'recipe': "stir fry"
+    }
+    resp = TEST_CLIENT.patch(f'{ep.RECIPE_EP}{ep.FAVORITE_EP}/{username}', json=data)
+    print(f'{resp=}')
+    assert resp.status_code==CONFLICT
+
+
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.recommend_recipes', 
        return_value=recipe_return(),
        autospec=True)
