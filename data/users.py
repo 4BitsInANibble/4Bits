@@ -11,8 +11,6 @@ from PIL import Image
 import pytesseract
 import datetime
 import openai
-from google.oauth2 import id_token
-from google.auth.transport import requests
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import data.food as fd
@@ -523,16 +521,6 @@ def get_saved_recipes(username, returnObjectId=True):
 
     print(f'{recipe_objs=}')
     return recipe_objs
-
-
-def generate_recipe(username, query):
-    app_key = '274c6a9381c49bc303a30cebb49c84d4'
-    app_id = '29bf3511'
-    query_string = 'https://api.edamam.com/api/recipes\
-        /v2?type=public&q=' + query + '&app_id=' + app_id +\
-        '&app_key=' + app_key
-    x = requests.get(query_string)
-    return x  # return full recipe response body
 
 
 def add_to_saved_recipes(username, recipe):
