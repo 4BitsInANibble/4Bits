@@ -134,6 +134,24 @@ def test_add_to_pantry_invalid(mock_token, mock_pantry):
 
 
 @patch('data.users.validate_access_token', return_value=None, autospec=True)
+@patch('data.users.empty_grocery_list', return_value=None,
+       autospec=True)
+def test_empty_grocery_list_valid(mock_token, mock_pantry):
+    username = "TEST_USERNAME"
+    resp = TEST_CLIENT.patch(f'{ep.PANTRY_EP}/{username}{ep.EMPTY_LIST_EP}')
+    assert resp.status_code == NO_CONTENT
+
+
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
+@patch('data.users.empty_grocery_list', side_effect=ValueError(), autospec=True)
+def test_empty_grocery_list_invalid(mock_token, mock_pantry):
+    username = "TEST_USERNAME"
+    resp = TEST_CLIENT.patch(f'{ep.PANTRY_EP}/{username}{ep.EMPTY_LIST_EP}')
+    print(f'{ep.USERS_EP}/{username}{ep.PANTRY_EP}')
+    assert resp.status_code == CONFLICT
+
+
+@patch('data.users.validate_access_token', return_value=None, autospec=True)
 @patch('data.users.get_saved_recipes', 
        return_value=recipe_return(),
        autospec=True)

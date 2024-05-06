@@ -60,6 +60,8 @@ RECIPES_NS = 'recipe'
 PANTRY_NS = 'pantry'
 DEV_NS = 'developers'
 RECIPE_LINKS_EP = '/links'
+RECEIPT_NS = "receipt"
+EMPTY_LIST_EP = "/empty_grocery_list"
 
 users_ns = Namespace(USERS_NS, 'Users')
 api.add_namespace(users_ns)
@@ -69,6 +71,9 @@ api.add_namespace(recipes)
 
 pantry = Namespace(PANTRY_NS, 'Pantry')
 api.add_namespace(pantry)
+
+receipt = Namespace(RECEIPT_NS, 'Receipt')
+api.add_namespace(receipt)
 
 dev = Namespace(DEV_NS, 'developers')
 api.add_namespace(dev)
@@ -360,10 +365,38 @@ class PantryById(Resource):
 
         return resp, status
 
+
+@pantry.route(f'/<username>{EMPTY_LIST_EP}')
+class EmptyGroceryList(Resource):
     @api.response(200, "Success")
     @api.response(409, "Conflict")
     @api.response(403, "Unauthorized")
-    def recognize_receipt(self, pic) -> dict:
+    def patch(self, username: str) -> dict:
+        """
+        This method returns the pantry of user with name
+        """
+        access_token = request.headers.get('Authorization')
+        try:
+            users.validate_access_token(username, access_token)
+            users.empty_grocery_list(username)
+            resp = None
+            status = NO_CONTENT
+        except ValueError as e:
+            resp = str(e)
+            status = CONFLICT
+        except users.AuthTokenExpired as e:
+            resp = str(e)
+            status = UNAUTHORIZED
+
+        return resp, status
+
+
+@receipt.route('')
+class Receipt_Recognize(Resource):
+    @api.response(200, "Success")
+    @api.response(409, "Conflict")
+    @api.response(403, "Unauthorized")
+    def post(self, pic) -> dict:
         resp = users.recognize_receipt(pic)
         return resp
 
@@ -510,23 +543,6 @@ class RandomRecipeById(Resource):
             status_code = UNAUTHORIZED
 
         return resp, status_code
-
-
-@dev.route('/FetchAllUsers')
-class FetchUsers(Resource):
-    """
-    This class supports fetching a list of all users.
-    """
-    @api.response(200, "Success")
-    def get(self) -> dict:
-        """
-        This method returns all users.
-        """
-        resp = users.get_users()
-        resp = users.convertObjectIds(resp)
-        print(f'{resp=}')
-
-        return resp
 
 
 @dev.route('/PA_ERROR_LOG', methods=['GET'])
