@@ -16,9 +16,20 @@ from http.client import (
     BAD_REQUEST
 )
 
+
+authorizations = {
+    'apikey': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'authorization'
+    }
+}
+
 app = Flask(__name__)
 CORS(app)
-api = Api(app)
+api = Api(app,
+    authorizations=authorizations,
+    security='apikey')
 
 DEFAULT = 'Default'
 MENU = 'menu'
